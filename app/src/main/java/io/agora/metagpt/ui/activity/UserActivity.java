@@ -40,6 +40,7 @@ import io.agora.metagpt.models.UserInfo;
 import io.agora.metagpt.models.VoteInfo;
 import io.agora.metagpt.models.wiu.UserSpeakInfoModel;
 import io.agora.metagpt.models.wiu.GamerInfo;
+import io.agora.metagpt.stt.xf.SttCallback;
 import io.agora.metagpt.stt.xf.XFSttWsManager;
 import io.agora.metagpt.ui.main.MainActivity;
 import io.agora.metagpt.context.MetaContext;
@@ -51,7 +52,7 @@ import io.agora.rtc2.DataStreamConfig;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.reactivex.disposables.Disposable;
 
-public class UserActivity extends BaseGameActivity implements XFSttWsManager.SttCallback, View.OnClickListener {
+public class UserActivity extends BaseGameActivity implements SttCallback, View.OnClickListener {
 
     private final String TAG = Constants.TAG + "-" + UserActivity.class.getSimpleName();
     private UserActivityBinding binding;
@@ -493,6 +494,11 @@ public class UserActivity extends BaseGameActivity implements XFSttWsManager.Stt
                 }
             }
         });
+    }
+
+    @Override
+    public void onSttFail(int errorCode, String message) {
+
     }
 
     private synchronized void updateChatMessageList(String userName, int uid, String message, boolean isAiMessage) {

@@ -57,4 +57,6 @@ public class Constants {
 
     public static final int MAX_GAMER_NUM = 6;
 
+    public static final int XF_REQUEST_INTERVAL = 40;
+
 }

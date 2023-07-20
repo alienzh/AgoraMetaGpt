@@ -27,24 +27,24 @@ android {
         buildConfigField("boolean", "DEBUG_MENUS", "${properties.getProperty("DEBUG_MENUS", "false")}")
         buildConfigField("String", "AGORA_SERVICE_KEY", "\"${properties.getProperty("AGORA_SERVICE_KEY", "")}\"")
 
-
         buildConfigField("String", "XF_APP_ID", "\"${properties.getProperty("XF_APP_ID", "")}\"")
         buildConfigField("String", "XF_API_SECRET", "\"${properties.getProperty("XF_API_SECRET", "")}\"")
         buildConfigField("String", "XF_API_KEY", "\"${properties.getProperty("XF_API_KEY", "")}\"")
 
         buildConfigField("String", "XF_STT_APP_ID", "\"${properties.getProperty("XF_STT_APP_ID", "")}\"")
         buildConfigField("String", "XF_STT_API_KEY", "\"${properties.getProperty("XF_STT_API_KEY", "")}\"")
+        buildConfigField("String", "XF_STT_API_SECRET", "\"${properties.getProperty("XF_STT_API_SECRET", "")}\"")
 
         buildConfigField("String", "XF_GPT_APP_ID", "\"${properties.getProperty("XF_GPT_APP_ID", "")}\"")
         buildConfigField("String", "XF_GPT_API_SECRET", "\"${properties.getProperty("XF_GPT_API_SECRET", "")}\"")
         buildConfigField("String", "XF_GPT_API_KEY", "\"${properties.getProperty("XF_GPT_API_KEY", "")}\"")
 
-        buildConfigField("String", "GPT_SERVER_HOST", "\"https://service.agora.io/\"")
-
         buildConfigField("String", "XF_TTS_HOST", "\"https://tts-api.xfyun.cn/v2/tts\"")
         buildConfigField("String", "XF_STT_HOST", "\"wss://rtasr.xfyun.cn/v1/ws\"")
+        buildConfigField("String", "XF_STT_IST_HOST", "\"ws://ist-api.xfyun.cn/v2/ist\"")
         buildConfigField("String", "XF_GPT_HOST", "\"https://spark-api.xf-yun.com/v1.1/chat\"")
 
+        buildConfigField("String", "GPT_SERVER_HOST", "\"https://service.agora.io/\"")
 
         buildConfigField("String", "MINIMAX_SERVER_HOST", "\"https://api.minimax.chat/\"")
         buildConfigField("String", "MINIMAX_AUTHORIZATION", "\"${properties.getProperty("MINIMAX_AUTHORIZATION", "")}\"")
@@ -52,6 +52,7 @@ android {
 
         buildConfigField("String", "MS_SERVER_HOST", "\"https://eastasia.tts.speech.microsoft.com/\"")
         buildConfigField("String", "MS_SPEECH_KEY", "\"${properties.getProperty("MS_SPEECH_KEY", "")}\"")
+
 
         ndk {
             abiFilters 'arm64-v8a'

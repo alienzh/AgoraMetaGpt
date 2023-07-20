@@ -22,6 +22,7 @@ import io.agora.metagpt.models.DisplayUserInfo;
 import io.agora.metagpt.models.VoteInfo;
 import io.agora.metagpt.models.wiu.GamerInfo;
 import io.agora.metagpt.models.wiu.UserSpeakInfoModel;
+import io.agora.metagpt.stt.xf.SttCallback;
 import io.agora.metagpt.stt.xf.XFSttWsManager;
 import io.agora.metagpt.utils.Constants;
 import io.agora.metagpt.utils.KeyCenter;
@@ -98,22 +99,31 @@ public class GamerViewModel extends BaseGameViewModel {
             mSttResults.delete(0, mSttResults.length());
         }
         MetaContext.getInstance().setRecordingAudioFrameParameters(SAMPLE_RATE, SAMPLE_NUM_OF_CHANNEL, io.agora.rtc2.Constants.RAW_AUDIO_FRAME_OP_MODE_READ_ONLY, SAMPLES);
-        XFSttWsManager.getInstance().setCallback((text, isFinish) -> {
-            final boolean isNewLine = mSttResults.length() == 0;
-            runOnUiThread(() -> {
-                mSttResults.append(text);
-                updateSelfSpeakChatMessage(text, isNewLine);
-                if (isFinish) {
-                    if (mSpeak && !isOut()) {
-                        sendUserSpeakInfo();
+        XFSttWsManager.getInstance().setCallback(new SttCallback() {
+            @Override
+            public void onSttResult(String text, boolean isFinish) {
+                final boolean isNewLine = mSttResults.length() == 0;
+                runOnUiThread(() -> {
+                    mSttResults.append(text);
+                    updateSelfSpeakChatMessage(text, isNewLine);
+                    if (isFinish) {
+                        if (mSpeak && !isOut()) {
+                            sendUserSpeakInfo();
+                        }
+                        if (mVote && !isOut()) {
+                            int votedId = Utils.getNumberFromStr(mSttResults.toString());
+                            sendUserVoteInfo(votedId);
+                        }
                     }
-                    if (mVote && !isOut()) {
-                        int votedId = Utils.getNumberFromStr(mSttResults.toString());
-                        sendUserVoteInfo(votedId);
-                    }
-                }
-            });
+                });
+            }
+
+            @Override
+            public void onSttFail(int errorCode, String message) {
+
+            }
         });
+
         _viewStatus.postValue(new GamerViewStatus.Initial());
     }
 
