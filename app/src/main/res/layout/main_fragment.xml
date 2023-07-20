@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/bg2"
+    tools:context="io.agora.metagpt.ui.activity.UserActivity">
+
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="33dp"
+        android:layout_marginTop="53dp"
+        android:text="@string/app_name"
+        android:textColor="#ff8342e4"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/avatar"
+        android:layout_width="136dp"
+        android:layout_height="136dp"
+        android:layout_marginTop="54dp"
+        android:src="@mipmap/girl"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title" />
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@mipmap/medal"
+        app:layout_constraintBottom_toBottomOf="@+id/avatar"
+        app:layout_constraintEnd_toEndOf="@+id/avatar" />
+
+
+    <TextView
+        android:id="@+id/tv_game"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="30dp"
+        android:text="@string/game"
+        android:textColor="#C6C4DE"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/avatar" />
+
+    <EditText
+        android:id="@+id/game_et"
+        android:layout_width="0dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:background="@drawable/ic_edittext_background"
+        android:drawableStart="@mipmap/user_star_fill"
+        android:drawableEnd="@mipmap/arrow_down"
+        android:drawablePadding="14dp"
+        android:hint="@string/select_game"
+        android:inputType="none"
+        android:paddingHorizontal="30dp"
+        android:textColor="#ffa18bb0"
+        android:textColorHint="#ffa18bb0"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_game" />
+
+    <Spinner
+        android:id="@+id/game_spinner"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0"
+        android:dropDownWidth="275dp"
+        android:dropDownVerticalOffset="62dp"
+        android:popupBackground="@drawable/ic_spinner_dropdown_background"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="@+id/game_et"
+        app:layout_constraintEnd_toEndOf="@+id/game_et"
+        app:layout_constraintStart_toStartOf="@+id/game_et"
+        app:layout_constraintTop_toTopOf="@+id/game_et" />
+
+    <TextView
+        android:id="@+id/tv_role"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/role"
+        android:textColor="#C6C4DE"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/game_et" />
+
+    <EditText
+        android:id="@+id/game_role_et"
+        android:layout_width="0dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:background="@drawable/ic_edittext_background"
+        android:drawableStart="@mipmap/user_star_fill"
+        android:drawableEnd="@mipmap/arrow_down"
+        android:drawablePadding="14dp"
+        android:hint="@string/select_role"
+        android:inputType="none"
+        android:paddingHorizontal="30dp"
+        android:textColor="#ffa18bb0"
+        android:textColorHint="#ffa18bb0"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_role" />
+
+    <Spinner
+        android:id="@+id/game_role_spinner"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0"
+        android:dropDownWidth="275dp"
+        android:dropDownVerticalOffset="62dp"
+        android:popupBackground="@drawable/ic_spinner_dropdown_background"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="@+id/game_role_et"
+        app:layout_constraintEnd_toEndOf="@+id/game_role_et"
+        app:layout_constraintStart_toStartOf="@+id/game_role_et"
+        app:layout_constraintTop_toTopOf="@+id/game_role_et" />
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_room_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/room_name"
+        android:textColor="#C6C4DE"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/game_role_spinner" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/et_room_name"
+        android:layout_width="0dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="40dp"
+        android:background="@drawable/enter_nickname_bg"
+        android:hint="@string/enter_room_name"
+        android:maxLength="64"
+        android:maxLines="1"
+        android:paddingStart="18dp"
+        android:paddingEnd="36dp"
+        android:textColor="#1B0844"
+        android:textColorHint="#756C92"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_room_name" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_room_name_random"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="15dp"
+        android:src="@drawable/ic_random_name"
+        app:layout_constraintBottom_toBottomOf="@id/et_room_name"
+        app:layout_constraintEnd_toEndOf="@id/et_room_name"
+        app:layout_constraintTop_toTopOf="@id/et_room_name" />
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="15dp"
+        android:text="@string/userName"
+        android:textColor="#C6C4DE"
+        android:textSize="12sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_room_name" />
+
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/et_username"
+        android:layout_width="0dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/enter_nickname_bg"
+        android:hint="@string/enter_username"
+        android:maxLength="12"
+        android:maxLines="1"
+        android:paddingStart="18dp"
+        android:paddingEnd="36dp"
+        android:textColor="#1B0844"
+        android:textColorHint="#756C92"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_username" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_username_random"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="15dp"
+        android:src="@drawable/ic_random_name"
+        app:layout_constraintBottom_toBottomOf="@id/et_username"
+        app:layout_constraintEnd_toEndOf="@id/et_username"
+        app:layout_constraintTop_toTopOf="@id/et_username" />
+
+
+    <ImageButton
+        android:id="@+id/enter"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginTop="10dp"
+        android:background="@null"
+        android:src="@mipmap/enter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/et_username" />
+
+    <TextView
+        android:id="@+id/enter_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_marginTop="10dp"
+        android:alpha="0.41"
+        android:text="@string/join_room"
+        android:textColor="#d9f9f9f9"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enter" />
+
+    <TextView
+        android:id="@+id/logo_label"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_marginTop="15dp"
+        android:alpha="0.51"
+        android:text="@string/agora_io"
+        android:textColor="#d9ffffff"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/enter_tip" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_nickname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="et_username,iv_username_random,tv_username" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

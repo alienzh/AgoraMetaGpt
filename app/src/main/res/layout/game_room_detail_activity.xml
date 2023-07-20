@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_room_detail">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutTop"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:fitsSystemWindows="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutRoomName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginVertical="14dp"
+            android:background="@drawable/bg_room_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivRoomCover"
+                style="@style/ShapeAppearance.MaterialComponents.Avatar"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:src="@drawable/icon_avatar"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvRoomName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:lines="1"
+                android:maxWidth="120dp"
+                android:paddingHorizontal="6dp"
+                android:singleLine="true"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@id/ivRoomCover"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="房间房间房间" />
+
+            <TextView
+                android:id="@+id/tvNickname"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:singleLine="true"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ivRoomCover"
+                tools:text="昵称昵称昵称昵" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@null"
+            android:src="@drawable/icon_close"
+            app:layout_constraintBottom_toBottomOf="@id/layoutRoomName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/layoutRoomName" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+<!--    <include layout="@layout/view_gamer_layout"-->
+<!--        android:id="@+id/layoutGamer"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/layoutRoomName"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_width="match_parent" />-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerGamer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        tools:itemCount="4"
+        app:spanCount="2"
+        app:layout_constraintTop_toBottomOf="@id/layoutTop"
+        tools:listitem="@layout/item_gamer_layout" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerMessage"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recyclerGamer"
+        tools:listitem="@layout/item_chat_message" />
+
+    <include layout="@layout/view_moderator_bottom_layout"
+        android:id="@+id/layoutModeratorBottom"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        tools:visibility="gone"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <include layout="@layout/view_gamer_bottom_layout"
+        android:id="@+id/layoutGamerBottom"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <ImageView
+        android:id="@+id/ivLoading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_loading_cover"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

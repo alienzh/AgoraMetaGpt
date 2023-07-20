@@ -1,0 +1,151 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-parcelize'
+}
+
+Properties properties = new Properties()
+InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream()
+properties.load(inputStream)
+
+android {
+    compileSdk 31
+
+    defaultConfig {
+        applicationId "io.agora.metagpt"
+        minSdk 23
+        targetSdk 31
+        versionCode 401201
+        versionName "401.201.220.0719.1"
+
+        flavorDimensions "versionCode"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "APP_ID", "\"${properties.getProperty("APP_ID", "")}\"")
+        buildConfigField("String", "APP_CERTIFICATE", "\"${properties.getProperty("APP_CERTIFICATE", "")}\"")
+        buildConfigField("boolean", "DEBUG_MENUS", "${properties.getProperty("DEBUG_MENUS", "false")}")
+        buildConfigField("String", "AGORA_SERVICE_KEY", "\"${properties.getProperty("AGORA_SERVICE_KEY", "")}\"")
+
+
+        buildConfigField("String", "XF_APP_ID", "\"${properties.getProperty("XF_APP_ID", "")}\"")
+        buildConfigField("String", "XF_API_SECRET", "\"${properties.getProperty("XF_API_SECRET", "")}\"")
+        buildConfigField("String", "XF_API_KEY", "\"${properties.getProperty("XF_API_KEY", "")}\"")
+
+        buildConfigField("String", "XF_STT_APP_ID", "\"${properties.getProperty("XF_STT_APP_ID", "")}\"")
+        buildConfigField("String", "XF_STT_API_KEY", "\"${properties.getProperty("XF_STT_API_KEY", "")}\"")
+
+        buildConfigField("String", "XF_GPT_APP_ID", "\"${properties.getProperty("XF_GPT_APP_ID", "")}\"")
+        buildConfigField("String", "XF_GPT_API_SECRET", "\"${properties.getProperty("XF_GPT_API_SECRET", "")}\"")
+        buildConfigField("String", "XF_GPT_API_KEY", "\"${properties.getProperty("XF_GPT_API_KEY", "")}\"")
+
+        buildConfigField("String", "GPT_SERVER_HOST", "\"https://service.agora.io/\"")
+
+        buildConfigField("String", "XF_TTS_HOST", "\"https://tts-api.xfyun.cn/v2/tts\"")
+        buildConfigField("String", "XF_STT_HOST", "\"wss://rtasr.xfyun.cn/v1/ws\"")
+        buildConfigField("String", "XF_GPT_HOST", "\"https://spark-api.xf-yun.com/v1.1/chat\"")
+
+
+        buildConfigField("String", "MINIMAX_SERVER_HOST", "\"https://api.minimax.chat/\"")
+        buildConfigField("String", "MINIMAX_AUTHORIZATION", "\"${properties.getProperty("MINIMAX_AUTHORIZATION", "")}\"")
+        buildConfigField("String", "MINIMAX_GROUP_ID", "\"${properties.getProperty("MINIMAX_GROUP_ID", "")}\"")
+
+        buildConfigField("String", "MS_SERVER_HOST", "\"https://eastasia.tts.speech.microsoft.com/\"")
+        buildConfigField("String", "MS_SPEECH_KEY", "\"${properties.getProperty("MS_SPEECH_KEY", "")}\"")
+
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
+    }
+    signingConfigs {
+        release {
+            keyAlias "key0"
+            keyPassword "123456"
+            storeFile file('./keystore/testkey.jks')
+            storePassword "123456"
+        }
+    }
+
+
+    viewBinding {
+        enabled = true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "Agora-MetaGpt-${versionName}-${variant.buildType.name}-${releaseTime()}.apk"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
+    implementation 'io.agora:authentication:1.6.1'
+    implementation 'commons-codec:commons-codec:1.10'
+    implementation 'io.coil-kt:coil:2.0.0-rc03'
+    implementation 'com.afollestad.material-dialogs:core:3.3.0'
+    implementation 'com.afollestad.material-dialogs:bottomsheets:3.3.0'
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation "androidx.activity:activity:1.4.0"
+    implementation "androidx.fragment:fragment:1.4.1"
+    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
+    implementation 'androidx.databinding:databinding-runtime:7.1.3'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    implementation 'com.tencent:mmkv:1.2.14'
+    implementation 'com.alibaba:fastjson:1.2.76'
+    implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
+    implementation 'io.github.h07000223:flycoTabLayout:3.0.0'
+
+    //glide
+    implementation 'com.github.bumptech.glide:glide:4.13.2'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+    //okhttp
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+    //retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
+
+    //使用gson解析json
+    implementation 'com.google.code.gson:gson:2.8.9'
+
+    // RxAndroid
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'com.elvishew:xlog:1.10.0'
+
+    implementation "org.java-websocket:Java-WebSocket:1.4.1"
+
+    // Speech SDK
+    //implementation 'com.microsoft.cognitiveservices.speech:client-sdk:1.27.0'
+    //implementation "io.github.java-diff-utils:java-diff-utils:4.11"
+}
+
+static def releaseTime() {
+    return new Date().format("yyyyMMdd_HHmmss")
+}

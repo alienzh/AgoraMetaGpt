@@ -1,0 +1,115 @@
+<resources>
+    <string name="app_name">AI谁是卧底</string>
+    <string name="role">角色</string>
+    <string name="game">游戏</string>
+    <string name="agora_io">声网</string>
+    <string name="join_room">加入</string>
+    <string name="enter_username">请输入用户名</string>
+    <string name="userName">用户名</string>
+    <string name="user">玩家</string>
+    <string name="ai">AI</string>
+    <string name="moderator">主持人</string>
+    <string name="room_name">房间号</string>
+    <string name="enter_room_name">请输入房间号</string>
+    <string name="exit">退出</string>
+    <string name="start_game">开始游戏</string>
+    <string name="end_game">结束游戏</string>
+    <string name="request_ai_speak">AI发言</string>
+    <string name="request_ai_vote">AI投票</string>
+    <string name="request_ai_speak_ing">AI发言中</string>
+    <string name="request_ai_vote_ing">AI投票中</string>
+    <string name="send">发送</string>
+    <string name="room_name_label">房间名:%1$s</string>
+    <string name="user_name_label">用户名:%1$s(%2$d)</string>
+    <string name="user_uid_label">玩家UID:%1$s</string>
+    <string name="all_user_name_label">所有玩家:%1$s</string>
+    <string name="all_ai_uid_label">All AI UID:%1$s</string>
+    <string name="message_split">:</string>
+    <string name="ai_role">AI Role</string>
+    <string name="ai_platform">AI平台</string>
+    <string name="ai_voice_name">AI语音角色</string>
+    <string name="test_tts">测试tts</string>
+    <string name="select_role">请选择角色</string>
+    <string name="select_game">请选择游戏</string>
+    <string name="start_speak">开始发言</string>
+    <string name="end_speak">结束发言</string>
+    <string name="speak">第%1$d轮发言</string>
+    <string name="vote">第%1$d轮投票</string>
+    <string name="vote_info">{%1$d号}玩家投给了{%2$d号}</string>
+    <string name="vote_tip">请投票</string>
+    <string name="create_room">创建房间</string>
+    <string name="choose_scene">场景选择</string>
+    <string name="game_who_is_undercover">谁是卧底</string>
+    <string name="stay_tuned">敬请期待</string>
+    <string name="choose_role">身份选择</string>
+    <string name="nickname">昵称</string>
+    <string name="enter_nickname">请输入昵称</string>
+    <string name="enter_room">进入房间</string>
+    <string name="user_no">%1$d号玩家</string>
+    <string name="user_no1">1号玩家</string>
+    <string name="user_no2">2号玩家</string>
+    <string name="user_no3">3号玩家</string>
+    <string name="user_no4">4号玩家</string>
+    <string name="user_no5">5号玩家</string>
+    <string name="user_no6">6号玩家</string>
+    <string name="start_new_speak">开始新的一轮发言</string>
+    <string name="start_vote_tip">开始本轮投票</string>
+    <string name="request_ai_speaking">请求AI发言</string>
+    <string name="request_ai_voting">请求AI投票</string>
+    <string name="waiting_game_start">等待游戏开始</string>
+    <string name="my_words">我的词语：%1$s</string>
+    <string name="other_user_speaking">其他玩家发言中</string>
+    <string name="your_out">你已出局，无法发言</string>
+    <string name="your_out_vote">你已出局，无法投票</string>
+    <string name="number">%1$d号</string>
+    <string name="number1">1号</string>
+    <string name="number2">2号</string>
+    <string name="number3">3号</string>
+    <string name="number4">4号</string>
+    <string name="number5">5号</string>
+    <string name="number6">6号</string>
+    <string name="vote_tip1">请投票：</string>
+    <string name="message_font_text"> <![CDATA[<font color="#A6C4FF">%1$s：</font>]]>%2$s</string>
+    <string name="vote_user_eliminated_game_continue">本轮%1$d号玩家出局，游戏继续</string>
+    <string name="vote_game_over_good_person_win">本轮%1$d号玩家出局，游戏结束，好人获胜</string>
+    <string name="vote_game_over_undercover_win">本轮%1$d号玩家出局，游戏结束，卧底获胜</string>
+    <string name="vote_game_over_undercover_draw">本轮平票，无人淘汰，进入下一轮发言</string>
+    <string name="start_game_tips">游戏开始，请玩家确认自己的关键词，并对关键词进行描述发言</string>
+    <string name="end_game_tips">游戏结束</string>
+    <string name="start_speak_tips">请各位玩家开始新的一轮发言</string>
+    <string name="start_vote_tips">请各位玩家开始本轮投票</string>
+    <string name="start_game_not_enough_players">游戏人数不足，至少三人才能游戏</string>
+    <string name="gamer_join_room">%1$s 加入房间</string>
+    <string name="gamer_exit_room">%1$s 退出房间</string>
+    <string name="gamer_out">%1$d号玩家已出局</string>
+    <string name="gamer_self_out">您已出局</string>
+    <string name="gamer_ai_out">AI 已出局</string>
+
+    <string-array name="user_nickname_prefix">
+        <item>忧郁的</item>
+        <item>沉默的</item>
+        <item>甜蜜的</item>
+        <item>愉悦的</item>
+        <item>神秘的</item>
+        <item>幸福的</item>
+        <item>夜幕下的</item>
+        <item>萌萌的</item>
+        <item>遗忘的</item>
+        <item>照耀的冰淇淋</item>
+        <item>疯狂的</item>
+    </string-array>
+
+    <string-array name="user_nickname_suffix">
+        <item>葡萄奶昔</item>
+        <item>草莓奶昔</item>
+        <item>柠檬茶</item>
+        <item>蓝莓香蕉</item>
+        <item>黑森林</item>
+        <item>樱桃冰沙</item>
+        <item>抹茶冰淇淋</item>
+        <item>蜜糖芝士</item>
+        <item>柠檬水</item>
+        <item>冰淇淋</item>
+        <item>橘子蛋糕</item>
+    </string-array>
+</resources>
