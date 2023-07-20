@@ -22,14 +22,14 @@ import io.agora.metagpt.models.DisplayUserInfo;
 import io.agora.metagpt.models.VoteInfo;
 import io.agora.metagpt.models.wiu.GamerInfo;
 import io.agora.metagpt.models.wiu.UserSpeakInfoModel;
-import io.agora.metagpt.stt.xf.SttCallback;
-import io.agora.metagpt.stt.xf.XFSttWsManager;
+import io.agora.metagpt.inf.SttCallback;
+import io.agora.metagpt.stt.SttRobotManager;
 import io.agora.metagpt.utils.Constants;
 import io.agora.metagpt.utils.KeyCenter;
 import io.agora.metagpt.utils.Utils;
 import io.agora.rtc2.IAudioFrameObserver;
 
-public class GamerViewModel extends BaseGameViewModel {
+public class GamerViewModel extends BaseGameViewModel implements SttCallback {
 
     private final MutableLiveData<GamerViewStatus> _viewStatus = new MutableLiveData<>();
 
@@ -89,6 +89,8 @@ public class GamerViewModel extends BaseGameViewModel {
 
     protected boolean mOnJoinSuccess = false;
 
+    private SttRobotManager mSttRobotManager;
+
     @Override
     protected void initData() {
         super.initData();
@@ -99,31 +101,12 @@ public class GamerViewModel extends BaseGameViewModel {
             mSttResults.delete(0, mSttResults.length());
         }
         MetaContext.getInstance().setRecordingAudioFrameParameters(SAMPLE_RATE, SAMPLE_NUM_OF_CHANNEL, io.agora.rtc2.Constants.RAW_AUDIO_FRAME_OP_MODE_READ_ONLY, SAMPLES);
-        XFSttWsManager.getInstance().setCallback(new SttCallback() {
-            @Override
-            public void onSttResult(String text, boolean isFinish) {
-                final boolean isNewLine = mSttResults.length() == 0;
-                runOnUiThread(() -> {
-                    mSttResults.append(text);
-                    updateSelfSpeakChatMessage(text, isNewLine);
-                    if (isFinish) {
-                        if (mSpeak && !isOut()) {
-                            sendUserSpeakInfo();
-                        }
-                        if (mVote && !isOut()) {
-                            int votedId = Utils.getNumberFromStr(mSttResults.toString());
-                            sendUserVoteInfo(votedId);
-                        }
-                    }
-                });
-            }
 
-            @Override
-            public void onSttFail(int errorCode, String message) {
-
-            }
-        });
-
+        if (null == mSttRobotManager) {
+            mSttRobotManager = new SttRobotManager();
+            mSttRobotManager.setSttCallback(this);
+        }
+        mSttRobotManager.setAiSttPlatformIndex(Constants.STT_PLATFORM_XF_IST);
         _viewStatus.postValue(new GamerViewStatus.Initial());
     }
 
@@ -258,7 +241,9 @@ public class GamerViewModel extends BaseGameViewModel {
     protected void startUserSpeak() {
         if (mIsSpanking) {
             mIsSpanking = false;
-            XFSttWsManager.getInstance().stt("{\"end\": true}".getBytes());
+            if (mSttRobotManager != null) {
+                mSttRobotManager.requestStt(null);
+            }
             MetaContext.getInstance().updateRoleSpeak(false);
             _viewStatus.postValue(new GamerViewStatus.SelfSpeak(false));
             DisplayUserInfo userInfo = getUserInfo(KeyCenter.getUserUid());
@@ -280,7 +265,9 @@ public class GamerViewModel extends BaseGameViewModel {
     @Override
     protected void exit() {
         super.exit();
-        XFSttWsManager.getInstance().close();
+        if (mSttRobotManager != null) {
+            mSttRobotManager.close();
+        }
     }
 
     private void updateSelfSpeakChatMessage(String text, boolean isNewLine) {
@@ -357,5 +344,37 @@ public class GamerViewModel extends BaseGameViewModel {
                 iMessageViewListener.scrollChatMessageListToBottom();
             }
         });
+    }
+
+    public void requestStt(byte[] bytes){
+        if (mSttRobotManager!=null){
+            mSttRobotManager.requestStt(bytes);
+        }
+    }
+
+    @Override
+    public void onSttResult(String text, boolean isFinish) {
+        final boolean isNewLine = mSttResults.length() == 0;
+        if (isFinish && mSttRobotManager != null) {
+            mSttRobotManager.close();
+        }
+        runOnUiThread(() -> {
+            mSttResults.append(text);
+            updateSelfSpeakChatMessage(text, isNewLine);
+            if (isFinish) {
+                if (mSpeak && !isOut()) {
+                    sendUserSpeakInfo();
+                }
+                if (mVote && !isOut()) {
+                    int votedId = Utils.getNumberFromStr(mSttResults.toString());
+                    sendUserVoteInfo(votedId);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onSttFail(int errorCode, String message) {
+
     }
 }

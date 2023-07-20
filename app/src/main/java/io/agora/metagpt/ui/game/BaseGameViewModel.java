@@ -2,7 +2,6 @@ package io.agora.metagpt.ui.game;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.TextView;
 
 import androidx.annotation.ArrayRes;
 import androidx.annotation.StringRes;
@@ -31,7 +30,6 @@ import io.agora.metagpt.models.DataStreamModel;
 import io.agora.metagpt.models.DisplayUserInfo;
 import io.agora.metagpt.models.VoteInfo;
 import io.agora.metagpt.models.wiu.GamerInfo;
-import io.agora.metagpt.stt.xf.XFSttWsManager;
 import io.agora.metagpt.utils.Constants;
 
 public class BaseGameViewModel extends ViewModel {

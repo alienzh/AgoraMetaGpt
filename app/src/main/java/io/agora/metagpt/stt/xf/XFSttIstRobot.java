@@ -7,88 +7,45 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
-import org.java_websocket.enums.ReadyState;
 import org.java_websocket.handshake.ServerHandshake;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.ByteBuffer;
-
-import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.TimeZone;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 import io.agora.metagpt.BuildConfig;
+import io.agora.metagpt.stt.SttRobotBase;
 import io.agora.metagpt.utils.Constants;
-import io.agora.metagpt.utils.EncryptUtil;
-import okhttp3.HttpUrl;
 
-public class XFSttWsManager {
-
-    protected final Gson mGson;
+public class XFSttIstRobot extends SttRobotBase {
     private WebSocketClient mWebSocketClient;
-
-    private final ExecutorService mExecutorService;
-    public boolean wsCloseFlag;
-
-    private SttCallback mCallback;
-
-    private boolean mIsFinished;
-
-    private long mLastSendTime = 0;
-
-    private int mFrameIndex;
-
+    private boolean mWsCloseFlag;
     private static final int FRAME_INDEX_FIRST = 0;
     private static final int FRAME_INDEX_CONTINUE = 1;
     private static final int FRAME_INDEX_LAST = 2;
 
-    private XFSttWsManager() {
-        mExecutorService = new ThreadPoolExecutor(1, 1,
-                0, TimeUnit.MILLISECONDS,
-                new LinkedBlockingDeque<Runnable>(), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
-        mGson = new Gson();
-        wsCloseFlag = true;
-        mIsFinished = false;
+    private int mFrameIndex;
+
+    public XFSttIstRobot() {
+        super();
+        mWsCloseFlag = true;
         mFrameIndex = FRAME_INDEX_FIRST;
     }
 
-    private static final class InstanceHolder {
-        static final XFSttWsManager M_INSTANCE = new XFSttWsManager();
+    @Override
+    public void init() {
+        super.init();
+        mFrameIndex = FRAME_INDEX_FIRST;
+        initWebSocketClient();
     }
 
-    public static XFSttWsManager getInstance() {
-        return InstanceHolder.M_INSTANCE;
-    }
-
-    public void setCallback(SttCallback callback) {
-        mCallback = callback;
-    }
-
-    public void initWebSocketClient() {
+    private void initWebSocketClient() {
         try {
             String wsUrl = XfAuthUtils.assembleRequestUrl(BuildConfig.XF_STT_IST_HOST, BuildConfig.XF_STT_API_KEY, BuildConfig.XF_STT_API_SECRET);
 
@@ -96,12 +53,13 @@ public class XFSttWsManager {
                 @Override
                 public void onOpen(ServerHandshake serverHandshake) {
                     Log.i(Constants.TAG, "ws建立连接成功...");
-                    wsCloseFlag = false;
+                    mWsCloseFlag = false;
                 }
 
                 @Override
                 public void onMessage(String text) {
-                    //Log.i(Constants.TAG, "xf text:" + text);
+                    Log.i(Constants.TAG, "xf text:" + text);
+                    JSONObject msgObj = JSON.parseObject(text);
                     ResponseData resp = mGson.fromJson(text, ResponseData.class);
                     if (resp != null) {
                         if (resp.getCode() != 0) {
@@ -113,13 +71,9 @@ public class XFSttWsManager {
                         }
                         if (resp.getData() != null) {
                             if (resp.getData().getResult() != null) {
-                                if (resp.getData().getStatus() == 2) {
-
-                                } else {
-                                    String result = getContent(resp.getData().getResult().toString());
-                                    if (!TextUtils.isEmpty(result) && null != mCallback) {
-                                        mCallback.onSttResult(result, mIsFinished);
-                                    }
+                                String result = getContent(resp.getData().getResult().toString());
+                                if (!TextUtils.isEmpty(result) && null != mCallback) {
+                                    mCallback.onSttResult(result, mIsFinished);
                                 }
                             }
 
@@ -139,13 +93,13 @@ public class XFSttWsManager {
                 @Override
                 public void onClose(int i, String s, boolean b) {
                     Log.e(Constants.TAG, "ws链接已关闭，本次请求完成...");
-                    wsCloseFlag = true;
+                    mWsCloseFlag = true;
                 }
 
                 @Override
                 public void onError(Exception e) {
                     Log.e(Constants.TAG, "发生错误 " + e.getMessage());
-                    wsCloseFlag = true;
+                    mWsCloseFlag = true;
                 }
             };
 
@@ -157,7 +111,9 @@ public class XFSttWsManager {
         }
     }
 
+    @Override
     public synchronized void stt(byte[] bytes) {
+        super.stt(bytes);
         mExecutorService.execute(new Runnable() {
             @Override
             public void run() {
@@ -167,7 +123,7 @@ public class XFSttWsManager {
                     }
                     long curTime = System.nanoTime();
                     if (!mWebSocketClient.isOpen()) {
-                        Log.e(Constants.TAG, "正在连接...");
+                        Log.i(Constants.TAG, "正在连接...");
                         mWebSocketClient.reconnectBlocking();
                         curTime = System.nanoTime();
                     }
@@ -180,6 +136,7 @@ public class XFSttWsManager {
                     if (diffMs < Constants.XF_REQUEST_INTERVAL) {
                         Thread.sleep(Constants.XF_REQUEST_INTERVAL - diffMs);
                     }
+
                     if (null == bytes) {
                         mFrameIndex = FRAME_INDEX_LAST;
                     }
@@ -248,24 +205,24 @@ public class XFSttWsManager {
         });
     }
 
+    @Override
     public void close() {
         mExecutorService.execute(new Runnable() {
             @Override
             public void run() {
                 try {
                     if (null != mWebSocketClient) {
-                        mWebSocketClient.close();
+                        mWebSocketClient.closeBlocking();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 mWebSocketClient = null;
+                mFrameIndex = FRAME_INDEX_FIRST;
             }
         });
     }
 
-
-    // 把转写结果解析为句子
     private String getContent(String message) {
         boolean isEnd = false;
         StringBuilder resultBuilder = new StringBuilder();

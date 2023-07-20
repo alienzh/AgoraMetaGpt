@@ -1,4 +1,4 @@
-package io.agora.metagpt.stt.xf;
+package io.agora.metagpt.inf;
 
 public interface SttCallback {
     void onSttResult(String text, boolean isFinish);

@@ -53,37 +53,7 @@
         </activity>
 
         <activity
-            android:name="io.agora.metagpt.ui.activity.AIRobotActivity"
-            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
-            android:resizeableActivity="false"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name="io.agora.metagpt.ui.activity.ModeratorActivity"
-            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
-            android:resizeableActivity="false"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name="io.agora.metagpt.ui.activity.UserActivity"
-            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
-            android:hardwareAccelerated="true"
-            android:resizeableActivity="false"
-            android:screenOrientation="portrait"
-            android:theme="@style/UnityThemeSelector"
-            android:windowSoftInputMode="adjustNothing" />
-
-        <activity
             android:name="io.agora.metagpt.ui.game.GameRoomDetailActivity"
-            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
-            android:resizeableActivity="false"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
-            android:name="io.agora.metagpt.ui.game.GamerRoomDetailActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
             android:resizeableActivity="false"
             android:screenOrientation="portrait"

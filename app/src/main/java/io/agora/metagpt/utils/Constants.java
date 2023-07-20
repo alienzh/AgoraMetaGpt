@@ -14,6 +14,11 @@ public class Constants {
     public static final int GAME_ROLE_AI = 1;
     public static final int GAME_ROLE_MODERATOR = 2;
 
+    //讯飞开放平台
+    public static final int STT_PLATFORM_XF_RTASR = 0;
+    //讯飞直连平台
+    public static final int STT_PLATFORM_XF_IST = 1;
+
     public static final String DATA_STREAM_CMD_USER_JOIN = "user_join";
     public static final String DATA_STREAM_CMD_REQUEST_SYNC_USER = "request_sync_user";
     public static final String DATA_STREAM_CMD_SYNC_GAMER_INFO = "sync_gamer_info";

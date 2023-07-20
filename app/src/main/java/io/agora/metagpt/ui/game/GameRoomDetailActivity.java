@@ -31,9 +31,10 @@ import io.agora.metagpt.adapter.GamerAdapter;
 import io.agora.metagpt.context.GameContext;
 import io.agora.metagpt.context.MetaContext;
 import io.agora.metagpt.databinding.GameRoomDetailActivityBinding;
+import io.agora.metagpt.inf.SttCallback;
 import io.agora.metagpt.models.DisplayUserInfo;
 import io.agora.metagpt.models.wiu.GamerInfo;
-import io.agora.metagpt.stt.xf.XFSttWsManager;
+import io.agora.metagpt.stt.SttRobotManager;
 import io.agora.metagpt.ui.base.BaseActivity;
 import io.agora.metagpt.ui.main.CreateRoomActivity;
 import io.agora.metagpt.utils.Constants;
@@ -43,7 +44,7 @@ import io.agora.rtc2.DataStreamConfig;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.reactivex.disposables.Disposable;
 
-public class GameRoomDetailActivity extends BaseActivity {
+public class GameRoomDetailActivity extends BaseActivity{
     private final static String TAG = Constants.TAG + "-" + GameRoomDetailActivity.class.getSimpleName();
     private final static String KEY_ROLE = "key_role";
     private GameRoomDetailActivityBinding binding;
@@ -495,7 +496,11 @@ public class GameRoomDetailActivity extends BaseActivity {
         byte[] origin = new byte[length];
         buffer.get(origin);
         buffer.flip();
-        XFSttWsManager.getInstance().stt(origin);
+        if (role == Constants.GAME_ROLE_MODERATOR) {
+
+        } else {
+            gamerViewModel.requestStt(origin);
+        }
         return false;
     }
 }
