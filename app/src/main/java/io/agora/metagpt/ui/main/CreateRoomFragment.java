@@ -27,8 +27,10 @@ import io.agora.metagpt.ai.minimax.MiniMaxRetrofitManager;
 import io.agora.metagpt.context.GameContext;
 import io.agora.metagpt.context.MetaContext;
 import io.agora.metagpt.databinding.CreateRoomFragmentBinding;
+import io.agora.metagpt.models.GameInfo;
 import io.agora.metagpt.tts.ms.MsTtsRetrofitManager;
-import io.agora.metagpt.ui.game.GameRoomDetailActivity;
+import io.agora.metagpt.ui.game.GameAIPartnerActivity;
+import io.agora.metagpt.ui.game.GameUnderCoverActivity;
 import io.agora.metagpt.ui.base.BaseFragment;
 import io.agora.metagpt.utils.Constants;
 import io.agora.metagpt.utils.KeyCenter;
@@ -42,6 +44,9 @@ public class CreateRoomFragment extends BaseFragment {
     private Random random = new Random();
     private String[] nicknamePrefix;
     private String[] nicknameSuffix;
+
+    private int gameId = Constants.GAME_AI_VOICE_ASSISTANT;
+    private int role = Constants.GAME_ROLE_MODERATOR;
 
     public static CreateRoomFragment newInstance() {
         return new CreateRoomFragment();
@@ -141,38 +146,52 @@ public class CreateRoomFragment extends BaseFragment {
                 Toast.makeText(requireActivity(), R.string.enter_room_name, Toast.LENGTH_LONG).show();
                 binding.tvRoomNameEmpty.setVisibility(View.VISIBLE);
             } else {
-                if (Constants.GAME_ROLE_USER == GameContext.getInstance().getGameRole()) {
-                    if (TextUtils.isEmpty(GameContext.getInstance().getUserName())) {
-                        Toast.makeText(requireActivity(),  R.string.enter_nickname, Toast.LENGTH_LONG).show();
-                    } else {
-                        MetaContext.getInstance().initRoomNameAndUid(GameContext.getInstance().getRoomName(), KeyCenter.getUserUid(), GameContext.getInstance().getUserName());
-                        initServices();
-                        GameRoomDetailActivity.startActivity(getContext(),Constants.GAME_ROLE_USER);
-                    }
-                } else {
-                    MetaContext.getInstance().initRoomNameAndUid(GameContext.getInstance().getRoomName(), KeyCenter.getModeratorUid(), requireContext().getResources().getString(R.string.moderator));
-                    initServices();
-                    GameRoomDetailActivity.startActivity(getContext(),Constants.GAME_ROLE_MODERATOR);
+                switch (gameId) {
+                    case Constants.GAME_WHO_IS_UNDERCOVER:
+                        if (Constants.GAME_ROLE_USER == GameContext.getInstance().getGameRole()) {
+                            if (TextUtils.isEmpty(GameContext.getInstance().getUserName())) {
+                                Toast.makeText(requireActivity(), R.string.enter_nickname, Toast.LENGTH_LONG).show();
+                            } else {
+                                MetaContext.getInstance().initRoomNameAndUid(GameContext.getInstance().getRoomName(), KeyCenter.getUserUid(), GameContext.getInstance().getUserName());
+                                initServices();
+                                GameUnderCoverActivity.startActivity(getContext(), Constants.GAME_ROLE_USER);
+                            }
+                        } else {
+                            MetaContext.getInstance().initRoomNameAndUid(GameContext.getInstance().getRoomName(), KeyCenter.getModeratorUid(), requireContext().getResources().getString(R.string.moderator));
+                            initServices();
+                            GameUnderCoverActivity.startActivity(getContext(), Constants.GAME_ROLE_MODERATOR);
+                        }
+                        break;
+                    case Constants.GAME_AI_VOICE_ASSISTANT:
+                        if (TextUtils.isEmpty(GameContext.getInstance().getUserName())) {
+                            Toast.makeText(requireActivity(), R.string.enter_nickname, Toast.LENGTH_LONG).show();
+                        } else {
+                            MetaContext.getInstance().initRoomNameAndUid(GameContext.getInstance().getRoomName(), KeyCenter.getUserUid(), GameContext.getInstance().getUserName());
+                            initServices();
+                            GameAIPartnerActivity.startActivity(getContext());
+                        }
+                        break;
+                    default:
+                        break;
                 }
+
             }
         });
         compositeDisposable.add(disposable);
 
         disposable = RxView.clicks(binding.btnModerator).throttleFirst(1, TimeUnit.SECONDS).subscribe(o -> {
-            binding.btnModerator.setActivated(true);
-            binding.btnUser.setActivated(false);
-            binding.groupNickname.setVisibility(View.INVISIBLE);
+            role = Constants.GAME_ROLE_MODERATOR;
             GameContext.getInstance().setGameRole(Constants.GAME_ROLE_MODERATOR);
             GameContext.getInstance().setUserName(getResources().getString(R.string.moderator));
+            updateView();
         });
         compositeDisposable.add(disposable);
 
         disposable = RxView.clicks(binding.btnUser).throttleFirst(1, TimeUnit.SECONDS).subscribe(o -> {
-            binding.btnModerator.setActivated(false);
-            binding.btnUser.setActivated(true);
-            binding.groupNickname.setVisibility(View.VISIBLE);
+            role = Constants.GAME_ROLE_USER;
             GameContext.getInstance().setGameRole(Constants.GAME_ROLE_USER);
             GameContext.getInstance().setUserName(binding.etNickname.getText().toString());
+            updateView();
         });
         compositeDisposable.add(disposable);
 
@@ -180,6 +199,20 @@ public class CreateRoomFragment extends BaseFragment {
             int prefixIndex = random.nextInt(nicknamePrefix.length);
             int suffixIndex = random.nextInt(nicknameSuffix.length);
             binding.etNickname.setText(nicknamePrefix[prefixIndex] + nicknameSuffix[suffixIndex]);
+        });
+        compositeDisposable.add(disposable);
+
+        disposable = RxView.clicks(binding.btnAiPartner).throttleFirst(1, TimeUnit.SECONDS).subscribe(o -> {
+            gameId = Constants.GAME_AI_VOICE_ASSISTANT;
+            GameContext.getInstance().setUserName(binding.etNickname.getText().toString());
+            updateView();
+        });
+        compositeDisposable.add(disposable);
+
+        disposable = RxView.clicks(binding.btnUnderCover).throttleFirst(1, TimeUnit.SECONDS).subscribe(o -> {
+            gameId = Constants.GAME_WHO_IS_UNDERCOVER;
+            GameContext.getInstance().setUserName(binding.etNickname.getText().toString());
+            updateView();
         });
         compositeDisposable.add(disposable);
     }
@@ -212,13 +245,39 @@ public class CreateRoomFragment extends BaseFragment {
         super.onResume();
         if (!GameContext.getInstance().isInitRes()) {
             GameContext.getInstance().initData(getActivity());
+            binding.btnUnderCover.setText(GameContext.getInstance().findGameById(Constants.GAME_WHO_IS_UNDERCOVER).getGameName());
+            binding.btnAiPartner.setText(GameContext.getInstance().findGameById(Constants.GAME_AI_VOICE_ASSISTANT).getGameName());
             updateView();
         }
     }
 
     private void updateView() {
-        GameContext.getInstance().setCurrentGame(GameContext.getInstance().getGameInfoArray()[0]);
-        binding.btnUnderCover.setText(GameContext.getInstance().getGameInfoArray()[0].getGameName());
+        GameInfo gameInfo = GameContext.getInstance().findGameById(gameId);
+        GameContext.getInstance().setCurrentGame(gameInfo);
+        switch (gameId){
+            case Constants.GAME_WHO_IS_UNDERCOVER:
+                binding.btnUnderCover.setActivated(true);
+                binding.btnAiPartner.setActivated(false);
+                binding.groupRole.setVisibility(View.VISIBLE);
+                if (role==Constants.GAME_ROLE_USER){
+                    binding.btnModerator.setActivated(false);
+                    binding.btnUser.setActivated(true);
+                    binding.groupNickname.setVisibility(View.VISIBLE);
+                }else if (role==Constants.GAME_ROLE_MODERATOR){
+                    binding.btnModerator.setActivated(true);
+                    binding.btnUser.setActivated(false);
+                    binding.groupNickname.setVisibility(View.GONE);
+                }
+                break;
+            case Constants.GAME_AI_VOICE_ASSISTANT:
+                binding.btnUnderCover.setActivated(false);
+                binding.btnAiPartner.setActivated(true);
+                binding.groupRole.setVisibility(View.GONE);
+                binding.groupNickname.setVisibility(View.VISIBLE);
+                break;
+            default:
+                break;
+        }
     }
 
     @Override

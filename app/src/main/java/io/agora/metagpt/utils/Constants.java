@@ -8,11 +8,12 @@ public class Constants {
     public static final int SCENE_ID_WORD = 20;
     public static final int SCENE_INDEX_WORD = 2;
 
-    public static final int GAME_WHO_IS_UNDERCOVER = 0;
-
     public static final int GAME_ROLE_USER = 0;
     public static final int GAME_ROLE_AI = 1;
     public static final int GAME_ROLE_MODERATOR = 2;
+
+    public static final int GAME_WHO_IS_UNDERCOVER = 0;
+    public static final int GAME_AI_VOICE_ASSISTANT = 1;
 
     //讯飞开放平台
     public static final int STT_PLATFORM_XF_RTASR = 0;
@@ -63,5 +64,18 @@ public class Constants {
     public static final int MAX_GAMER_NUM = 6;
 
     public static final int XF_REQUEST_INTERVAL = 40;
+
+    public static final String CHAT_GPT_MODEL_35 = "gpt-3.5-turbo";
+    public static final String CHAT_GPT_MODEL_40 = "gpt-4";
+
+    public static final String ASSETS_AI_ROLE = "ai_role.json";
+    public static final String ASSETS_GAMES = "games.json";
+    public static final String ASSETS_LOCAL_GAME_WORDS = "local_game_words.json";
+    public static final String ASSETS_QUESTION_WORDS = "question_words.json";
+    public static final String ASSETS_TEST_TTS = "test_tts.json";
+
+    public static final String ASSETS_CHAT_BOT_ROLE = "chat_bot_role.json";
+    public static final String ASSETS_GPT_RESPONSE_HELLO = "gpt_response_hello.json";
+    public static final String ASSETS_GPT_KEY_INFO_PROMPT = "gpt_key_info_prompt.txt";
 
 }

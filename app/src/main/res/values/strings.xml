@@ -40,6 +40,7 @@
     <string name="create_room">创建房间</string>
     <string name="choose_scene">场景选择</string>
     <string name="game_who_is_undercover">谁是卧底</string>
+    <string name="game_ai_partner">AI伴侣</string>
     <string name="stay_tuned">敬请期待</string>
     <string name="choose_role">身份选择</string>
     <string name="nickname">昵称</string>

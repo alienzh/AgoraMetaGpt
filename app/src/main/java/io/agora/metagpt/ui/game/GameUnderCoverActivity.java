@@ -30,11 +30,9 @@ import io.agora.metagpt.adapter.ChatMessageAdapter;
 import io.agora.metagpt.adapter.GamerAdapter;
 import io.agora.metagpt.context.GameContext;
 import io.agora.metagpt.context.MetaContext;
-import io.agora.metagpt.databinding.GameRoomDetailActivityBinding;
-import io.agora.metagpt.inf.SttCallback;
+import io.agora.metagpt.databinding.GameUnderConverActivityBinding;
 import io.agora.metagpt.models.DisplayUserInfo;
 import io.agora.metagpt.models.wiu.GamerInfo;
-import io.agora.metagpt.stt.SttRobotManager;
 import io.agora.metagpt.ui.base.BaseActivity;
 import io.agora.metagpt.ui.main.CreateRoomActivity;
 import io.agora.metagpt.utils.Constants;
@@ -44,10 +42,10 @@ import io.agora.rtc2.DataStreamConfig;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.reactivex.disposables.Disposable;
 
-public class GameRoomDetailActivity extends BaseActivity{
-    private final static String TAG = Constants.TAG + "-" + GameRoomDetailActivity.class.getSimpleName();
+public class GameUnderCoverActivity extends BaseActivity{
+    private final static String TAG = Constants.TAG + "-" + GameUnderCoverActivity.class.getSimpleName();
     private final static String KEY_ROLE = "key_role";
-    private GameRoomDetailActivityBinding binding;
+    private GameUnderConverActivityBinding binding;
 
     private AIModeratorViewModel moderatorViewModel;
     private GamerViewModel gamerViewModel;
@@ -64,7 +62,7 @@ public class GameRoomDetailActivity extends BaseActivity{
     private int role;
 
     public static void startActivity(Context activity, int role) {
-        Intent intent = new Intent(activity, GameRoomDetailActivity.class);
+        Intent intent = new Intent(activity, GameUnderCoverActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         intent.putExtra(KEY_ROLE, role);
         activity.startActivity(intent);
@@ -79,7 +77,7 @@ public class GameRoomDetailActivity extends BaseActivity{
     @Override
     protected void initContentView() {
         super.initContentView();
-        binding = GameRoomDetailActivityBinding.inflate(getLayoutInflater());
+        binding = GameUnderConverActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         ViewCompat.setOnApplyWindowInsetsListener(binding.ivLoading, (v, insets) -> {
             Insets inset = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -470,7 +468,7 @@ public class GameRoomDetailActivity extends BaseActivity{
     }
 
     private void goBackHome() {
-        Intent intent = new Intent(GameRoomDetailActivity.this, CreateRoomActivity.class);
+        Intent intent = new Intent(GameUnderCoverActivity.this, CreateRoomActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
         finish();

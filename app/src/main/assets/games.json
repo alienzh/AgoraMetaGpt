@@ -50,6 +50,12 @@
           }
         ]
       }
+    },
+    {
+      "gameId": 1,
+      "gameName": "AI语音助手",
+      "gameExtraInfo": {
+      }
     }
   ]
 }
