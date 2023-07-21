@@ -454,7 +454,7 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                     XLog.e("gpt prompt 5 " + content);
                     return;
                 }
-                requestTts(content.substring(content.indexOf("我认为") + 3));
+                requestTts(content.substring(content.indexOf("我认为")));
                 GamerInfo aiGameInfo = _aiGamerInfo.getValue();
                 if (aiGameInfo != null) {
                     VoteInfo voteInfo = new VoteInfo(aiGameInfo.getGamerNumber(), Utils.getNumberFromStr(content), true);
