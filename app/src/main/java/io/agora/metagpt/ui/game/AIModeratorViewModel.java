@@ -2,10 +2,12 @@ package io.agora.metagpt.ui.game;
 
 import android.os.Process;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.elvishew.xlog.XLog;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -308,9 +310,10 @@ public class AIModeratorViewModel extends ModeratorViewModel {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, "on error=" + e);
+                        XLog.e(TAG, "request gpt4 on error=" + e);
                         if (Objects.equals(e.getMessage(), "timeout")) {
                             Log.e(TAG, "GPT请求超时");
+                            toast("GPT请求超时，正在重试");
                             requestChatGpt();
                         }
                     }
@@ -387,9 +390,10 @@ public class AIModeratorViewModel extends ModeratorViewModel {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, "on error=" + e);
+                        XLog.e(TAG, "MsTts on error=" + e);
                         if (Objects.equals(e.getMessage(), "timeout")) {
                             Log.e(TAG, "微软tts请求超时");
+                          toast("微软tts请求超时");
                         }
                     }
 
@@ -430,6 +434,7 @@ public class AIModeratorViewModel extends ModeratorViewModel {
             String content = gptAnswer.getContent();
             if (mCurrentGamePromptIndex == 5) { // 针对发言
                 if (!content.contains("我的发言")) {
+                    XLog.e("gpt prompt 5 " + content);
                     return;
                 }
                 Log.d(TAG, content);
@@ -442,6 +447,7 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                 }
             } else if (mCurrentGamePromptIndex == 8) { // 针对
                 if (!content.contains("我认为")) {
+                    XLog.e("gpt prompt 5 " + content);
                     return;
                 }
                 requestTts(content);
@@ -467,7 +473,7 @@ public class AIModeratorViewModel extends ModeratorViewModel {
         if (mOnJoinSuccess) {
             parseAndPushTtsAudio();
         } else {
-            Log.e(TAG, "not yet join channel success");
+            XLog.e(TAG, "not yet join channel success");
         }
     }
 

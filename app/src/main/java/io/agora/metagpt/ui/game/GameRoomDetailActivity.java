@@ -300,7 +300,7 @@ public class GameRoomDetailActivity extends BaseActivity{
     }
 
     private void initVoteView() {
-        binding.layoutGamerBottom.layoutVoteContainer.setVisibility(View.VISIBLE);
+        binding.layoutGamerBottom.layoutVoteContainerScroll.setVisibility(View.VISIBLE);
         binding.layoutGamerBottom.layoutVoteContainer.removeAllViews();
         List<GamerInfo> gamerInfoList = gamerViewModel.mGamerInfoList;
         Button button;

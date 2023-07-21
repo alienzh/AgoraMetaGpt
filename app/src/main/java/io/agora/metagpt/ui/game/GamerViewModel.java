@@ -250,6 +250,7 @@ public class GamerViewModel extends BaseGameViewModel implements SttCallback {
             userInfo.setSpeaking(false);
             _gameSpeakInfo.postValue(userInfo);
             MetaContext.getInstance().sendDataStreamMessage(mStreamId, Constants.DATA_STREAM_CMD_USER_SPEAK, JSONObject.toJSON(userInfo).toString());
+            MetaContext.getInstance().sendDataStreamMessage(mStreamId, Constants.DATA_STREAM_CMD_USER_SPEAK, JSONObject.toJSON(userInfo).toString());
         } else {
             mIsSpanking = true;
             MetaContext.getInstance().updateRoleSpeak(true);
@@ -258,6 +259,7 @@ public class GamerViewModel extends BaseGameViewModel implements SttCallback {
             userInfo.setSpeaking(true);
             _viewStatus.postValue(new GamerViewStatus.SelfSpeak(true));
             _gameSpeakInfo.postValue(userInfo);
+            MetaContext.getInstance().sendDataStreamMessage(mStreamId, Constants.DATA_STREAM_CMD_USER_SPEAK, JSONObject.toJSON(userInfo).toString());
             MetaContext.getInstance().sendDataStreamMessage(mStreamId, Constants.DATA_STREAM_CMD_USER_SPEAK, JSONObject.toJSON(userInfo).toString());
         }
     }

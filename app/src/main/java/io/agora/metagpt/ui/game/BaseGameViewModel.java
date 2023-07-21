@@ -2,6 +2,7 @@ package io.agora.metagpt.ui.game;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import androidx.annotation.ArrayRes;
 import androidx.annotation.StringRes;
@@ -46,6 +47,10 @@ public class BaseGameViewModel extends ViewModel {
 
     protected IMessageView iMessageView;
     protected IRecyclerViewListener iMessageViewListener;
+
+    protected void toast(String message){
+        runOnUiThread(() -> Toast.makeText(MainApplication.mGlobalApplication.getApplicationContext(),message,Toast.LENGTH_SHORT).show());
+    }
 
     protected void initData() {
         mUserInfoList.clear();

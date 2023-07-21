@@ -112,26 +112,32 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:id="@+id/layoutVoteContainer"
+        <HorizontalScrollView
+            android:id="@+id/layoutVoteContainerScroll"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1">
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnUserNo1"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_button_7a5_corners"
-                android:gravity="center"
-                android:minWidth="56dp"
-                android:padding="0dp"
-                android:text="@string/number1"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/layoutVoteContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnUserNo1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_button_7a5_corners"
+                    android:gravity="center"
+                    android:minWidth="56dp"
+                    android:padding="0dp"
+                    android:text="@string/number1"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            </LinearLayout>
+        </HorizontalScrollView>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

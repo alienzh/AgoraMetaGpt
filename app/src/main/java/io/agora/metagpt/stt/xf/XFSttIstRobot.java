@@ -7,6 +7,7 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.elvishew.xlog.XLog;
 import com.google.gson.JsonObject;
 
 import org.java_websocket.client.WebSocketClient;
@@ -52,18 +53,18 @@ public class XFSttIstRobot extends SttRobotBase {
             mWebSocketClient = new WebSocketClient(new URI(wsUrl), new Draft_6455(), null, 5000) {
                 @Override
                 public void onOpen(ServerHandshake serverHandshake) {
-                    Log.i(Constants.TAG, "ws建立连接成功...");
+                    XLog.i(Constants.TAG, "ws建立连接成功...");
                     mWsCloseFlag = false;
                 }
 
                 @Override
                 public void onMessage(String text) {
-                    Log.i(Constants.TAG, "xf text:" + text);
+//                    Log.i(Constants.TAG, "xf text:" + text);
                     JSONObject msgObj = JSON.parseObject(text);
                     ResponseData resp = mGson.fromJson(text, ResponseData.class);
                     if (resp != null) {
                         if (resp.getCode() != 0) {
-                            Log.e(Constants.TAG, "error=>" + resp.getMessage() + " sid=" + resp.getSid());
+                            XLog.e(Constants.TAG, "error=>" + resp.getMessage() + " sid=" + resp.getSid());
                             if (null != mCallback) {
                                 mCallback.onSttFail(resp.getCode(), resp.getMessage());
                             }
@@ -92,14 +93,15 @@ public class XFSttIstRobot extends SttRobotBase {
 
                 @Override
                 public void onClose(int i, String s, boolean b) {
-                    Log.e(Constants.TAG, "ws链接已关闭，本次请求完成...");
+                    XLog.e(Constants.TAG, "ws链接已关闭，本次请求完成...");
                     mWsCloseFlag = true;
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    Log.e(Constants.TAG, "发生错误 " + e.getMessage());
+                    XLog.e(Constants.TAG, "发生错误 " + e.getMessage());
                     mWsCloseFlag = true;
+                    toast("讯飞 Stt WebSocket 发生错误 " + e.getMessage());
                 }
             };
 
@@ -107,7 +109,7 @@ public class XFSttIstRobot extends SttRobotBase {
             mWebSocketClient.connectBlocking();
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(Constants.TAG, "exception:" + e.getMessage());
+            XLog.e(Constants.TAG, "exception:" + e.getMessage());
         }
     }
 
@@ -129,7 +131,7 @@ public class XFSttIstRobot extends SttRobotBase {
                     }
 
                     if (!mWebSocketClient.isOpen()) {
-                        Log.e(Constants.TAG, "STT connection is closed, discard audio frame!");
+                        XLog.e(Constants.TAG, "STT connection is closed, discard audio frame!");
                         return;
                     }
                     long diffMs = (curTime - mLastSendTime) / 1000 / 1000;
