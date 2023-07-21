@@ -447,14 +447,14 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                 } else if (content.contains("：")) {
                     requestTts(content.substring(content.indexOf("：") + 1));
                 } else {
-                    requestTts(content);
+                    requestTts(content.substring(content.indexOf("我的发言") + 4));
                 }
             } else if (mCurrentGamePromptIndex == 8) { // 针对
                 if (!content.contains("我认为")) {
                     XLog.e("gpt prompt 5 " + content);
                     return;
                 }
-                requestTts(content);
+                requestTts(content.substring(content.indexOf("我认为") + 3));
                 GamerInfo aiGameInfo = _aiGamerInfo.getValue();
                 if (aiGameInfo != null) {
                     VoteInfo voteInfo = new VoteInfo(aiGameInfo.getGamerNumber(), Utils.getNumberFromStr(content), true);
