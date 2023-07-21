@@ -311,9 +311,9 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                     @Override
                     public void onError(Throwable e) {
                         XLog.e(TAG, "request gpt4 on error=" + e);
+                        toast("GPT请求错误 "+e.getMessage());
                         if (Objects.equals(e.getMessage(), "timeout")) {
                             Log.e(TAG, "GPT请求超时");
-                            toast("GPT请求超时，正在重试");
                             requestChatGpt();
                         }
                     }
@@ -331,7 +331,7 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                 XFTtsWsManager.getInstance().tts(message);
                 return;
             case Constants.TTS_PLATFORM_MS:
-                requestMsTts(message);
+                requestMsTts(message,true);
                 break;
             default:
                 break;
@@ -339,7 +339,7 @@ public class AIModeratorViewModel extends ModeratorViewModel {
 
     }
 
-    private void requestMsTts(String message) {
+    private void requestMsTts(String message,boolean again) {
         String requestStr = "<speak xmlns='http://www.w3.org/2001/10/synthesis' version='1.0' xml:lang='zh-CN'>" +
                 "<voice xml:lang='zh-CN' xml:gender='Female' name='" + "zh-CN-XiaoxiaoNeural" + "' style='cheerful'>" +
                 message +
@@ -391,9 +391,13 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                     @Override
                     public void onError(Throwable e) {
                         XLog.e(TAG, "MsTts on error=" + e);
+                        toast("微软tts请求错误 "+e.getMessage());
                         if (Objects.equals(e.getMessage(), "timeout")) {
                             Log.e(TAG, "微软tts请求超时");
-                          toast("微软tts请求超时");
+                            if (again){
+                                requestMsTts(message,false);
+                            }
+
                         }
                     }
 
