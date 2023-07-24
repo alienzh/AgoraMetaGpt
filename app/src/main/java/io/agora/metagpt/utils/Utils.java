@@ -14,11 +14,13 @@ import android.view.inputmethod.InputMethodManager;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -245,5 +247,78 @@ public class Utils {
             return number;
         }
         return number;
+    }
+
+    public static byte[] readFileToByteArray(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            return null;
+        }
+        FileInputStream in = null;
+        try {
+            in = new FileInputStream(file);
+            long inSize = in.getChannel().size();
+            if (inSize == 0) {
+                return null;
+            }
+
+            byte[] buffer = new byte[in.available()];
+            in.read(buffer);
+            return buffer;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            try {
+                if (null != in) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                return null;
+            }
+        }
+    }
+
+    public static String stringArrayToString(String[] stringArray) {
+        StringBuilder sb = new StringBuilder();
+        for (String s : stringArray) {
+            sb.append(s);
+        }
+        return sb.toString();
+    }
+
+    public static String removeDuplicates(String input, String target) {
+        StringBuilder result = new StringBuilder();
+        int index = input.indexOf(target);
+        boolean isFirst = true;
+        while (index >= 0) {
+            if (isFirst) {
+                result.append(input, 0, index + target.length());
+                input = input.substring(index + target.length());
+            } else {
+                result.append(input, 0, index);
+                if (input.length() >= index + target.length() + 1) {
+                    input = input.substring(index + target.length() + 1);
+                } else {
+                    input = input.substring(index + target.length());
+                }
+            }
+            index = input.indexOf(target);
+            isFirst = false;
+        }
+        result.append(input);
+        return result.toString();
+    }
+
+
+    public static String getRandomString(int length) {
+        String str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random = new Random();
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < length; i++) {
+            int number = random.nextInt(62);
+            sb.append(str.charAt(number));
+        }
+        return sb.toString();
     }
 }

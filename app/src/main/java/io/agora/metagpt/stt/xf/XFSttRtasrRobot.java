@@ -122,8 +122,8 @@ public class XFSttRtasrRobot extends SttRobotBase {
                     }
 
                     long diffMs = (curTime - mLastSendTime) / 1000 / 1000;
-                    if (diffMs < Constants.XF_REQUEST_INTERVAL) {
-                        Thread.sleep(Constants.XF_REQUEST_INTERVAL - diffMs);
+                    if (diffMs < Constants.INTERVAL_XF_REQUEST) {
+                        Thread.sleep(Constants.INTERVAL_XF_REQUEST - diffMs);
                     }
                     mLastSendTime = System.nanoTime();
                     mWebSocketClient.send(bytes);

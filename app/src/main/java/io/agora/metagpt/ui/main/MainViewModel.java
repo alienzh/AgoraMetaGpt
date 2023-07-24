@@ -8,33 +8,33 @@ import androidx.lifecycle.ViewModel;
 import java.util.Arrays;
 import java.util.List;
 
-import io.agora.metagpt.context.GameContext;
-import io.agora.metagpt.utils.KeyCenter;
-import io.agora.metachat.AvatarModelInfo;
-import io.agora.metachat.IMetachatEventHandler;
-import io.agora.metachat.IMetachatScene;
-import io.agora.metachat.MetachatBundleInfo;
-import io.agora.metachat.MetachatSceneInfo;
-import io.agora.metachat.MetachatUserInfo;
+import io.agora.meta.AvatarModelInfo;
+import io.agora.meta.IMetaScene;
+import io.agora.meta.IMetaServiceEventHandler;
+import io.agora.meta.MetaBundleInfo;
+import io.agora.meta.MetaSceneAssetsInfo;
+import io.agora.meta.MetaUserInfo;
 import io.agora.metagpt.MainApplication;
+import io.agora.metagpt.context.GameContext;
 import io.agora.metagpt.context.MetaContext;
+import io.agora.metagpt.utils.KeyCenter;
 import io.agora.metagpt.utils.SingleLiveData;
 
-public class MainViewModel extends ViewModel implements IMetachatEventHandler {
+public class MainViewModel extends ViewModel implements IMetaServiceEventHandler {
     private static final String TAG = MainViewModel.class.getSimpleName();
 
-    private final SingleLiveData<List<MetachatSceneInfo>> sceneList = new SingleLiveData<>();
+    private final SingleLiveData<List<MetaSceneAssetsInfo>> sceneList = new SingleLiveData<>();
     private final SingleLiveData<Long> selectScene = new SingleLiveData<>();
     private final SingleLiveData<Boolean> requestDownloading = new SingleLiveData<>();
     private final SingleLiveData<Integer> downloadingProgress = new SingleLiveData<>();
 
     @Override
     protected void onCleared() {
-        MetaContext.getInstance().unregisterMetaChatEventHandler(this);
+        MetaContext.getInstance().unregisterMetaServiceEventHandler(this);
         super.onCleared();
     }
 
-    public LiveData<List<MetachatSceneInfo>> getSceneList() {
+    public LiveData<List<MetaSceneAssetsInfo>> getSceneList() {
         return sceneList;
     }
 
@@ -51,22 +51,22 @@ public class MainViewModel extends ViewModel implements IMetachatEventHandler {
     }
 
     public void getScenes() {
-        MetaContext metaChatContext = MetaContext.getInstance();
-        metaChatContext.registerMetaChatEventHandler(this);
-        if (metaChatContext.initialize(MainApplication.mGlobalApplication)) {
-            if (!metaChatContext.getSceneInfos()) {
+        MetaContext metaContext = MetaContext.getInstance();
+        metaContext.registerMetaServiceEventHandler(this);
+        if (metaContext.initialize(MainApplication.mGlobalApplication)) {
+            if (!metaContext.getSceneInfos()) {
                 Log.e(TAG, "get scene info fail");
             }
         }
     }
 
-    public void prepareScene(MetachatSceneInfo sceneInfo) {
-        MetaContext metaChatContext = MetaContext.getInstance();
-        metaChatContext.prepareScene(sceneInfo, new AvatarModelInfo() {{
+    public void prepareScene(MetaSceneAssetsInfo sceneInfo) {
+        MetaContext metaContext = MetaContext.getInstance();
+        metaContext.prepareScene(sceneInfo, new AvatarModelInfo() {{
             // TODO choose one
-            MetachatBundleInfo[] bundles = sceneInfo.mBundles;
-            for (MetachatBundleInfo bundleInfo : bundles) {
-                if (bundleInfo.mBundleType == MetachatBundleInfo.BundleType.BUNDLE_TYPE_AVATAR) {
+            MetaBundleInfo[] bundles = sceneInfo.mBundles;
+            for (MetaBundleInfo bundleInfo : bundles) {
+                if (bundleInfo.mBundleType == MetaBundleInfo.BundleType.BUNDLE_TYPE_AVATAR) {
                     mBundleCode = bundleInfo.mBundleCode;
                     break;
                 }
@@ -75,28 +75,28 @@ public class MainViewModel extends ViewModel implements IMetachatEventHandler {
             mRemoteVisible = false;
             mSyncPosition = false;
 
-        }}, new MetachatUserInfo() {{
+        }}, new MetaUserInfo() {{
             mUserId = String.valueOf(KeyCenter.getUserUid());
             mUserName = GameContext.getInstance().getUserName();
             mUserIconUrl = "https://accpic.sd-rtn.com/pic/test/png/2.png";
         }});
-        if (metaChatContext.isSceneDownloaded(sceneInfo)) {
+        if (metaContext.isSceneDownloaded(sceneInfo)) {
             selectScene.postValue(sceneInfo.mSceneId);
         } else {
             requestDownloading.postValue(true);
         }
     }
 
-    public void downloadScene(MetachatSceneInfo sceneInfo) {
+    public void downloadScene(MetaSceneAssetsInfo sceneInfo) {
         MetaContext.getInstance().downloadScene(sceneInfo);
     }
 
-    public void cancelDownloadScene(MetachatSceneInfo sceneInfo) {
+    public void cancelDownloadScene(MetaSceneAssetsInfo sceneInfo) {
         MetaContext.getInstance().cancelDownloadScene(sceneInfo);
     }
 
     @Override
-    public void onCreateSceneResult(IMetachatScene scene, int errorCode) {
+    public void onCreateSceneResult(IMetaScene scene, int errorCode) {
     }
 
     @Override
@@ -105,25 +105,25 @@ public class MainViewModel extends ViewModel implements IMetachatEventHandler {
     }
 
     @Override
-    public void onRequestToken() {
+    public void onTokenWillExpire() {
 
     }
 
     @Override
-    public void onGetSceneInfosResult(MetachatSceneInfo[] scenes, int errorCode) {
-        sceneList.postValue(Arrays.asList(scenes));
+    public void onGetSceneAssetsInfoResult(MetaSceneAssetsInfo[] metaSceneAssetsInfos, int errorCode) {
+        sceneList.postValue(Arrays.asList(metaSceneAssetsInfos));
     }
 
     @Override
-    public void onDownloadSceneProgress(long mSceneId, int progress, int state) {
+    public void onDownloadSceneAssetsProgress(long sceneId, int progress, int state) {
         Log.d("progress", String.valueOf(progress));
-        if (state == SceneDownloadState.METACHAT_SCENE_DOWNLOAD_STATE_FAILED) {
+        if (state == SceneDownloadState.META_SCENE_DOWNLOAD_STATE_FAILED) {
             downloadingProgress.postValue(-1);
             return;
         }
         downloadingProgress.postValue(progress);
-        if (state == SceneDownloadState.METACHAT_SCENE_DOWNLOAD_STATE_DOWNLOADED) {
-            selectScene.postValue(mSceneId);
+        if (state == SceneDownloadState.META_SCENE_DOWNLOAD_STATE_DOWNLOADED) {
+            selectScene.postValue(sceneId);
         }
     }
 

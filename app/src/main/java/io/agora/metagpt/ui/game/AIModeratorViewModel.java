@@ -10,10 +10,8 @@ import com.alibaba.fastjson.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,20 +21,20 @@ import java.util.Objects;
 
 import io.agora.metagpt.MainApplication;
 import io.agora.metagpt.R;
-import io.agora.metagpt.ai.gpt.Gpt4RequestBody;
-import io.agora.metagpt.ai.gpt.GptResponse;
-import io.agora.metagpt.ai.gpt.GptRetrofitManager;
+import io.agora.metagpt.chat.gpt.GptRetrofitManager;
 import io.agora.metagpt.context.GameContext;
 import io.agora.metagpt.context.MetaContext;
+import io.agora.metagpt.inf.TtsCallback;
 import io.agora.metagpt.models.DataStreamModel;
 import io.agora.metagpt.models.DisplayUserInfo;
 import io.agora.metagpt.models.VoteInfo;
-import io.agora.metagpt.models.gpt.ChatMessage;
+import io.agora.metagpt.models.chat.ChatRobotMessage;
+import io.agora.metagpt.models.chat.gpt.Gpt4RequestBody;
+import io.agora.metagpt.models.chat.gpt.GptResponse;
 import io.agora.metagpt.models.wiu.GamePrompt;
 import io.agora.metagpt.models.wiu.GamerInfo;
 import io.agora.metagpt.models.wiu.UserSpeakInfoModel;
-import io.agora.metagpt.tts.ms.MsTtsRetrofitManager;
-import io.agora.metagpt.tts.xf.XFTtsWsManager;
+import io.agora.metagpt.tts.TtsRobotManager;
 import io.agora.metagpt.utils.Constants;
 import io.agora.metagpt.utils.KeyCenter;
 import io.agora.metagpt.utils.Utils;
@@ -44,11 +42,8 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 
-public class AIModeratorViewModel extends ModeratorViewModel {
+public class AIModeratorViewModel extends ModeratorViewModel implements TtsCallback {
 
     private final static String TAG = Constants.TAG + "-" + AIModeratorViewModel.class.getSimpleName();
 
@@ -56,8 +51,6 @@ public class AIModeratorViewModel extends ModeratorViewModel {
     private String mTempTtsPcmFilePath;
 
     private InputStream mInputStream;
-
-    private int mAiTtsPlatformIndex;
 
     private String[] aiMsVoiceNameArray;
     private String mAiMsVoiceName;
@@ -76,13 +69,15 @@ public class AIModeratorViewModel extends ModeratorViewModel {
     private static final int BUFFER_BYTE_SIZE = (int) (BUFFER_SAMPLE_COUNT * BYTE_PER_SAMPLE);
     private static final long BUFFER_DURATION = (long) (BUFFER_SAMPLE_COUNT * DURATION_PER_SAMPLE);
 
-    private List<ChatMessage> mGptChatMessageList;
+    private List<ChatRobotMessage> mGptChatMessageList;
 
     private List<GamePrompt> mGamePromptList;
 
     private int mCurrentGamePromptIndex;
 
     private Map<Integer, UserSpeakInfoModel> mUserSpeakInfoMap;
+
+    private TtsRobotManager mTtsRobotManager;
 
     @Override
     protected void initData() {
@@ -96,21 +91,15 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                 throw new RuntimeException(e);
             }
         }
-        XFTtsWsManager.getInstance().initWebSocketClient(mTempTtsPcmFilePath);
-        XFTtsWsManager.getInstance().setCallback(new XFTtsWsManager.TtsCallback() {
-            @Override
-            public void onTtsStart(String text) {
-                updateHistoryList(getString(R.string.ai), "讯飞tts 请求：" + text);
-            }
 
-            @Override
-            public void onTtsFinish() {
-                updateHistoryList(getString(R.string.ai), "讯飞tts返回结果");
-                pushTtsToChannel();
-            }
-        });
-
-        mAiTtsPlatformIndex = Constants.TTS_PLATFORM_MS;
+        if (null == mTtsRobotManager) {
+            mTtsRobotManager = new TtsRobotManager();
+            mTtsRobotManager.setTtsCallback(this);
+        }
+        mTtsRobotManager.init(MainApplication.mGlobalApplication, mTempTtsPcmFilePath);
+        String[] chatTipMessageArray = MainApplication.mGlobalApplication.getApplicationContext().getResources().getStringArray(R.array.chat_tip_message_array);
+        mTtsRobotManager.setChatTipMessages(chatTipMessageArray);
+        mTtsRobotManager.setAiTtsPlatformIndex(Constants.TTS_PLATFORM_MS);
 
         aiMsVoiceNameArray = getStringArray(R.array.ms_voice_value);
         mAiMsVoiceName = aiMsVoiceNameArray[0];
@@ -159,9 +148,9 @@ public class AIModeratorViewModel extends ModeratorViewModel {
             }
             mCurrentGamePromptIndex = 0;
             String message = "You are a helpful assistant.";
-            mGptChatMessageList.add(new ChatMessage(Constants.GPT_ROLE_SYSTEM, message));
+            mGptChatMessageList.add(new ChatRobotMessage(Constants.GPT_ROLE_SYSTEM, message));
             updateHistoryList(getString(R.string.moderator), "请求GPT：" + getLastChatMessage());
-            mGptChatMessageList.add(new ChatMessage(Constants.GPT_ROLE_USER, mGamePromptList.get(mCurrentGamePromptIndex).getContent()));
+            mGptChatMessageList.add(new ChatRobotMessage(Constants.GPT_ROLE_USER, mGamePromptList.get(mCurrentGamePromptIndex).getContent()));
             updateHistoryList(getString(R.string.moderator), "请求GPT：" + getLastChatMessage());
             requestChatGpt();
         }
@@ -207,7 +196,8 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                 sendAIAnswerOverForSpeak();
             } else {
                 for (Map.Entry<Integer, UserSpeakInfoModel> entry : mUserSpeakInfoMap.entrySet()) {
-                    mGptChatMessageList.add(new ChatMessage(Constants.GPT_ROLE_USER, entry.getValue().getGamerNumber() + "号玩家：" + entry.getValue().getMessage()));
+                    mGptChatMessageList.add(new ChatRobotMessage(Constants.GPT_ROLE_USER,
+                            entry.getValue().getGamerNumber() + "号玩家：" + entry.getValue().getMessage()));
                 }
             }
         } else if (mCurrentGamePromptIndex <= 8) {
@@ -238,7 +228,7 @@ public class AIModeratorViewModel extends ModeratorViewModel {
             case 2:
                 GamerInfo gamerInfo = _aiGamerInfo.getValue();
                 if (gamerInfo != null) {
-                    mGptChatMessageList.add(new ChatMessage(Constants.GPT_ROLE_USER, mGamePromptList.get(mCurrentGamePromptIndex).getContent()
+                    mGptChatMessageList.add(new ChatRobotMessage(Constants.GPT_ROLE_USER, mGamePromptList.get(mCurrentGamePromptIndex).getContent()
                             .replace("GamerNumberList1", String.valueOf(mGamerInfoList.size()))
                             .replace("GamerNumberList2", String.valueOf(mGamerInfoList.size() - 1))
                             .replace("GamerNumber", String.valueOf(gamerInfo.getGamerNumber()))
@@ -247,7 +237,7 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                 }
                 break;
             case 3:
-                mGptChatMessageList.add(new ChatMessage(Constants.GPT_ROLE_USER, mGamePromptList.get(mCurrentGamePromptIndex).getContent().replace("Rounds", String.valueOf(mGameRounds))));
+                mGptChatMessageList.add(new ChatRobotMessage(Constants.GPT_ROLE_USER, mGamePromptList.get(mCurrentGamePromptIndex).getContent().replace("Rounds", String.valueOf(mGameRounds))));
                 updateHistoryList(getString(R.string.moderator), "请求GPT：" + getLastChatMessage());
                 break;
             case 9:
@@ -257,12 +247,12 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                     for (VoteInfo voteInfo : voteInfoList) {
                         content.append(String.format(MainApplication.mGlobalApplication.getApplicationContext().getResources().getString(R.string.vote_info), voteInfo.getGamerNumber(), voteInfo.getUndercoverNumber())).append("\n");
                     }
-                    mGptChatMessageList.add(new ChatMessage(Constants.GPT_ROLE_USER, mGamePromptList.get(mCurrentGamePromptIndex).getContent() + content));
+                    mGptChatMessageList.add(new ChatRobotMessage(Constants.GPT_ROLE_USER, mGamePromptList.get(mCurrentGamePromptIndex).getContent() + content));
                     updateHistoryList(getString(R.string.moderator), "请求GPT：" + getLastChatMessage());
                 }
                 break;
             default:
-                mGptChatMessageList.add(new ChatMessage(Constants.GPT_ROLE_USER, mGamePromptList.get(mCurrentGamePromptIndex).getContent()));
+                mGptChatMessageList.add(new ChatRobotMessage(Constants.GPT_ROLE_USER, mGamePromptList.get(mCurrentGamePromptIndex).getContent()));
                 updateHistoryList(getString(R.string.moderator), "请求GPT：" + getLastChatMessage());
                 break;
         }
@@ -323,81 +313,10 @@ public class AIModeratorViewModel extends ModeratorViewModel {
     }
 
     private void requestTts(String message) {
-        switch (mAiTtsPlatformIndex) {
-            case Constants.TTS_PLATFORM_XF:
-                XFTtsWsManager.getInstance().tts(message);
-                return;
-            case Constants.TTS_PLATFORM_MS:
-                requestMsTts(message);
-                break;
-            default:
-                break;
+        if (mTtsRobotManager != null) {
+            mTtsRobotManager.requestTts(message);
         }
 
-    }
-
-    private void requestMsTts(String message) {
-        String requestStr = "<speak xmlns='http://www.w3.org/2001/10/synthesis' version='1.0' xml:lang='zh-CN'>" +
-                "<voice xml:lang='zh-CN' xml:gender='Female' name='" + "zh-CN-XiaoxiaoNeural" + "' style='cheerful'>" +
-                message +
-                "</voice>" +
-                "</speak>";
-//        String requestStr = "<speak version='1.0' xml:lang='zh-CN'>" +
-//                "<voice xml:lang='zh-CN' xml:gender='Female' name='" + mAiMsVoiceName + "'>" +
-//                message +
-//                "</voice>" +
-//                "</speak>";
-
-        RequestBody requestBody = RequestBody.create(requestStr, MediaType.parse("application/ssml+xml"));
-
-        Log.d(TAG, getString(R.string.ai) + " 微软tts请求：" + message);
-        MsTtsRetrofitManager.getInstance().getTtsRequest().getTtsResponse(requestStr)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<ResponseBody>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(ResponseBody response) {
-                        try {
-                            InputStream is = response.byteStream();
-                            File file = new File(mTempTtsPcmFilePath);
-                            OutputStream os = new FileOutputStream(file);
-                            byte[] buffer = new byte[1024];
-                            int read;
-                            while ((read = is.read(buffer)) != -1) {
-                                os.write(buffer, 0, read);
-                            }
-                            os.close();
-                            is.close();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        Log.d(TAG, getString(R.string.ai) + " 微软tts返回结果");
-                        if (mAiSpeaking) {
-                            sendAiAnswer(message);
-                        } else if (mAiVoting) {
-                            updateHistoryList(getString(R.string.ai), message);
-                        }
-                        pushTtsToChannel();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(TAG, "on error=" + e);
-                        if (Objects.equals(e.getMessage(), "timeout")) {
-                            Log.e(TAG, "微软tts请求超时");
-                        }
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
     }
 
     private void sendAiAnswer(String message) {
@@ -418,13 +337,13 @@ public class AIModeratorViewModel extends ModeratorViewModel {
             return;
         }
         if (mCurrentGamePromptIndex != 4) {
-            ChatMessage gptAnswer = null;
+            ChatRobotMessage gptAnswer = null;
             try {
-                gptAnswer = JSON.parseObject(answer, ChatMessage.class);
+                gptAnswer = JSON.parseObject(answer, ChatRobotMessage.class);
                 gptAnswer.setRole(Constants.GPT_ROLE_ASSISTANT);
                 mGptChatMessageList.add(gptAnswer);
             } catch (Exception e) {
-                gptAnswer = new ChatMessage(Constants.GPT_ROLE_ASSISTANT, answer);
+                gptAnswer = new ChatRobotMessage(Constants.GPT_ROLE_ASSISTANT, answer);
                 mGptChatMessageList.add(gptAnswer);
             }
             String content = gptAnswer.getContent();
@@ -438,13 +357,13 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                 } else if (content.contains("：")) {
                     requestTts(content.substring(content.indexOf("：") + 1));
                 } else {
-                    requestTts(content);
+                    requestTts(content.substring(content.indexOf("我的发言") + 1));
                 }
-            } else if (mCurrentGamePromptIndex == 8) { // 针对
+            } else if (mCurrentGamePromptIndex == 8) { // 针对投票
                 if (!content.contains("我认为")) {
                     return;
                 }
-                requestTts(content);
+                requestTts(content.substring(content.indexOf("我认为") + 1));
                 GamerInfo aiGameInfo = _aiGamerInfo.getValue();
                 if (aiGameInfo != null) {
                     VoteInfo voteInfo = new VoteInfo(aiGameInfo.getGamerNumber(), Utils.getNumberFromStr(content), true);
@@ -530,5 +449,20 @@ public class AIModeratorViewModel extends ModeratorViewModel {
                 }
             });
         });
+    }
+
+    @Override
+    public void onTtsStart(String text, boolean isOnSpeaking) {
+        updateHistoryList(getString(R.string.ai), "讯飞tts 请求：" + text);
+    }
+
+    @Override
+    public void onTtsFinish(boolean isOnSpeaking) {
+        updateHistoryList(getString(R.string.ai), "讯飞tts返回结果");
+        pushTtsToChannel();
+    }
+
+    @Override
+    public void updateTtsHistoryInfo(String message) {
     }
 }

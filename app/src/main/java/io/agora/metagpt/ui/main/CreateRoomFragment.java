@@ -22,12 +22,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.agora.metagpt.R;
-import io.agora.metagpt.ai.gpt.GptRetrofitManager;
-import io.agora.metagpt.ai.minimax.MiniMaxRetrofitManager;
+import io.agora.metagpt.chat.gpt.GptRetrofitManager;
+import io.agora.metagpt.chat.minimax.MiniMaxRetrofitManager;
 import io.agora.metagpt.context.GameContext;
 import io.agora.metagpt.context.MetaContext;
 import io.agora.metagpt.databinding.CreateRoomFragmentBinding;
 import io.agora.metagpt.models.GameInfo;
+import io.agora.metagpt.tts.minimax.MinimaxTtsRetrofitManager;
 import io.agora.metagpt.tts.ms.MsTtsRetrofitManager;
 import io.agora.metagpt.ui.game.GameAIPartnerActivity;
 import io.agora.metagpt.ui.game.GameUnderCoverActivity;
@@ -221,6 +222,7 @@ public class CreateRoomFragment extends BaseFragment {
         GptRetrofitManager.getInstance().init();
         MiniMaxRetrofitManager.getInstance().init();
         MsTtsRetrofitManager.getInstance().init();
+        MinimaxTtsRetrofitManager.getInstance().init();
     }
 
     @Override

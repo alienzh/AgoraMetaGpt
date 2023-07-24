@@ -7,7 +7,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-
 import io.agora.metagpt.models.GameInfo;
 import io.agora.metagpt.models.chat.ChatBotRole;
 import io.agora.metagpt.utils.Constants;
@@ -116,18 +115,6 @@ public class GameContext {
         return games;
     }
 
-    public GameInfo findGameById(int id) {
-        int gameId = Constants.GAME_WHO_IS_UNDERCOVER;
-        if (null != mGameInfoArray) {
-            for (int i = 0; i < mGameInfoArray.length; i++) {
-                if (id == mGameInfoArray[i].getGameId()) {
-                    return mGameInfoArray[i];
-                }
-            }
-        }
-        return null;
-    }
-
     public boolean isInitRes() {
         return mInitRes;
     }
@@ -208,4 +195,16 @@ public class GameContext {
     public String[] getGptResponseHello() {
         return mGptResponseHello;
     }
+
+    public GameInfo findGameById(int id) {
+        if (null != mGameInfoArray) {
+            for (int i = 0; i < mGameInfoArray.length; i++) {
+                if (id == mGameInfoArray[i].getGameId()) {
+                    return mGameInfoArray[i];
+                }
+            }
+        }
+        return null;
+    }
+
 }

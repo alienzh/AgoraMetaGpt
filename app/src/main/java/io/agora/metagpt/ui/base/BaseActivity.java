@@ -16,18 +16,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.nio.ByteBuffer;
 
 import io.agora.base.VideoFrame;
-import io.agora.metachat.IMetachatEventHandler;
-import io.agora.metachat.IMetachatScene;
-import io.agora.metachat.IMetachatSceneEventHandler;
-import io.agora.metachat.MetachatSceneInfo;
-import io.agora.metachat.MetachatUserPositionInfo;
+import io.agora.meta.IMetaScene;
+import io.agora.meta.IMetaSceneEventHandler;
+import io.agora.meta.IMetaServiceEventHandler;
+import io.agora.meta.MetaSceneAssetsInfo;
+import io.agora.meta.MetaUserPositionInfo;
 import io.agora.metagpt.inf.IRtcEventCallback;
 import io.agora.metagpt.context.MetaContext;
 import io.agora.rtc2.IAudioFrameObserver;
 import io.agora.rtc2.audio.AudioParams;
 import io.reactivex.disposables.CompositeDisposable;
 
-public class BaseActivity extends AppCompatActivity implements IMetachatSceneEventHandler, IMetachatEventHandler, IRtcEventCallback, IAudioFrameObserver {
+public class BaseActivity extends AppCompatActivity implements IMetaSceneEventHandler, IMetaServiceEventHandler, IRtcEventCallback, IAudioFrameObserver {
     protected CompositeDisposable compositeDisposable;
     protected boolean mIsFront;
 
@@ -97,13 +97,13 @@ public class BaseActivity extends AppCompatActivity implements IMetachatSceneEve
     }
 
     protected void unregister() {
-        MetaContext.getInstance().unregisterMetaChatEventHandler(this);
-        MetaContext.getInstance().unregisterMetaChatSceneEventHandler(this);
+        MetaContext.getInstance().unregisterMetaServiceEventHandler(this);
+        MetaContext.getInstance().unregisterMetaSceneEventHandler(this);
     }
 
     protected void registerMetachat() {
-        MetaContext.getInstance().registerMetaChatSceneEventHandler(this);
-        MetaContext.getInstance().registerMetaChatEventHandler(this);
+        MetaContext.getInstance().registerMetaSceneEventHandler(this);
+        MetaContext.getInstance().registerMetaServiceEventHandler(this);
 
         MetaContext.getInstance().setRtcEventCallback(this);
     }
@@ -166,7 +166,7 @@ public class BaseActivity extends AppCompatActivity implements IMetachatSceneEve
 
 
     @Override
-    public void onCreateSceneResult(IMetachatScene scene, int errorCode) {
+    public void onCreateSceneResult(IMetaScene scene, int errorCode) {
 
     }
 
@@ -176,17 +176,17 @@ public class BaseActivity extends AppCompatActivity implements IMetachatSceneEve
     }
 
     @Override
-    public void onRequestToken() {
+    public void onTokenWillExpire() {
 
     }
 
     @Override
-    public void onGetSceneInfosResult(MetachatSceneInfo[] sceneInfos, int errorCode) {
+    public void onGetSceneAssetsInfoResult(MetaSceneAssetsInfo[] metaSceneAssetsInfos, int errorCode) {
 
     }
 
     @Override
-    public void onDownloadSceneProgress(long sceneId, int progress, int state) {
+    public void onDownloadSceneAssetsProgress(long sceneId, int progress, int state) {
 
     }
 
@@ -201,17 +201,12 @@ public class BaseActivity extends AppCompatActivity implements IMetachatSceneEve
     }
 
     @Override
-    public void onRecvMessageFromScene(byte[] message) {
+    public void onSceneMessageReceived(byte[] message) {
 
     }
 
     @Override
-    public void onUserPositionChanged(String uid, MetachatUserPositionInfo posInfo) {
-
-    }
-
-    @Override
-    public void onEnumerateVideoDisplaysResult(String[] displayIds) {
+    public void onUserPositionChanged(String uid, MetaUserPositionInfo posInfo) {
 
     }
 
@@ -220,7 +215,17 @@ public class BaseActivity extends AppCompatActivity implements IMetachatSceneEve
     }
 
     @Override
-    public void onSceneVideoFrame(TextureView view, VideoFrame videoFrame) {
+    public void onSceneVideoFrameCaptured(TextureView view, VideoFrame videoFrame) {
+
+    }
+
+    @Override
+    public void onAddSceneViewResult(TextureView view, int errorCode) {
+
+    }
+
+    @Override
+    public void onRemoveSceneViewResult(TextureView view, int errorCode) {
 
     }
 

@@ -1,10 +1,11 @@
 package io.agora.metagpt.context;
 
 
+import static io.agora.rtc2.video.VideoEncoderConfiguration.STANDARD_BITRATE;
+
 import android.content.Context;
 import android.util.Log;
 import android.view.TextureView;
-
 
 import com.alibaba.fastjson.JSONObject;
 
@@ -12,23 +13,23 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.agora.base.VideoFrame;
-import io.agora.metagpt.models.DataStreamModel;
-import io.agora.metagpt.utils.KeyCenter;
-import io.agora.metachat.AvatarModelInfo;
-import io.agora.metachat.EnterSceneConfig;
-import io.agora.metachat.ILocalUserAvatar;
-import io.agora.metachat.IMetachatEventHandler;
-import io.agora.metachat.IMetachatScene;
-import io.agora.metachat.IMetachatSceneEventHandler;
-import io.agora.metachat.IMetachatService;
-import io.agora.metachat.MetachatConfig;
-import io.agora.metachat.MetachatSceneConfig;
-import io.agora.metachat.MetachatSceneInfo;
-import io.agora.metachat.MetachatUserInfo;
-import io.agora.metachat.MetachatUserPositionInfo;
+import io.agora.meta.AvatarModelInfo;
+import io.agora.meta.EnterSceneConfig;
+import io.agora.meta.ILocalUserAvatar;
+import io.agora.meta.IMetaScene;
+import io.agora.meta.IMetaSceneEventHandler;
+import io.agora.meta.IMetaService;
+import io.agora.meta.IMetaServiceEventHandler;
+import io.agora.meta.MetaSceneAssetsInfo;
+import io.agora.meta.MetaSceneConfig;
+import io.agora.meta.MetaServiceConfig;
+import io.agora.meta.MetaUserInfo;
+import io.agora.meta.MetaUserPositionInfo;
 import io.agora.metagpt.inf.IRtcEventCallback;
+import io.agora.metagpt.models.DataStreamModel;
 import io.agora.metagpt.models.EnterSceneExtraInfo;
 import io.agora.metagpt.utils.Constants;
+import io.agora.metagpt.utils.KeyCenter;
 import io.agora.metagpt.utils.Utils;
 import io.agora.rtc2.ChannelMediaOptions;
 import io.agora.rtc2.DataStreamConfig;
@@ -36,36 +37,39 @@ import io.agora.rtc2.IAudioFrameObserver;
 import io.agora.rtc2.IRtcEngineEventHandler;
 import io.agora.rtc2.RtcEngine;
 import io.agora.rtc2.RtcEngineConfig;
+import io.agora.rtc2.video.VideoEncoderConfiguration;
 
-public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHandler {
+public class MetaContext implements IMetaServiceEventHandler, IMetaSceneEventHandler {
 
     private final static String TAG = Constants.TAG + "-" + MetaContext.class.getSimpleName();
     private volatile static MetaContext instance = null;
 
     private RtcEngine rtcEngine;
-    private IMetachatService metaChatService;
-    private IMetachatScene metaChatScene;
-    private MetachatSceneInfo sceneInfo;
+    private IMetaService metaService;
+    private IMetaScene metaScene;
+    private MetaSceneAssetsInfo sceneInfo;
     private AvatarModelInfo modelInfo;
-    private MetachatUserInfo userInfo;
+    private MetaUserInfo userInfo;
     private String roomName;
     private int uid;
     private String userName;
     private TextureView sceneView;
-    private final ConcurrentHashMap<IMetachatEventHandler, Integer> metaChatEventHandlerMap;
-    private final ConcurrentHashMap<IMetachatSceneEventHandler, Integer> metaChatSceneEventHandlerMap;
+    private final ConcurrentHashMap<IMetaServiceEventHandler, Integer> metaServiceEventHandlerMap;
+    private final ConcurrentHashMap<IMetaSceneEventHandler, Integer> metaSceneEventHandlerMap;
     private ILocalUserAvatar localUserAvatar;
 
     private IRtcEventCallback iRtcEventCallback;
 
-    private boolean isInitMetachat;
+    private boolean isInitmeta;
+
+    private String avatarType;
 
 
     private MetaContext() {
-        metaChatEventHandlerMap = new ConcurrentHashMap<>();
-        metaChatSceneEventHandlerMap = new ConcurrentHashMap<>();
+        metaServiceEventHandlerMap = new ConcurrentHashMap<>();
+        metaSceneEventHandlerMap = new ConcurrentHashMap<>();
         iRtcEventCallback = null;
-        isInitMetachat = false;
+        isInitmeta = false;
     }
 
     public static MetaContext getInstance() {
@@ -90,19 +94,19 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
 
         if (initializeRtc(context)) {
             try {
-                metaChatService = IMetachatService.create();
-                MetachatConfig config = new MetachatConfig() {{
+                metaService = IMetaService.create();
+                MetaServiceConfig config = new MetaServiceConfig() {{
                     mRtcEngine = rtcEngine;
                     mAppId = KeyCenter.APP_ID;
                     mRtmToken = KeyCenter.getRtmToken(uid);
                     mLocalDownloadPath = context.getExternalCacheDir().getPath();
-                    mUserId = String.valueOf(KeyCenter.getUserUid());
+                    mUserId = String.valueOf(uid);
                     mEventHandler = MetaContext.this;
                 }};
-                ret += metaChatService.initialize(config);
-                Log.i(TAG, "launcher version=" + metaChatService.getLauncherVersion(context));
+                ret += metaService.initialize(config);
+                Log.i(TAG, "launcher version=" + metaService.getLauncherVersion(context));
 
-                isInitMetachat = true;
+                isInitmeta = true;
             } catch (Exception e) {
                 return false;
             }
@@ -173,10 +177,24 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
                 rtcEngineConfig.mAudioScenario = io.agora.rtc2.Constants.AudioScenario.getValue(io.agora.rtc2.Constants.AudioScenario.DEFAULT);
                 rtcEngine = RtcEngine.create(rtcEngineConfig);
 
+                rtcEngine.registerExtension("agora_video_filters_metakit", "metakit", io.agora.rtc2.Constants.MediaSourceType.CUSTOM_VIDEO_SOURCE);
+
+                rtcEngine.setExternalVideoSource(true, true, io.agora.rtc2.Constants.ExternalVideoSourceType.VIDEO_FRAME);
+
+                rtcEngine.setVideoEncoderConfiguration(new VideoEncoderConfiguration(
+                        new VideoEncoderConfiguration.VideoDimensions(240, 240),
+                        VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_30,
+                        STANDARD_BITRATE,
+                        VideoEncoderConfiguration.ORIENTATION_MODE.ORIENTATION_MODE_FIXED_LANDSCAPE, VideoEncoderConfiguration.MIRROR_MODE_TYPE.MIRROR_MODE_DISABLED));
+
+
                 rtcEngine.setParameters("{\"rtc.enable_debug_log\":true}");
                 rtcEngine.enableAudio();
-                rtcEngine.enableVideo();
-                rtcEngine.setChannelProfile(io.agora.rtc2.Constants.CHANNEL_PROFILE_LIVE_BROADCASTING);
+                //rtcEngine.enableVideo();
+                rtcEngine.setAudioProfile(
+                        io.agora.rtc2.Constants.AUDIO_PROFILE_DEFAULT, io.agora.rtc2.Constants.AUDIO_SCENARIO_GAME_STREAMING
+                );
+                rtcEngine.setDefaultAudioRoutetoSpeakerphone(true);
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
@@ -186,10 +204,10 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
     }
 
     public void destroy() {
-        if (isInitMetachat) {
-            IMetachatService.destroy();
-            metaChatService = null;
-            isInitMetachat = false;
+        if (isInitmeta) {
+            IMetaService.destroy();
+            metaService = null;
+            isInitmeta = false;
         }
 
         RtcEngine.destroy();
@@ -197,39 +215,39 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
 
     }
 
-    public void registerMetaChatEventHandler(IMetachatEventHandler eventHandler) {
-        metaChatEventHandlerMap.put(eventHandler, 0);
+    public void registerMetaServiceEventHandler(IMetaServiceEventHandler eventHandler) {
+        metaServiceEventHandlerMap.put(eventHandler, 0);
     }
 
-    public void unregisterMetaChatEventHandler(IMetachatEventHandler eventHandler) {
-        metaChatEventHandlerMap.remove(eventHandler);
+    public void unregisterMetaServiceEventHandler(IMetaServiceEventHandler eventHandler) {
+        metaServiceEventHandlerMap.remove(eventHandler);
     }
 
-    public void registerMetaChatSceneEventHandler(IMetachatSceneEventHandler eventHandler) {
-        metaChatSceneEventHandlerMap.put(eventHandler, 0);
+    public void registerMetaSceneEventHandler(IMetaSceneEventHandler eventHandler) {
+        metaSceneEventHandlerMap.put(eventHandler, 0);
     }
 
-    public void unregisterMetaChatSceneEventHandler(IMetachatSceneEventHandler eventHandler) {
-        metaChatSceneEventHandlerMap.remove(eventHandler);
+    public void unregisterMetaSceneEventHandler(IMetaSceneEventHandler eventHandler) {
+        metaSceneEventHandlerMap.remove(eventHandler);
     }
 
     public boolean getSceneInfos() {
-        return metaChatService.getSceneInfos() == io.agora.rtc2.Constants.ERR_OK;
+        return metaService.getSceneAssetsInfo() == io.agora.rtc2.Constants.ERR_OK;
     }
 
-    public boolean isSceneDownloaded(MetachatSceneInfo sceneInfo) {
-        return metaChatService.isSceneDownloaded(sceneInfo.mSceneId) > 0;
+    public boolean isSceneDownloaded(MetaSceneAssetsInfo sceneInfo) {
+        return metaService.isSceneAssetsDownloaded(sceneInfo.mSceneId) > 0;
     }
 
-    public boolean downloadScene(MetachatSceneInfo sceneInfo) {
-        return metaChatService.downloadScene(sceneInfo.mSceneId) == io.agora.rtc2.Constants.ERR_OK;
+    public boolean downloadScene(MetaSceneAssetsInfo sceneInfo) {
+        return metaService.downloadSceneAssets(sceneInfo.mSceneId) == io.agora.rtc2.Constants.ERR_OK;
     }
 
-    public boolean cancelDownloadScene(MetachatSceneInfo sceneInfo) {
-        return metaChatService.cancelDownloadScene(sceneInfo.mSceneId) == io.agora.rtc2.Constants.ERR_OK;
+    public boolean cancelDownloadScene(MetaSceneAssetsInfo sceneInfo) {
+        return metaService.cancelDownloadSceneAssets(sceneInfo.mSceneId) == io.agora.rtc2.Constants.ERR_OK;
     }
 
-    public void prepareScene(MetachatSceneInfo sceneInfo, AvatarModelInfo modelInfo, MetachatUserInfo userInfo) {
+    public void prepareScene(MetaSceneAssetsInfo sceneInfo, AvatarModelInfo modelInfo, MetaUserInfo userInfo) {
         this.sceneInfo = sceneInfo;
         this.modelInfo = modelInfo;
         this.userInfo = userInfo;
@@ -239,12 +257,12 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
         Log.d(TAG, "createAndEnterScene");
         this.sceneView = tv;
 
-        MetachatSceneConfig sceneConfig = new MetachatSceneConfig();
+        MetaSceneConfig sceneConfig = new MetaSceneConfig();
         sceneConfig.mActivityContext = activityContext;
 
         int ret = -1;
-        if (metaChatScene == null) {
-            ret = metaChatService.createScene(sceneConfig);
+        if (metaScene == null) {
+            ret = metaService.createScene(sceneConfig);
         }
 
         return ret == io.agora.rtc2.Constants.ERR_OK;
@@ -254,14 +272,18 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
         Log.d(TAG, "enterScene");
         if (null != localUserAvatar) {
             localUserAvatar.setUserInfo(userInfo);
-
-            //该model的mBundleType为MetachatBundleInfo.BundleType.BUNDLE_TYPE_AVATAR类型
+            //该model的mBundleType为MetaBundleInfo.BundleType.BUNDLE_TYPE_AVATAR类型
             localUserAvatar.setModelInfo(modelInfo);
 
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("2dbg", "");
+            jsonObject.put("avatar", avatarType);
+            localUserAvatar.setExtraInfo(jsonObject.toJSONString().getBytes());
+
         }
-        if (null != metaChatScene) {
+        if (null != metaScene) {
             //设置回调接口
-            metaChatScene.addEventHandler(MetaContext.getInstance());
+            metaScene.addEventHandler(MetaContext.getInstance());
             EnterSceneConfig config = new EnterSceneConfig();
             //sceneView必须为Texture类型，为渲染unity显示的view
             config.mSceneView = this.sceneView;
@@ -279,22 +301,21 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
              *   }
              */
             EnterSceneExtraInfo extraInfo = new EnterSceneExtraInfo();
-
-            extraInfo.setSceneIndex(Constants.SCENE_INDEX_WORD);
+            extraInfo.setSceneIndex(Constants.SCENE_INDEX_LIVE);
 
             //加载的场景index
-            config.mExtraCustomInfo = JSONObject.toJSONString(extraInfo).getBytes();
-            metaChatScene.enterScene(config);
+            config.mExtraInfo = JSONObject.toJSONString(extraInfo).getBytes();
+            metaScene.enterScene(config);
         }
 
     }
 
     @Override
-    public void onCreateSceneResult(IMetachatScene scene, int errorCode) {
+    public void onCreateSceneResult(IMetaScene scene, int errorCode) {
         Log.d(TAG, "onCreateSceneResult errorCode:" + errorCode);
-        metaChatScene = scene;
-        localUserAvatar = metaChatScene.getLocalUserAvatar();
-        for (IMetachatEventHandler handler : metaChatEventHandlerMap.keySet()) {
+        metaScene = scene;
+        localUserAvatar = metaScene.getLocalUserAvatar();
+        for (IMetaServiceEventHandler handler : metaServiceEventHandlerMap.keySet()) {
             handler.onCreateSceneResult(scene, errorCode);
         }
     }
@@ -304,6 +325,7 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
         int ret = io.agora.rtc2.Constants.ERR_OK;
         ret += rtcEngine.updateChannelMediaOptions(new ChannelMediaOptions() {{
             publishMicrophoneTrack = isSpeak;
+            publishCustomAudioTrack = isSpeak;
         }});
         return ret == io.agora.rtc2.Constants.ERR_OK;
     }
@@ -324,9 +346,9 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
     public boolean leaveScene() {
         Log.d(TAG, "leaveScene");
         int ret = io.agora.rtc2.Constants.ERR_OK;
-        if (metaChatScene != null) {
+        if (metaScene != null) {
             ret += leaveRtcChannel();
-            ret += metaChatScene.leaveScene();
+            ret += metaScene.leaveScene();
         }
         Log.d(TAG, "leaveScene success");
         return ret == io.agora.rtc2.Constants.ERR_OK;
@@ -342,47 +364,47 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
     @Override
     public void onConnectionStateChanged(int state, int reason) {
         Log.d(TAG, "onConnectionStateChanged state=" + state + ",reason=" + reason);
-        if (state == ConnectionState.METACHAT_CONNECTION_STATE_ABORTED) {
+        if (state == ConnectionState.META_CONNECTION_STATE_ABORTED) {
             leaveScene();
         }
 
-        for (IMetachatEventHandler handler : metaChatEventHandlerMap.keySet()) {
+        for (IMetaServiceEventHandler handler : metaServiceEventHandlerMap.keySet()) {
             handler.onConnectionStateChanged(state, reason);
         }
     }
 
     @Override
-    public void onRequestToken() {
-        for (IMetachatEventHandler handler : metaChatEventHandlerMap.keySet()) {
-            handler.onRequestToken();
+    public void onTokenWillExpire() {
+
+    }
+
+    @Override
+    public void onGetSceneAssetsInfoResult(MetaSceneAssetsInfo[] scenes, int errorCode) {
+        Log.i(TAG, "onGetSceneAssetsInfoResult scenes:" + Arrays.toString(scenes));
+        for (IMetaServiceEventHandler handler : metaServiceEventHandlerMap.keySet()) {
+            handler.onGetSceneAssetsInfoResult(scenes, errorCode);
         }
     }
 
     @Override
-    public void onGetSceneInfosResult(MetachatSceneInfo[] scenes, int errorCode) {
-        for (IMetachatEventHandler handler : metaChatEventHandlerMap.keySet()) {
-            handler.onGetSceneInfosResult(scenes, errorCode);
+    public void onDownloadSceneAssetsProgress(long sceneId, int progress, int state) {
+        for (IMetaServiceEventHandler handler : metaServiceEventHandlerMap.keySet()) {
+            handler.onDownloadSceneAssetsProgress(sceneId, progress, state);
         }
     }
 
-    @Override
-    public void onDownloadSceneProgress(long SceneId, int progress, int state) {
-        for (IMetachatEventHandler handler : metaChatEventHandlerMap.keySet()) {
-            handler.onDownloadSceneProgress(SceneId, progress, state);
-        }
-    }
 
     @Override
     public void onEnterSceneResult(int errorCode) {
         Log.d(TAG, String.format("onEnterSceneResult %d", errorCode));
         if (errorCode == 0) {
-            if (null != metaChatScene) {
-                metaChatScene.setSceneParameters("{\"debugUnity\":true}");
+            if (null != metaScene) {
+                metaScene.setSceneParameters("{\"debugUnity\":true}");
             }
             joinChannel(io.agora.rtc2.Constants.CLIENT_ROLE_BROADCASTER);
 
         }
-        for (IMetachatSceneEventHandler handler : metaChatSceneEventHandlerMap.keySet()) {
+        for (IMetaSceneEventHandler handler : metaSceneEventHandlerMap.keySet()) {
             handler.onEnterSceneResult(errorCode);
         }
     }
@@ -403,11 +425,11 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
     public void onLeaveSceneResult(int errorCode) {
         Log.d(TAG, String.format("onLeaveSceneResult %d", errorCode));
         if (errorCode == 0) {
-            metaChatScene.release();
-            metaChatScene = null;
+            metaScene.release();
+            metaScene = null;
         }
 
-        for (IMetachatSceneEventHandler handler : metaChatSceneEventHandlerMap.keySet()) {
+        for (IMetaSceneEventHandler handler : metaSceneEventHandlerMap.keySet()) {
             handler.onLeaveSceneResult(errorCode);
         }
     }
@@ -415,58 +437,74 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
     @Override
     public void onReleasedScene(int status) {
         Log.d(TAG, String.format("onReleasedScene %d", status));
-        for (IMetachatSceneEventHandler handler : metaChatSceneEventHandlerMap.keySet()) {
+        for (IMetaSceneEventHandler handler : metaSceneEventHandlerMap.keySet()) {
             handler.onReleasedScene(status);
         }
     }
 
     @Override
-    public void onSceneVideoFrame(TextureView view, VideoFrame videoFrame) {
-
-    }
-
-    @Override
-    public void onRecvMessageFromScene(byte[] message) {
-        Log.d(TAG, String.format("onRecvMessageFromScene %s", new String(message)));
-        for (IMetachatSceneEventHandler handler : metaChatSceneEventHandlerMap.keySet()) {
-            handler.onRecvMessageFromScene(message);
+    public void onSceneVideoFrameCaptured(TextureView view, VideoFrame videoFrame) {
+        for (IMetaSceneEventHandler handler : metaSceneEventHandlerMap.keySet()) {
+            handler.onSceneVideoFrameCaptured(view, videoFrame);
         }
     }
 
     @Override
-    public void onUserPositionChanged(String uid, MetachatUserPositionInfo posInfo) {
+    public void onAddSceneViewResult(TextureView view, int errorCode) {
+        for (IMetaSceneEventHandler handler : metaSceneEventHandlerMap.keySet()) {
+            handler.onAddSceneViewResult(view, errorCode);
+        }
+    }
+
+    @Override
+    public void onRemoveSceneViewResult(TextureView view, int errorCode) {
+        for (IMetaSceneEventHandler handler : metaSceneEventHandlerMap.keySet()) {
+            handler.onRemoveSceneViewResult(view, errorCode);
+        }
+    }
+
+    @Override
+    public void onSceneMessageReceived(byte[] message) {
+        Log.d(TAG, String.format("onSceneMessageReceived %s", new String(message)));
+        for (IMetaSceneEventHandler handler : metaSceneEventHandlerMap.keySet()) {
+            handler.onSceneMessageReceived(message);
+        }
+    }
+
+    @Override
+    public void onUserPositionChanged(String uid, MetaUserPositionInfo posInfo) {
         Log.d(TAG, String.format("onUserPositionChanged %s %s %s %s %s", uid,
                 Arrays.toString(posInfo.mPosition),
                 Arrays.toString(posInfo.mForward),
                 Arrays.toString(posInfo.mRight),
                 Arrays.toString(posInfo.mUp)
         ));
-        for (IMetachatSceneEventHandler handler : metaChatSceneEventHandlerMap.keySet()) {
+        for (IMetaSceneEventHandler handler : metaSceneEventHandlerMap.keySet()) {
             handler.onUserPositionChanged(uid, posInfo);
         }
     }
 
-    @Override
-    public void onEnumerateVideoDisplaysResult(String[] displayIds) {
 
+    public void setAvatarType(String avatarType) {
+        this.avatarType = avatarType;
     }
 
-    public MetachatSceneInfo getSceneInfo() {
+    public MetaSceneAssetsInfo getSceneInfo() {
         return sceneInfo;
     }
 
     public void sendSceneMessage(String msg) {
-        if (metaChatScene == null) {
-            Log.e(TAG, "sendMessageToScene metaChatScene is null");
+        if (metaScene == null) {
+            Log.e(TAG, "sendMessageToScene metaScene is null");
             return;
         }
 
-        metaChatScene.sendMessageToScene(msg.getBytes());
+        metaScene.sendSceneMessage(msg.getBytes());
     }
 
 
-    public boolean isInitMetachat() {
-        return isInitMetachat;
+    public boolean isInitmeta() {
+        return isInitmeta;
     }
 
     public void setRtcEventCallback(IRtcEventCallback iRtcEventCallback) {
@@ -478,7 +516,7 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
     }
 
     public int getSceneId() {
-        return Constants.SCENE_ID_WORD;
+        return Constants.SCENE_ID_GPT;
     }
 
     public void updatePublishCustomAudioTrackChannelOptions(boolean enable, int sampleRate, int channels, int sourceNumber, boolean localPlayback, boolean publish) {
@@ -558,6 +596,38 @@ public class MetaContext implements IMetachatEventHandler, IMetachatSceneEventHa
     public void setRecordingAudioFrameParameters(int sampleRate, int channel, int mode, int samplesPerCall) {
         if (null != rtcEngine) {
             rtcEngine.setRecordingAudioFrameParameters(sampleRate, channel, mode, samplesPerCall);
+        }
+    }
+
+    public void setPlaybackAudioFrameParameters(int sampleRate, int channel, int mode, int samplesPerCall) {
+        if (null != rtcEngine) {
+            rtcEngine.setPlaybackAudioFrameParameters(sampleRate, channel, mode, samplesPerCall);
+        }
+    }
+
+    public int pullPlaybackAudioFrame(byte[] data, int lengthInByte) {
+        if (null != rtcEngine) {
+            return rtcEngine.pullPlaybackAudioFrame(data, lengthInByte);
+        }
+        return -1;
+    }
+
+    public int setExternalAudioSink(boolean enabled, int sampleRate, int channels) {
+        if (null != rtcEngine) {
+            return rtcEngine.setExternalAudioSink(enabled, sampleRate, channels);
+        }
+        return -1;
+    }
+
+    public void enableVoiceDriveAvatar(boolean enable) {
+        if (null != metaScene) {
+            metaScene.enableVoiceDriveAvatar(enable);
+        }
+    }
+
+    public void pushAudioToDriveAvatar(byte[] data, long timestamp) {
+        if (null != metaScene) {
+            metaScene.pushAudioToDriveAvatar(data, timestamp, Constants.RTC_AUDIO_SAMPLE_RATE, Constants.RTC_AUDIO_SAMPLE_NUM_OF_CHANNEL);
         }
     }
 }

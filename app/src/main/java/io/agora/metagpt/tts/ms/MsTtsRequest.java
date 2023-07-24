@@ -4,6 +4,7 @@ import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
+import retrofit2.http.Streaming;
 
 
 public interface MsTtsRequest {
@@ -15,5 +16,6 @@ public interface MsTtsRequest {
      * @return
      */
     @POST("cognitiveservices/v1")
+    @Streaming
     Observable<ResponseBody> getTtsResponse(@Body String body);
 }

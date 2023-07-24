@@ -35,15 +35,64 @@
         <item>zh-CN-YunyangNeural</item>
     </string-array>
 
-    <!--
-public static final int CLIENT_ROLE_USER = 0;
-public static final int CLIENT_ROLE_AI = 1;
-public static final int CLIENT_ROLE_MODERATOR = 2;
--->
     <string-array name="game_role">
         <item>玩家</item>
         <item>AI</item>
         <item>主持人</item>
+    </string-array>
+
+    <string-array name="tts_platform">
+        <item>讯飞</item>
+        <item>微软</item>
+        <item>MINIMAX</item>
+    </string-array>
+
+    <string-array name="stt_filter_number">
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+    </string-array>
+
+    <string-array name="chat_tip_message_array">
+        <item>你有什么想聊的话题吗？</item>
+        <item>Hello，可以试着跟我说说话？</item>
+        <item>你可以跟我聊聊你感兴趣的事情吗？</item>
+    </string-array>
+
+    <string-array name="avatar_model">
+        <item>kda</item>
+        <item>花木兰</item>
+        <item>男</item>
+        <item>女</item>
+    </string-array>
+
+    <string-array name="avatar_model_value">
+        <item>kda</item>
+        <item>huamulan</item>
+        <item>boy</item>
+        <item>girl</item>
+    </string-array>
+
+    <string-array name="stt_ai_self_sentence">
+        <item>作为一个人工智能</item>
+        <item>作为一个AI</item>
+        <item>作为一个智能助理</item>
+        <item>我是一个人工智能</item>
+        <item>我是一名人工智能</item>
+        <item>我是一名智能助理</item>
+        <item>我是一个智能助理</item>
+        <item>我是一个AI</item>
+        <item>我是应事智能</item>
+        <item>名为应事</item>
+        <item>我是AIGCND.BOT</item>
+        <item>我是人工智能</item>
+        <item>一个AI</item>
+        <item>我是AI</item>
+        <item>我是一名AI</item>
+        <item>我是机器人</item>
     </string-array>
 
 </resources>
