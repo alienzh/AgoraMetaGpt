@@ -53,14 +53,14 @@
         </activity>
 
         <activity
-            android:name="io.agora.metagpt.ui.game.GameUnderCoverActivity"
+            android:name="io.agora.metagpt.ui.underCover.GameUnderCoverActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
             android:resizeableActivity="false"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name="io.agora.metagpt.ui.game.GameAIPartnerActivity"
+            android:name="io.agora.metagpt.ui.aiPartner.GameAIPartnerActivity"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
             android:resizeableActivity="false"
             android:screenOrientation="portrait"

@@ -43,8 +43,8 @@ public class MsTtsRobot extends TtsRobotBase {
         }
         if (Config.TTS_RESPONSE_STREAM) {
             final ResponsePendingData pendingData = new ResponsePendingData();
-            mResponseDataList.add(pendingData);
             final int index = mRequestIndex++;
+            mResponseDataList.add(pendingData);
             mExecutorCacheService.execute(new Runnable() {
                 @Override
                 public void run() {

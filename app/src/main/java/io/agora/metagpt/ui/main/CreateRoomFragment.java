@@ -1,21 +1,32 @@
 package io.agora.metagpt.ui.main;
 
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.jakewharton.rxbinding2.view.RxView;
 
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -30,9 +41,10 @@ import io.agora.metagpt.databinding.CreateRoomFragmentBinding;
 import io.agora.metagpt.models.GameInfo;
 import io.agora.metagpt.tts.minimax.MinimaxTtsRetrofitManager;
 import io.agora.metagpt.tts.ms.MsTtsRetrofitManager;
-import io.agora.metagpt.ui.game.GameAIPartnerActivity;
-import io.agora.metagpt.ui.game.GameUnderCoverActivity;
+import io.agora.metagpt.ui.aiPartner.GameAIPartnerActivity;
+import io.agora.metagpt.ui.underCover.GameUnderCoverActivity;
 import io.agora.metagpt.ui.base.BaseFragment;
+import io.agora.metagpt.ui.view.CustomDialog;
 import io.agora.metagpt.utils.Constants;
 import io.agora.metagpt.utils.KeyCenter;
 import io.reactivex.disposables.Disposable;
@@ -42,12 +54,20 @@ public class CreateRoomFragment extends BaseFragment {
 
     private CreateRoomFragmentBinding binding;
 
+    private MainViewModel mViewModel;
+
     private Random random = new Random();
     private String[] nicknamePrefix;
     private String[] nicknameSuffix;
 
     private int gameId = Constants.GAME_AI_VOICE_ASSISTANT;
     private int role = Constants.GAME_ROLE_MODERATOR;
+
+    private int downloadProgress;
+
+    private MaterialDialog progressDialog;
+    private MaterialDialog downloadingChooserDialog;
+    private AlertDialog progressLoadingDialog;
 
     public static CreateRoomFragment newInstance() {
         return new CreateRoomFragment();
@@ -71,6 +91,7 @@ public class CreateRoomFragment extends BaseFragment {
     @Override
     protected void initData() {
         super.initData();
+        downloadProgress = -1;
         nicknamePrefix = getResources().getStringArray(R.array.user_nickname_prefix);
         nicknameSuffix = getResources().getStringArray(R.array.user_nickname_suffix);
     }
@@ -169,7 +190,11 @@ public class CreateRoomFragment extends BaseFragment {
                         } else {
                             MetaContext.getInstance().initRoomNameAndUid(GameContext.getInstance().getRoomName(), KeyCenter.getUserUid(), GameContext.getInstance().getUserName());
                             initServices();
-                            GameAIPartnerActivity.startActivity(getContext());
+                            if (progressLoadingDialog == null) {
+                                progressLoadingDialog = CustomDialog.showLoadingProgress(requireContext());
+                            }
+                            progressLoadingDialog.show();
+                            mViewModel.getScenes();
                         }
                         break;
                     default:
@@ -228,6 +253,72 @@ public class CreateRoomFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        LifecycleOwner owner = getViewLifecycleOwner();
+        Context context = requireContext();
+
+        mViewModel.getSceneList().observe(owner, metaSceneInfos -> {
+            Log.d(Constants.TAG, "metaSceneInfos:" + metaSceneInfos);
+            if (metaSceneInfos.size() > 0) {
+                for (int a = 0; a < metaSceneInfos.size(); a++) {
+                    if (metaSceneInfos.get(a).getSceneId() == MetaContext.getInstance().getSceneId()) {
+                        mViewModel.prepareScene(metaSceneInfos.get(a));
+                        break;
+                    }
+                }
+            }
+        });
+        mViewModel.getSelectScene().observe(owner, sceneInfo -> {
+            if (!MetaContext.getInstance().isInitmeta()) return;
+            if (-1 != downloadProgress) downloadProgress = -1;
+            if (progressDialog != null) {
+                progressDialog.dismiss();
+                progressDialog = null;
+            }
+            if (progressLoadingDialog != null) {
+                progressLoadingDialog.dismiss();
+                progressLoadingDialog = null;
+            }
+            GameAIPartnerActivity.startActivity(context);
+        });
+        mViewModel.getRequestDownloading().observe(owner, aBoolean -> {
+            if (!MetaContext.getInstance().isInitmeta()) return;
+            if (aBoolean) {
+                downloadingChooserDialog = CustomDialog.showDownloadingChooser(context, materialDialog -> {
+                    mViewModel.downloadScene(MetaContext.getInstance().getSceneInfo());
+                    return null;
+                }, null);
+            }
+        });
+        mViewModel.getDownloadingProgress().observe(owner, integer -> {
+            if (!MetaContext.getInstance().isInitmeta())   return;
+            if (integer >= 0) downloadProgress = integer;
+            if (progressDialog == null) {
+                progressDialog = CustomDialog.showDownloadingProgress(context, materialDialog -> {
+                    downloadProgress = -1;
+                    mViewModel.cancelDownloadScene(MetaContext.getInstance().getSceneInfo());
+                    return null;
+                });
+            } else if (integer < 0) {
+                if (mIsFront) {
+                    progressDialog.dismiss();
+                    progressDialog = null;
+                }
+                return;
+            }
+
+            if (!progressDialog.isShowing()) progressDialog.show();
+
+            ConstraintLayout constraintLayout = CustomDialog.getCustomView(progressDialog);
+            ProgressBar progressBar = constraintLayout.findViewById(R.id.progressBar);
+            TextView textView = constraintLayout.findViewById(R.id.textView);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                progressBar.setProgress(integer, true);
+            } else {
+                progressBar.setProgress(integer);
+            }
+            textView.setText(String.format(Locale.getDefault(), "%d%%", integer));
+        });
     }
 
     @Override
@@ -239,12 +330,26 @@ public class CreateRoomFragment extends BaseFragment {
     @Override
     public void onStart() {
         super.onStart();
+        if (!MetaContext.getInstance().isInitmeta() && progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+            progressDialog = null;
+        }
+
+        if (!MetaContext.getInstance().isInitmeta() && downloadingChooserDialog != null && downloadingChooserDialog.isShowing()) {
+            downloadingChooserDialog.dismiss();
+            downloadingChooserDialog = null;
+        }
     }
 
 
     @Override
     public void onResume() {
         super.onResume();
+        if (downloadProgress >= 0) {
+            if (!MetaContext.getInstance().downloadScene(MetaContext.getInstance().getSceneInfo())) {
+                Log.e(TAG, "onResume continue download fail");
+            }
+        }
         if (!GameContext.getInstance().isInitRes()) {
             GameContext.getInstance().initData(getActivity());
             binding.btnUnderCover.setText(GameContext.getInstance().findGameById(Constants.GAME_WHO_IS_UNDERCOVER).getGameName());
@@ -253,19 +358,29 @@ public class CreateRoomFragment extends BaseFragment {
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (downloadProgress >= 0) {
+            if (!MetaContext.getInstance().cancelDownloadScene(MetaContext.getInstance().getSceneInfo())) {
+                Log.e(TAG, "onPause cancel download fail");
+            }
+        }
+    }
+
     private void updateView() {
         GameInfo gameInfo = GameContext.getInstance().findGameById(gameId);
         GameContext.getInstance().setCurrentGame(gameInfo);
-        switch (gameId){
+        switch (gameId) {
             case Constants.GAME_WHO_IS_UNDERCOVER:
                 binding.btnUnderCover.setActivated(true);
                 binding.btnAiPartner.setActivated(false);
                 binding.groupRole.setVisibility(View.VISIBLE);
-                if (role==Constants.GAME_ROLE_USER){
+                if (role == Constants.GAME_ROLE_USER) {
                     binding.btnModerator.setActivated(false);
                     binding.btnUser.setActivated(true);
                     binding.groupNickname.setVisibility(View.VISIBLE);
-                }else if (role==Constants.GAME_ROLE_MODERATOR){
+                } else if (role == Constants.GAME_ROLE_MODERATOR) {
                     binding.btnModerator.setActivated(true);
                     binding.btnUser.setActivated(false);
                     binding.groupNickname.setVisibility(View.GONE);
@@ -280,10 +395,5 @@ public class CreateRoomFragment extends BaseFragment {
             default:
                 break;
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 }

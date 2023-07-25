@@ -85,6 +85,8 @@
     <string name="gamer_out">%1$d号玩家已出局</string>
     <string name="gamer_self_out">您已出局</string>
     <string name="gamer_ai_out">AI 已出局</string>
+    <string name="changing_ai_roles">选择这个角色</string>
+    <string name="calling">呼叫 %1$s</string>
 
     <string-array name="user_nickname_prefix">
         <item>忧郁的</item>

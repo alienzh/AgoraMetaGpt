@@ -1,4 +1,4 @@
-package io.agora.metagpt.ui.game;
+package io.agora.metagpt.ui.underCover;
 
 import android.os.Process;
 import android.util.Log;
@@ -55,20 +55,6 @@ public class AIModeratorViewModel extends ModeratorViewModel implements TtsCallb
     private String[] aiMsVoiceNameArray;
     private String mAiMsVoiceName;
 
-    /**
-     * 讯飞默认采样率为16000，如需修改同步修改讯飞在线语音合成参数
-     */
-    public static final int SAMPLE_RATE = 16000;
-    public static final int SAMPLE_NUM_OF_CHANNEL = 1;
-    public static final int BITS_PER_SAMPLE = 16;
-
-    private static final float BYTE_PER_SAMPLE = 1.0f * BITS_PER_SAMPLE / 8 * SAMPLE_NUM_OF_CHANNEL;
-    private static final float DURATION_PER_SAMPLE = 1000.0f / SAMPLE_RATE;
-    private static final float SAMPLE_COUNT_PER_MS = SAMPLE_RATE * 1.0f / 1000;
-    private static final int BUFFER_SAMPLE_COUNT = (int) (SAMPLE_COUNT_PER_MS * 20);
-    private static final int BUFFER_BYTE_SIZE = (int) (BUFFER_SAMPLE_COUNT * BYTE_PER_SAMPLE);
-    private static final long BUFFER_DURATION = (long) (BUFFER_SAMPLE_COUNT * DURATION_PER_SAMPLE);
-
     private List<ChatRobotMessage> mGptChatMessageList;
 
     private List<GamePrompt> mGamePromptList;
@@ -122,7 +108,9 @@ public class AIModeratorViewModel extends ModeratorViewModel implements TtsCallb
     @Override
     protected void updatePublishCustomAudioTrackChannelOptions() {
         super.updatePublishCustomAudioTrackChannelOptions();
-        MetaContext.getInstance().updatePublishCustomAudioTrackChannelOptions(true, SAMPLE_RATE, SAMPLE_NUM_OF_CHANNEL, SAMPLE_NUM_OF_CHANNEL, false, true);
+        MetaContext.getInstance().updatePublishCustomAudioTrackChannelOptions(true,
+                Constants.STT_SAMPLE_RATE,
+                Constants.STT_SAMPLE_NUM_OF_CHANNEL, Constants.STT_SAMPLE_NUM_OF_CHANNEL, false, true);
     }
 
     @Override
@@ -406,7 +394,7 @@ public class AIModeratorViewModel extends ModeratorViewModel implements TtsCallb
             int sentAudioFrames = 0;
             byte[] buffer;
             while (true) {
-                buffer = new byte[BUFFER_BYTE_SIZE];
+                buffer = new byte[Constants.TTS_BUFFER_BYTE_SIZE];
                 try {
                     if (mInputStream.read(buffer) <= 0) {
                         break;
@@ -419,7 +407,7 @@ public class AIModeratorViewModel extends ModeratorViewModel implements TtsCallb
                 Log.d(TAG, "pushExternalAudioFrame tts data:ret = " + ret);
 
                 ++sentAudioFrames;
-                long nextFrameStartTime = sentAudioFrames * BUFFER_DURATION + startTime;
+                long nextFrameStartTime = sentAudioFrames * Constants.TTS_BUFFER_DURATION + startTime;
                 long now = System.currentTimeMillis();
 
                 if (nextFrameStartTime > now) {

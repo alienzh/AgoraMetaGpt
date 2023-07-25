@@ -1,4 +1,4 @@
-package io.agora.metagpt.ui.game;
+package io.agora.metagpt.ui.underCover;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;

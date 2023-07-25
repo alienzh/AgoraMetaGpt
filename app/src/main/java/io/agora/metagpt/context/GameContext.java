@@ -7,6 +7,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.agora.metagpt.models.GameInfo;
 import io.agora.metagpt.models.chat.ChatBotRole;
 import io.agora.metagpt.utils.Constants;
@@ -35,6 +38,8 @@ public class GameContext {
     private ChatBotRole[] mChatBotRoleArray;
 
     private String[] mGptResponseHello;
+
+    private int currentChatBotRoleIndex;
 
     private GameContext() {
         mInitRes = false;
@@ -81,6 +86,7 @@ public class GameContext {
 
             jsonStr = Utils.getFromAssets(context, Constants.ASSETS_CHAT_BOT_ROLE);
             mChatBotRoleArray = JSON.parseObject(jsonStr, ChatBotRole[].class);
+            currentChatBotRoleIndex = 0;
 
 
             jsonStr = Utils.getFromAssets(context, Constants.ASSETS_GPT_RESPONSE_HELLO);
@@ -163,6 +169,23 @@ public class GameContext {
         return mLocalGameWords;
     }
 
+    public ChatBotRole[] getChatBotRoleArray() {
+        return mChatBotRoleArray;
+    }
+
+    public List<ChatBotRole> getAvailableChatBotRoles(){
+        List<ChatBotRole> list = new ArrayList<>();
+        if (mChatBotRoleArray!=null){
+            for (int i = 0; i < mChatBotRoleArray.length; i++) {
+                ChatBotRole chatBotRole = mChatBotRoleArray[i];
+                if (chatBotRole.isEnable()){
+                    list.add(chatBotRole);
+                }
+            }
+        }
+        return list;
+    }
+
     public boolean isQuestionSentence(String sentence) {
         if (null != mQuestionWords) {
             for (String word : mQuestionWords) {
@@ -188,6 +211,21 @@ public class GameContext {
     public ChatBotRole getChatBotRoleByIndex(int index) {
         if (null != mChatBotRoleArray && index < mChatBotRoleArray.length && index >= 0) {
             return mChatBotRoleArray[index];
+        }
+        return null;
+    }
+
+    public void setCurrentChatBotRoleIndex(int index){
+        this.currentChatBotRoleIndex = index;
+    }
+
+    public int getCurrentChatBotRoleIndex(){
+        return this.currentChatBotRoleIndex;
+    }
+
+    public ChatBotRole getCurrentChatBotRole(){
+        if (null != mChatBotRoleArray && currentChatBotRoleIndex < mChatBotRoleArray.length && currentChatBotRoleIndex >= 0) {
+            return mChatBotRoleArray[currentChatBotRoleIndex];
         }
         return null;
     }

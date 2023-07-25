@@ -537,7 +537,7 @@ public class MetaContext implements IMetaServiceEventHandler, IMetaSceneEventHan
             option.autoSubscribeAudio = enable;
             rtcEngine.updateChannelMediaOptions(option);
 
-            rtcEngine.enableAudioVolumeIndication(50, 3, true);
+            rtcEngine.enableAudioVolumeIndication(40, 3, true);
         }
     }
 

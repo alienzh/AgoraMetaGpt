@@ -3,12 +3,31 @@ package io.agora.metagpt.models.chat;
 import androidx.annotation.NonNull;
 
 public class ChatBotRole {
+
+    private int chatBotId;
+    private boolean isEnable;
     private String chatBotRole;
     private String chatBotName;
     private String chatBotUserName;
     private String chatBotPrompt;
     private String introduceReplace;
     private String welcomeMessage;
+
+    public int getChatBotId() {
+        return chatBotId;
+    }
+
+    public void setChatBotId(int chatBotId) {
+        this.chatBotId = chatBotId;
+    }
+
+    public boolean isEnable() {
+        return isEnable;
+    }
+
+    public void setEnable(boolean enable) {
+        isEnable = enable;
+    }
 
     public String getChatBotRole() {
         return chatBotRole;

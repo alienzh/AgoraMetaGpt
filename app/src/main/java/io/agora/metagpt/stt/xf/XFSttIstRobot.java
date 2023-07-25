@@ -42,7 +42,7 @@ public class XFSttIstRobot extends SttRobotBase {
     public void init() {
         super.init();
         mFrameIndex = FRAME_INDEX_FIRST;
-        initWebSocketClient();
+        mExecutorService.execute(() -> initWebSocketClient());
     }
 
     private void initWebSocketClient() {

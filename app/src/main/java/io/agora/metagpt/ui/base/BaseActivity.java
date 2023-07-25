@@ -101,7 +101,7 @@ public class BaseActivity extends AppCompatActivity implements IMetaSceneEventHa
         MetaContext.getInstance().unregisterMetaSceneEventHandler(this);
     }
 
-    protected void registerMetachat() {
+    protected void registerMeta() {
         MetaContext.getInstance().registerMetaSceneEventHandler(this);
         MetaContext.getInstance().registerMetaServiceEventHandler(this);
 

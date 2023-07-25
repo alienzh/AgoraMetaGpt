@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 public class AppUtils {
 
@@ -101,4 +102,13 @@ public class AppUtils {
         return bm;
     }
 
+    public static int getDrawableRes(Context context,String drawableStr){
+        int resId = 0;
+        try {
+            resId = context.getResources().getIdentifier(drawableStr, "drawable", context.getPackageName());
+        } catch (Exception e) {
+            Log.e("getResources()", e.getMessage());
+        }
+        return resId;
+    }
 }

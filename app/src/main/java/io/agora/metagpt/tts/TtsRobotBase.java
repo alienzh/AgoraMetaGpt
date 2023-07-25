@@ -200,10 +200,9 @@ public class TtsRobotBase implements ITtsRobot {
                                 mRingBuffer.put(pendingByte);
                             }
                             pendingData.clearData();
-                        } else {
-                            for (int i = 0; i < len; i++) {
-                                mRingBuffer.put(bytes[i]);
-                            }
+                        }
+                        for (int i = 0; i < len; i++) {
+                            mRingBuffer.put(bytes[i]);
                         }
                     } else {
                         pendingData.putData(bytes, len);

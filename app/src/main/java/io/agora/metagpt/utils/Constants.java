@@ -89,14 +89,6 @@ public class Constants {
     public static final int STT_SAMPLE_NUM_OF_CHANNEL = 1;
     public static final int STT_BITS_PER_SAMPLE = 16;
 
-    //ms
-    public static final int INTERVAL_XF_REQUEST = 40;
-    public static final long INTERVAL_MIN_REQUEST_CHAT = 3000;
-    public static final long INTERVAL_CHAT_IDLE_TIME = 10 * 1000;
-
-    /**
-     * 讯飞默认采样率为16000，如需修改同步修改讯飞在线语音合成参数
-     */
     public static final float TTS_BYTE_PER_SAMPLE = 1.0f * Constants.STT_BITS_PER_SAMPLE / 8 * Constants.STT_SAMPLE_NUM_OF_CHANNEL;
     public static final float TTS_DURATION_PER_SAMPLE = 1000.0f / Constants.STT_SAMPLE_RATE;
     public static final float TTS_SAMPLE_COUNT_PER_MS = Constants.STT_SAMPLE_RATE * 1.0f / 1000;
@@ -104,9 +96,14 @@ public class Constants {
     public static final int TTS_BUFFER_BYTE_SIZE = (int) (TTS_BUFFER_SAMPLE_COUNT * TTS_BYTE_PER_SAMPLE);
     public static final long TTS_BUFFER_DURATION = (long) (TTS_BUFFER_SAMPLE_COUNT * TTS_DURATION_PER_SAMPLE);
 
+    //ms
+    public static final int INTERVAL_XF_REQUEST = 40;
+    public static final long INTERVAL_MIN_REQUEST_CHAT = 3000;
+    public static final long INTERVAL_CHAT_IDLE_TIME = 10 * 1000;
+
     public static final int MAX_COUNT_GPT_RESPONSE_HELLO = 3;
 
     public static final int GPT_MAX_TOKENS = 16384;
-    public static final float GPT_TEMPERATURE = 0.95f;
+    public static final float GPT_TEMPERATURE = 0.5f;
     public static final float GPT_TOP_P = 0.95f;
 }

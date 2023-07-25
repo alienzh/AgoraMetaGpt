@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/video_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/black"
+    android:paddingStart="8dp"
+    android:paddingEnd="0dp">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivRolePortrait"
+        app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.Avatar"
+        android:layout_width="89dp"
+        android:layout_height="89dp"
+        android:padding="5dp"
+        android:background="@drawable/bg_button_role_select"
+        android:src="@drawable/ai_portrait_1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivGender"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:background="@drawable/ic_gender_male"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/ivSelect"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginBottom="18dp"
+        android:background="@drawable/bg_button_76a_corners_male"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
