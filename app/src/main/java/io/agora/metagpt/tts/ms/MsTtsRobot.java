@@ -26,12 +26,11 @@ import okhttp3.ResponseBody;
 
 public class MsTtsRobot extends TtsRobotBase {
     public MsTtsRobot() {
-        mVoiceName = "zh-CN-XiaoxiaoNeural";
     }
 
     @Override
     public String getTtsPlatformName() {
-        return "ms";
+        return Constants.PLATFORM_NAME_MS;
     }
 
     @Override
@@ -44,7 +43,7 @@ public class MsTtsRobot extends TtsRobotBase {
         if (Config.TTS_RESPONSE_STREAM) {
             final ResponsePendingData pendingData = new ResponsePendingData();
             final int index = mRequestIndex++;
-            mResponseDataList.add(pendingData);
+            mResponseDataList.add(index, pendingData);
             mExecutorCacheService.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -68,6 +67,13 @@ public class MsTtsRobot extends TtsRobotBase {
                                 if (isFirstResponse && mIsOnSpeaking) {
                                     mCallback.updateTtsHistoryInfo("微软tts第一条返回结果(" + (System.currentTimeMillis() - curTime) + "ms)");
                                 }
+//                                synchronized (mLock) {
+//                                byte[] newData = new byte[len];
+//                                System.arraycopy(bytes, 0, newData, 0, len);
+//                                Log.i(Constants.TAG, Utils.isPcmByteArrayIsMute(newData) + " len:" + len + " bytes:" + Arrays.toString(newData));
+//                                if (Utils.isByteArrayAllZero(newData)) {
+//                                    return;
+//                                }
                                 handleResponsePendingData(pendingData, index, bytes, len, isFirstResponse);
 
                                 try {
@@ -125,8 +131,8 @@ public class MsTtsRobot extends TtsRobotBase {
                         params.put("Ocp-Apim-Subscription-Key", BuildConfig.MS_SPEECH_KEY);
                         params.put("X-Microsoft-OutputFormat", "raw-16khz-16bit-mono-pcm");
 
-                        String requestStr = "<speak xmlns='http://www.w3.org/2001/10/synthesis' version='1.0' xml:lang='zh-CN'>" +
-                                "<voice xml:lang='zh-CN' xml:gender='Female' name='" + mVoiceName + "' style='cheerful'>" +
+                        String requestStr = "<speak version='1.0' xml:lang='zh-CN'>" +
+                                "<voice xml:lang='zh-CN' xml:gender='Female' name='" + mVoiceNameValue + "'  style='" + mVoiceNameStyle + "'>" +
                                 message +
                                 "</voice>" +
                                 "</speak>";
@@ -139,11 +145,12 @@ public class MsTtsRobot extends TtsRobotBase {
         } else {
             long curTime = System.currentTimeMillis();
             String requestStr = "<speak version='1.0' xml:lang='zh-CN'>" +
-                    "<voice xml:lang='zh-CN' xml:gender='Female' name='" + mVoiceName + "'  style='cheerful'>" +
+                    "<voice xml:lang='zh-CN' xml:gender='Female' name='" + mVoiceNameValue + "'  style='" + mVoiceNameStyle + "'>" +
                     message +
                     "</voice>" +
                     "</speak>";
 
+            RequestBody requestBody = RequestBody.create(requestStr, MediaType.parse("application/ssml+xml"));
             MsTtsRetrofitManager.getInstance().getTtsRequest().getTtsResponse(requestStr)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -212,7 +219,7 @@ public class MsTtsRobot extends TtsRobotBase {
     public void requestTipTts(String tip, String path) {
         super.requestTipTts(tip, path);
         String requestStr = "<speak version='1.0' xml:lang='zh-CN'>" +
-                "<voice xml:lang='zh-CN' xml:gender='Female' name='" + mVoiceName + "'  style='cheerful'>" +
+                "<voice xml:lang='zh-CN' xml:gender='Female' name='" + mVoiceNameValue + "'  style='" + mVoiceNameStyle + "'>" +
                 tip +
                 "</voice>" +
                 "</speak>";

@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 import io.agora.metagpt.MainApplication;
 import io.agora.metagpt.R;
-import io.agora.metagpt.adapter.IMessageView;
+import io.agora.metagpt.ui.adapter.IMessageView;
 import io.agora.metagpt.context.MetaContext;
 import io.agora.metagpt.models.DataStreamModel;
 import io.agora.metagpt.models.DisplayUserInfo;

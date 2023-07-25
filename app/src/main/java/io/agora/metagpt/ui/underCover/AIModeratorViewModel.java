@@ -68,7 +68,7 @@ public class AIModeratorViewModel extends ModeratorViewModel implements TtsCallb
     @Override
     protected void initData() {
         super.initData();
-        mTempTtsPcmFilePath = MainApplication.mGlobalApplication.getExternalCacheDir().getPath() + "/tempTts.pcm";
+        mTempTtsPcmFilePath = MainApplication.mGlobalApplication.getExternalCacheDir().getPath() + "/temp/tempTts.pcm";
         File tempTtsFile = new File(mTempTtsPcmFilePath);
         if (!tempTtsFile.exists()) {
             try {

@@ -5,16 +5,20 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import io.agora.metagpt.MainApplication
 import io.agora.metagpt.R
+import io.agora.metagpt.agora_server.AgoraGptServerManager
 import io.agora.metagpt.chat.ChatRobotManager
-import io.agora.metagpt.context.GameContext
 import io.agora.metagpt.context.MetaContext
 import io.agora.metagpt.inf.ChatCallback
 import io.agora.metagpt.inf.SttCallback
 import io.agora.metagpt.inf.TtsCallback
+import io.agora.metagpt.models.chat.ChatBotRole
 import io.agora.metagpt.stt.SttRobotManager
 import io.agora.metagpt.tts.TtsRobotManager
+import io.agora.metagpt.utils.Config
 import io.agora.metagpt.utils.Constants
+import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.SynchronousQueue
@@ -46,29 +50,77 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         }
     }
 
-    private var mRequestChatKeyInfoIndex = 0
-    private var mExecutorService: ExecutorService? = null
+    private var mTempPcmFilePath: String? = null
+    private var mExecutorService: ExecutorService = ThreadPoolExecutor(
+        0, Int.MAX_VALUE,
+        60L, TimeUnit.SECONDS,
+        SynchronousQueue(), Executors.defaultThreadFactory(), ThreadPoolExecutor.AbortPolicy()
+    )
 
     private val mSttResults: StringBuilder = java.lang.StringBuilder()
-    private var mFirstRecordAudio = false
+    private val mChatAnswerPending: StringBuilder = java.lang.StringBuilder()
     private var mIsSpeaking = false
+    private var mCancelRequest = false
+    private var mGptResponseCount = 0
+    private var mGptRequestStart = false
+    private var mRequestChatKeyInfoIndex = 0
+
     private var mChatRobotManager: ChatRobotManager? = null
 
     private var mTtsRobotManager: TtsRobotManager? = null
     private var mSttRobotManager: SttRobotManager? = null
 
+    private var mAgoraGptServerManager: AgoraGptServerManager? = null
+
 
     fun initData() {
-        if (null == mExecutorService) {
-            mExecutorService = ThreadPoolExecutor(
-                0, Int.MAX_VALUE,
-                60L, TimeUnit.SECONDS,
-                SynchronousQueue(), Executors.defaultThreadFactory(), ThreadPoolExecutor.AbortPolicy()
-            )
+        mTempPcmFilePath = MainApplication.mGlobalApplication.externalCacheDir!!.path + "/temp/tempTts.pcm"
+        val tempTtsFile = File(mTempPcmFilePath)
+        if (!tempTtsFile.exists()) {
+            try {
+                File(tempTtsFile.parent).mkdirs()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
+
+
+        if (null == mChatRobotManager) {
+            mChatRobotManager = ChatRobotManager(MainApplication.mGlobalApplication)
+            mChatRobotManager!!.setChatCallback(this)
+        }
+        if (null == mTtsRobotManager) {
+            mTtsRobotManager = TtsRobotManager()
+            mTtsRobotManager!!.setTtsCallback(this)
+        }
+        mTtsRobotManager?.init(MainApplication.mGlobalApplication, mTempPcmFilePath)
+        if (null == mSttRobotManager) {
+            mSttRobotManager = SttRobotManager()
+            mSttRobotManager!!.setSttCallback(this)
+        }
+        mSttRobotManager!!.setAiSttPlatformIndex(Constants.STT_PLATFORM_XF_IST)
+        if (null == mAgoraGptServerManager) {
+            mAgoraGptServerManager = AgoraGptServerManager()
+            mAgoraGptServerManager!!.init(mTempPcmFilePath)
+        }
+
+        mSttResults.clear()
+        mChatAnswerPending.clear()
+        mIsSpeaking = false
+        mCancelRequest = true
+        mGptResponseCount = 0
+
+        mGptRequestStart = true
+
+        mRequestChatKeyInfoIndex = 0
+
+        val chatTipMessageArray =
+            MainApplication.mGlobalApplication.applicationContext.resources.getStringArray(R.array.chat_tip_message_array)
+        mTtsRobotManager?.setChatTipMessages(chatTipMessageArray)
+        mTtsRobotManager?.setAiTtsPlatformIndex(Constants.TTS_PLATFORM_MS)
     }
 
-    fun isSpeaking():Boolean = mIsSpeaking
+    fun isSpeaking(): Boolean = mIsSpeaking
 
     fun startSpeaking(callback: ((isSpeaking: Boolean) -> Unit)) {
         if (mIsSpeaking) {
@@ -78,7 +130,6 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
             mTtsRobotManager?.clearData()
         } else {
             mIsSpeaking = true
-            mFirstRecordAudio = true
             mSttResults.delete(0, mSttResults.length)
             mTtsRobotManager?.setIsSpeaking(mIsSpeaking)
             MetaContext.getInstance().updateRoleSpeak(true)
@@ -87,12 +138,21 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         callback.invoke(mIsSpeaking)
     }
 
+    fun setChatBotRole(chatBotRole: ChatBotRole) {
+        mChatRobotManager?.setChatBotRole(chatBotRole)
+        mTtsRobotManager?.setChatBotRole(chatBotRole)
+    }
+
     fun exit() {
         mIsSpeaking = false
         mSttRobotManager?.close()
         mTtsRobotManager?.close()
         mChatRobotManager?.close()
-        MetaContext.getInstance().leaveScene()
+        if (Config.ENABLE_META_VOICE_DRIVER) {
+            MetaContext.getInstance().leaveScene()
+        } else {
+            MetaContext.getInstance().leaveRtcChannel()
+        }
         mHandler.removeMessages(MESSAGE_REQUEST_CHAT_KEY_INFO)
         mHandler.removeCallbacksAndMessages(null)
     }

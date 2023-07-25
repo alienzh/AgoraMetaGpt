@@ -21,6 +21,7 @@ import io.agora.metagpt.tts.xf.XfTtsRobot;
 import io.agora.metagpt.utils.Constants;
 import io.agora.metagpt.utils.Utils;
 
+
 public class TtsRobotManager {
     private Context mContext;
     private ITtsRobot mTtsRobot;
@@ -33,7 +34,6 @@ public class TtsRobotManager {
 
     private String[] mChatTipMessages;
     private List<String> mRequestChatTipPaths;
-    private String mTtsVoiceName;
 
     private String mPendingTtsMessage;
     private final Pattern mSentencePattern;
@@ -44,8 +44,6 @@ public class TtsRobotManager {
     private String mLastTtsSentence;
     private boolean mWelcomeTip;
     private ChatBotRole mChatBotRole;
-
-    private final static int WAIT_AUDIO_FRAME_COUNT = 3;
 
 
     public TtsRobotManager() {
@@ -87,9 +85,11 @@ public class TtsRobotManager {
         if (null != mTtsRobot) {
             mTtsRobot.init(mTempTtsPcmFilePath);
             mTtsRobot.setTtsCallback(mTtsCallback);
-            mTtsRobot.setVoiceName(mTtsVoiceName);
             mTtsRobot.setIsSpeaking(mIsSpeaking);
-            checkTipTtsRequest();
+            if (null != mChatBotRole) {
+                mTtsRobot.setChatBotRole(mChatBotRole);
+            }
+            checkTipTtsRequest(false);
             if (!mWelcomeTip && null != mChatBotRole) {
                 mWelcomeTip = true;
                 mTtsRobot.tts(mChatBotRole.getWelcomeMessage(), false);
@@ -100,11 +100,8 @@ public class TtsRobotManager {
     public void setTtsPlatformVoiceName(String ttsVoiceName, boolean fromUser) {
         if (fromUser) {
             if (null != mTtsRobot) {
-                mTtsRobot.setVoiceName(ttsVoiceName);
-                checkTipTtsRequest();
+                checkTipTtsRequest(true);
             }
-        } else {
-            mTtsVoiceName = ttsVoiceName;
         }
     }
 
@@ -151,8 +148,8 @@ public class TtsRobotManager {
             if (mRingBufferReady) {
                 return mTtsRobot.getTtsBuffer(length);
             } else {
-                //等待length*WAIT_AUDIO_FRAME_COUNT大小的数据
-                if (mTtsRobot.getTtsBufferLength() >= length * WAIT_AUDIO_FRAME_COUNT) {
+                //wait length*WAIT_AUDIO_FRAME_COUNT data
+                if (mTtsRobot.getTtsBufferLength() >= length * Constants.WAIT_AUDIO_FRAME_COUNT) {
                     mRingBufferReady = true;
                     return mTtsRobot.getTtsBuffer(length);
                 } else {
@@ -210,7 +207,7 @@ public class TtsRobotManager {
         }
     }
 
-    private void checkTipTtsRequest() {
+    private void checkTipTtsRequest(boolean force) {
         if (null == mTtsRobot) {
             return;
         }
@@ -227,7 +224,7 @@ public class TtsRobotManager {
         for (int i = 0; i < mChatTipMessages.length; i++) {
             pcmPath = mTempTtsPcmFilePath + "_tip_" + mTtsRobot.getTtsPlatformName() + "_" + i + ".pcm";
             mRequestChatTipPaths.add(pcmPath);
-            if (!new File(pcmPath).exists()) {
+            if (!new File(pcmPath).exists() || force) {
                 requestChatTipMessages.put(mChatTipMessages[i], pcmPath);
             }
         }
@@ -265,6 +262,15 @@ public class TtsRobotManager {
 
     public void setChatBotRole(ChatBotRole chatBotRole) {
         this.mChatBotRole = chatBotRole;
+
+        if (!mWelcomeTip && null != mChatBotRole) {
+            mWelcomeTip = true;
+            mTtsRobot.tts(mChatBotRole.getWelcomeMessage(), false);
+        }
+        if (null != mTtsRobot) {
+            mTtsRobot.setChatBotRole(chatBotRole);
+            checkTipTtsRequest(true);
+        }
     }
 
     public void cancelTtsRequest(boolean cancel) {

@@ -57,12 +57,11 @@ public class XfTtsRobot extends TtsRobotBase {
         gson = new Gson();
         mOutputStream = null;
         wsCloseFlag = true;
-        mVoiceName = "xiaoyan";
     }
 
     @Override
     public String getTtsPlatformName() {
-        return "xf";
+        return Constants.PLATFORM_NAME_XF;
     }
 
 
@@ -298,7 +297,7 @@ public class XfTtsRobot extends TtsRobotBase {
                                 "    \"aue\": \"raw\",\n" +
                                 "    \"tte\": \"" + TTE + "\",\n" +
                                 "    \"ent\": \"intp65\",\n" +
-                                "    \"vcn\": \"" + mVoiceName + "\",\n" +
+                                "    \"vcn\": \"" + mVoiceNameValue + "\",\n" +
                                 "    \"pitch\": 50,\n" +
                                 "    \"speed\": 50\n" +
                                 "  },\n" +
@@ -372,7 +371,7 @@ public class XfTtsRobot extends TtsRobotBase {
                                 "    \"aue\": \"raw\",\n" +
                                 "    \"tte\": \"" + TTE + "\",\n" +
                                 "    \"ent\": \"intp65\",\n" +
-                                "    \"vcn\": \"" + mVoiceName + "\",\n" +
+                                "    \"vcn\": \"" + mVoiceNameValue + "\",\n" +
                                 "    \"pitch\": 50,\n" +
                                 "    \"speed\": 50\n" +
                                 "  },\n" +

@@ -2,8 +2,9 @@ package io.agora.metagpt.models.chat;
 
 import androidx.annotation.NonNull;
 
-public class ChatBotRole {
+import java.util.Arrays;
 
+public class ChatBotRole {
     private int chatBotId;
     private boolean isEnable;
     private String chatBotRole;
@@ -12,6 +13,7 @@ public class ChatBotRole {
     private String chatBotPrompt;
     private String introduceReplace;
     private String welcomeMessage;
+    private VoiceName[] voiceNames;
 
     public int getChatBotId() {
         return chatBotId;
@@ -77,6 +79,14 @@ public class ChatBotRole {
         this.welcomeMessage = welcomeMessage;
     }
 
+    public VoiceName[] getVoiceNames() {
+        return voiceNames;
+    }
+
+    public void setVoiceNames(VoiceName[] voiceNames) {
+        this.voiceNames = voiceNames;
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -87,6 +97,7 @@ public class ChatBotRole {
                 ", chatBotPrompt='" + chatBotPrompt + '\'' +
                 ", introduceReplace='" + introduceReplace + '\'' +
                 ", welcomeMessage='" + welcomeMessage + '\'' +
+                ", voiceNames=" + Arrays.toString(voiceNames) +
                 '}';
     }
 }

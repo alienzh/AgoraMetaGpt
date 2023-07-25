@@ -380,7 +380,7 @@ public class MetaContext implements IMetaServiceEventHandler, IMetaSceneEventHan
 
     @Override
     public void onGetSceneAssetsInfoResult(MetaSceneAssetsInfo[] scenes, int errorCode) {
-        Log.i(TAG, "onGetSceneAssetsInfoResult scenes:" + Arrays.toString(scenes));
+        Log.i(TAG, "onGetSceneAssetsInfoResult scenes:" + scenes.length);
         for (IMetaServiceEventHandler handler : metaServiceEventHandlerMap.keySet()) {
             handler.onGetSceneAssetsInfoResult(scenes, errorCode);
         }

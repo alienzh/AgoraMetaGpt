@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.agora.metagpt.R;
-import io.agora.metagpt.adapter.ChatMessageAdapter;
-import io.agora.metagpt.adapter.GamerAdapter;
+import io.agora.metagpt.ui.adapter.ChatMessageAdapter;
+import io.agora.metagpt.ui.adapter.GamerAdapter;
 import io.agora.metagpt.context.GameContext;
 import io.agora.metagpt.context.MetaContext;
 import io.agora.metagpt.databinding.GameUnderConverActivityBinding;

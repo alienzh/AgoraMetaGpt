@@ -1,10 +1,8 @@
-package io.agora.metagpt.adapter;
+package io.agora.metagpt.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
-import android.text.Html;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +17,11 @@ import io.agora.metagpt.R;
 import io.agora.metagpt.models.ChatMessageModel;
 
 
-public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.MyViewHolder> implements IMessageView{
+public class ChatMessageListAdapter extends RecyclerView.Adapter<ChatMessageListAdapter.MyViewHolder> {
     private final Context mContext;
     private final List<ChatMessageModel> mDataList;
 
-    public ChatMessageAdapter(Context context, List<ChatMessageModel> list) {
+    public ChatMessageListAdapter(Context context, List<ChatMessageModel> list) {
         this.mContext = context;
         this.mDataList = list;
     }
@@ -31,7 +29,7 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.item_chat_message, parent, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.item_chat_message_list, parent, false);
         return new MyViewHolder(view);
     }
 
@@ -39,9 +37,17 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
     public void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
         if (null != mDataList) {
             ChatMessageModel chatMessage = mDataList.get(position);
-            String text= mContext.getResources().getString(R.string.message_font_text, chatMessage.getUsername(),chatMessage.getMessage());
-            Spanned colorText = Html.fromHtml(text);
-            holder.tvMessage.setText(colorText);
+            if (chatMessage.isAiMessage()) {
+                holder.layoutLeftMessage.setVisibility(View.GONE);
+                holder.layoutRightMessage.setVisibility(View.VISIBLE);
+                holder.rightUsername.setText(chatMessage.getUsername());
+                holder.rightMessage.setText(chatMessage.getMessage());
+            } else {
+                holder.layoutLeftMessage.setVisibility(View.VISIBLE);
+                holder.layoutRightMessage.setVisibility(View.GONE);
+                holder.leftUsername.setText(chatMessage.getUsername());
+                holder.leftMessage.setText(chatMessage.getMessage());
+            }
         }
     }
 
@@ -59,11 +65,23 @@ public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView tvMessage;
+        private final ViewGroup layoutLeftMessage;
+        private final TextView leftUsername;
+        private final TextView leftMessage;
+
+        private final ViewGroup layoutRightMessage;
+        private final TextView rightUsername;
+        private final TextView rightMessage;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvMessage = itemView.findViewById(R.id.tvMessage);
+            layoutLeftMessage = (ViewGroup) itemView.findViewById(R.id.layout_left_message);
+            leftUsername = (TextView) itemView.findViewById(R.id.tv_left_username);
+            leftMessage = (TextView) itemView.findViewById(R.id.tv_left_message);
+
+            layoutRightMessage = (ViewGroup) itemView.findViewById(R.id.layout_right_message);
+            rightUsername = (TextView) itemView.findViewById(R.id.tv_right_username);
+            rightMessage = (TextView) itemView.findViewById(R.id.tv_right_message);
         }
     }
 

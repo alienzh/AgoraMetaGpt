@@ -18,6 +18,4 @@ public class Config {
     public final static boolean ENABLE_AGORA_GPT_SERVER = false;
 
     public final static boolean ENABLE_SAVE_GPT_CHAT_HISTORY = true;
-
-    public final static boolean ENABLE_DUBBING_VOICE_ENGINE = false;
 }

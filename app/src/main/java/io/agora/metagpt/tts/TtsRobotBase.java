@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
 import io.agora.metagpt.inf.ITtsRobot;
 import io.agora.metagpt.inf.TtsCallback;
 import io.agora.metagpt.models.ResponsePendingData;
+import io.agora.metagpt.models.chat.ChatBotRole;
+import io.agora.metagpt.models.chat.VoiceName;
 import io.agora.metagpt.net.HttpURLRequest;
 import io.agora.metagpt.utils.AndroidPcmPlayer;
 import io.agora.metagpt.utils.Config;
@@ -22,7 +24,6 @@ import io.agora.metagpt.utils.Constants;
 import io.agora.metagpt.utils.RingBuffer;
 
 public class TtsRobotBase implements ITtsRobot {
-    protected String mVoiceName;
     protected TtsCallback mCallback;
     protected boolean mIsSpeaking;
 
@@ -51,6 +52,11 @@ public class TtsRobotBase implements ITtsRobot {
     protected volatile List<HttpURLRequest> mHttpUrlRequests;
 
     protected volatile boolean mIsCancelRequest;
+
+    protected volatile ChatBotRole mChatBotRole;
+
+    protected String mVoiceNameValue;
+    protected String mVoiceNameStyle;
 
     protected TtsRobotBase() {
         mIsSpeaking = false;
@@ -83,11 +89,6 @@ public class TtsRobotBase implements ITtsRobot {
     @Override
     public String getTtsPlatformName() {
         return null;
-    }
-
-    @Override
-    public void setVoiceName(String voiceName) {
-        mVoiceName = voiceName;
     }
 
     @Override
@@ -244,6 +245,22 @@ public class TtsRobotBase implements ITtsRobot {
         if (null != buffer) {
             for (byte b : buffer) {
                 mRingBuffer.put(b);
+            }
+        }
+    }
+
+    @Override
+    public void setChatBotRole(ChatBotRole chatBotRole) {
+        if (null == chatBotRole) {
+            return;
+        }
+        mChatBotRole = chatBotRole;
+        VoiceName[] voiceNames = chatBotRole.getVoiceNames();
+        for (VoiceName voiceName : voiceNames) {
+            if (voiceName.getPlatformName().equals(getTtsPlatformName())) {
+                mVoiceNameValue = voiceName.getVoiceNameValue();
+                mVoiceNameStyle = voiceName.getVoiceNameStyle();
+                break;
             }
         }
     }

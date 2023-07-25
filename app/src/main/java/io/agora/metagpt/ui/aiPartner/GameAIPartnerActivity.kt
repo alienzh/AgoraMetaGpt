@@ -59,7 +59,7 @@ class GameAIPartnerActivity : BaseActivity() {
         window.decorView.keepScreenOn = true
         ViewCompat.setOnApplyWindowInsetsListener(binding.superLayout) { v: View?, insets: WindowInsetsCompat ->
             val inset = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.root.setPaddingRelative(inset.left, inset.top, inset.right, inset.bottom)
+            binding.root.setPaddingRelative(inset.left, 0, inset.right, inset.bottom)
             WindowInsetsCompat.CONSUMED
         }
         initUnityView()
@@ -188,7 +188,6 @@ class GameAIPartnerActivity : BaseActivity() {
         Log.d(TAG, "maybeCreateScene")
         if (mReCreateScene && mIsFront) {
             registerMeta()
-            registerRtc()
             if (Config.ENABLE_SHARE_CHAT) {
                 MetaContext.getInstance().setPlaybackAudioFrameParameters(
                     Constants.RTC_AUDIO_SAMPLE_RATE,

@@ -6,41 +6,114 @@
         <item>Xunfei</item>
     </string-array>
     <!--
-    public static final int AI_PLATFORM_CHAT_GPT = 0;
-    public static final int AI_PLATFORM_MINIMAX_COMPLETION5 = 1;
-    public static final int AI_PLATFORM_MINIMAX_CHAT_COMPLETION4 = 2;
-    public static final int AI_PLATFORM_MINIMAX_CHAT_COMPLETION5 = 3;
+    public static final int AI_PLATFORM_CHAT_GPT35 = 0;
+    public static final int AI_PLATFORM_CHAT_GPT40 = 1;
+    public static final int AI_PLATFORM_MINIMAX_CHAT_COMPLETION5 = 2;
+    public static final int AI_PLATFORM_MINIMAX_CHAT_COMPLETION55 = 3;
+    public static final int AI_PLATFORM_MINIMAX_CHAT_COMPLETION_PRO_55 = 4;
+    public static final int AI_PLATFORM_CHAT_XUNFEI = 5;
    -->
     <integer-array name="ai_platform_index">
-        <item>0</item>
-        <item>3</item>
+        <item>1</item>
         <item>4</item>
+        <item>5</item>
     </integer-array>
 
     <string-array name="ms_voice_name">
         <item>晓晓(普通话)</item>
-        <item>晓北(东北官话)</item>
+        <item>晓伊(普通话)</item>
+        <item>云希(普通话)</item>
+
+        <!--<item>晓北(东北官话)</item>
         <item>晓妮(中原官话陕西)</item>
         <item>云翔(冀鲁官话)</item>
-        <item>云希(普通话)</item>
         <item>云杨(普通话)</item>
+        <item>云皓(普通话)</item>
+        <item>晓墨(普通话)</item>
+        <item>晓梦(普通话)</item>
+        <item>晓萱(普通话)</item>
+        <item>云泽(普通话)</item>
+        <item>晓涵(普通话)</item>-->
     </string-array>
 
     <string-array name="ms_voice_value">
         <item>zh-CN-XiaoxiaoNeural</item>
-        <item>zh-CN-liaoning-XiaobeiNeural</item>
+        <item>zh-CN-XiaoyiNeural</item>
+        <item>zh-CN-YunxiNeural</item>
+
+        <!--<item>zh-CN-liaoning-XiaobeiNeural</item>
         <item>zh-CN-shaanxi-XiaoniNeural</item>
         <item>zh-CN-shandong-YunxiangNeural</item>
-        <item>zh-CN-YunxiNeural</item>
         <item>zh-CN-YunyangNeural</item>
+        <item>zh-CN-YunhaoNeural</item>
+        <item>zh-CN-XiaomoNeural</item>
+        <item>zh-CN-XiaomengNeural</item>
+        <item>zh-CN-XiaoxuanNeural</item>
+        <item>zh-CN-YunzeNeural</item>
+        <item>zh-CN-XiaohanNeural</item>-->
     </string-array>
 
+    <string-array name="xf_voice_name">
+        <item>晓燕(普通话)</item>
+        <item>小宇(普通话)</item>
+    </string-array>
+
+    <string-array name="xf_voice_value">
+        <item>xiaoyan</item>
+        <item>xiaoyu</item>
+    </string-array>
+
+    <string-array name="minimax_voice_name">
+        <item>甜美女性音色</item>
+        <item>精英青年音色</item>
+        <!--     <item>青涩青年音色</item>
+             <item>霸道青年音色</item>
+             <item>青年大学生音色</item>
+             <item>少女音色</item>
+             <item>御姐音色</item>
+             <item>成熟女性音色</item>
+             <item>男性主持人</item>
+             <item>女性主持人</item>
+             <item>男性有声书1</item>
+             <item>男性有声书2</item>
+             <item>女性有声书1</item>
+             <item>女性有声书2</item>-->
+    </string-array>
+
+    <string-array name="minimax_voice_value">
+        <item>female-tianmei</item>
+        <item>male-qn-jingying</item>
+
+        <!--       <item>male-qn-qingse</item>
+               <item>male-qn-badao</item>
+               <item>male-qn-daxuesheng</item>
+               <item>female-shaonv</item>
+               <item>female-yujie</item>
+               <item>female-chengshu</item>
+               <item>presenter_male</item>
+               <item>presenter_female</item>
+               <item>audiobook_male_1</item>
+               <item>audiobook_male_2</item>
+               <item>audiobook_female_1</item>
+               <item>audiobook_female_2</item>-->
+    </string-array>
+
+    <!--
+public static final int CLIENT_ROLE_USER = 0;
+public static final int CLIENT_ROLE_AI = 1;
+public static final int CLIENT_ROLE_MODERATOR = 2;
+-->
     <string-array name="game_role">
         <item>玩家</item>
         <item>AI</item>
         <item>主持人</item>
     </string-array>
 
+    <!--
+    public static final int TTS_PLATFORM_XF = 0;
+    public static final int TTS_PLATFORM_MS = 1;
+    public static final int TTS_PLATFORM_MINIMAX = 2;
+    -->
     <string-array name="tts_platform">
         <item>讯飞</item>
         <item>微软</item>
@@ -63,6 +136,7 @@
     </string-array>
 
     <string-array name="avatar_model">
+        <item>米娜</item>
         <item>kda</item>
         <item>花木兰</item>
         <item>男</item>
@@ -70,6 +144,7 @@
     </string-array>
 
     <string-array name="avatar_model_value">
+        <item>mina</item>
         <item>kda</item>
         <item>huamulan</item>
         <item>boy</item>

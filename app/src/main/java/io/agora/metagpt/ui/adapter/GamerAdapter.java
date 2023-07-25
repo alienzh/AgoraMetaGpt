@@ -1,4 +1,4 @@
-package io.agora.metagpt.adapter;
+package io.agora.metagpt.ui.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

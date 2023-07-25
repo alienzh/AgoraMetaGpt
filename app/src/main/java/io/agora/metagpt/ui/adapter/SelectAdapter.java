@@ -1,4 +1,4 @@
-package io.agora.metagpt.adapter;
+package io.agora.metagpt.ui.adapter;
 
 import android.content.Context;
 import android.graphics.Color;

@@ -2,10 +2,10 @@ package io.agora.metagpt.inf;
 
 import java.util.Map;
 
+import io.agora.metagpt.models.chat.ChatBotRole;
+
 public interface ITtsRobot {
     String getTtsPlatformName();
-
-    void setVoiceName(String voiceName);
 
     void setTtsCallback(TtsCallback callback);
 
@@ -28,6 +28,8 @@ public interface ITtsRobot {
     int getTtsBufferLength();
 
     void addTtsBuffer(byte[] buffer);
+
+    void setChatBotRole(ChatBotRole chatBotRole);
 
     void close();
 }

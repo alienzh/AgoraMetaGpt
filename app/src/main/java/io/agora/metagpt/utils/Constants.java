@@ -56,6 +56,10 @@ public class Constants {
     public static final int TTS_PLATFORM_MS = 1;
     public static final int TTS_PLATFORM_MINIMAX = 2;
 
+    public static final String PLATFORM_NAME_XF = "xf";
+    public static final String PLATFORM_NAME_MS = "ms";
+    public static final String PLATFORM_NAME_MINIMAX = "minimax";
+
     public static final String GPT_ROLE_USER = "user";
     public static final String GPT_ROLE_ASSISTANT = "assistant";
     public static final String GPT_ROLE_SYSTEM = "system";
@@ -106,4 +110,9 @@ public class Constants {
     public static final int GPT_MAX_TOKENS = 16384;
     public static final float GPT_TEMPERATURE = 0.5f;
     public static final float GPT_TOP_P = 0.95f;
+
+    public static final String HMAC_SHA1 = "HmacSHA1";
+    public static final String SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    public final static int WAIT_AUDIO_FRAME_COUNT = 3;
 }

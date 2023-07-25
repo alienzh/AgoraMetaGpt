@@ -31,13 +31,12 @@ public class MinimaxTtsRobot extends TtsRobotBase {
 
     public MinimaxTtsRobot() {
         super();
-        mVoiceName = "male-qn-qingse";
         mMediaConverter = new MediaTypeConverter();
     }
 
     @Override
     public String getTtsPlatformName() {
-        return "minimax";
+        return Constants.PLATFORM_NAME_MINIMAX;
     }
 
     @Override
@@ -133,7 +132,7 @@ public class MinimaxTtsRobot extends TtsRobotBase {
                         params.put("Authorization", "Bearer " + BuildConfig.MINIMAX_AUTHORIZATION);
 
                         MinimaxTtsRequestBody body = new MinimaxTtsRequestBody();
-                        body.setVoice_id(mVoiceName);
+                        body.setVoice_id(mVoiceNameValue);
                         body.setText(message);
                         body.setModel("speech-01");
 
@@ -152,7 +151,7 @@ public class MinimaxTtsRobot extends TtsRobotBase {
                 return;
             }
             MinimaxTtsRequestBody body = new MinimaxTtsRequestBody();
-            body.setVoice_id(mVoiceName);
+            body.setVoice_id(mVoiceNameValue);
             body.setText(message);
             body.setModel("speech-01");
 
@@ -233,7 +232,7 @@ public class MinimaxTtsRobot extends TtsRobotBase {
         super.requestTipTts(tip, path);
 
         MinimaxTtsRequestBody body = new MinimaxTtsRequestBody();
-        body.setVoice_id(mVoiceName);
+        body.setVoice_id(mVoiceNameValue);
         body.setText(tip);
         body.setModel("speech-01");
 

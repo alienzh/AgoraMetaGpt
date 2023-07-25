@@ -16,7 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="@drawable/bg_ai_female" />
+        tools:background="@drawable/bg_ai_female" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutUser"

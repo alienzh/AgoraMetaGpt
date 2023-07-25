@@ -9,7 +9,7 @@ import android.view.WindowManager
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import io.agora.metagpt.R
-import io.agora.metagpt.adapter.RoleSelectAdapter
+import io.agora.metagpt.ui.adapter.RoleSelectAdapter
 import io.agora.metagpt.context.GameContext
 import io.agora.metagpt.databinding.ChooseAiRoleDialogBinding
 import io.agora.metagpt.models.chat.ChatBotRole
