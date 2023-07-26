@@ -12,6 +12,7 @@ public class ChatBotRole {
     private String chatBotUserName;
     private String chatBotPrompt;
     private String introduceReplace;
+    private String introduce;
     private String welcomeMessage;
     private VoiceName[] voiceNames;
 
@@ -71,6 +72,14 @@ public class ChatBotRole {
         this.introduceReplace = introduceReplace;
     }
 
+    public String getIntroduce() {
+        return introduce;
+    }
+
+    public void setIntroduce(String introduce) {
+        this.introduce = introduce;
+    }
+
     public String getWelcomeMessage() {
         return welcomeMessage;
     }
@@ -87,15 +96,17 @@ public class ChatBotRole {
         this.voiceNames = voiceNames;
     }
 
-    @NonNull
     @Override
     public String toString() {
         return "ChatBotRole{" +
-                "chatBotRole='" + chatBotRole + '\'' +
+                "chatBotId=" + chatBotId +
+                ", isEnable=" + isEnable +
+                ", chatBotRole='" + chatBotRole + '\'' +
                 ", chatBotName='" + chatBotName + '\'' +
                 ", chatBotUserName='" + chatBotUserName + '\'' +
                 ", chatBotPrompt='" + chatBotPrompt + '\'' +
                 ", introduceReplace='" + introduceReplace + '\'' +
+                ", introduce='" + introduce + '\'' +
                 ", welcomeMessage='" + welcomeMessage + '\'' +
                 ", voiceNames=" + Arrays.toString(voiceNames) +
                 '}';

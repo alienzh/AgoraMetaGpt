@@ -87,7 +87,7 @@ class ChooseRoleDialog constructor(context: Context) : BaseDialog<ChooseAiRoleDi
         var drawableId = AppUtils.getDrawableRes(context, "ai_avatar_" + selectRole.chatBotId)
         if (drawableId == 0) drawableId = R.drawable.ai_avatar_1
         binding.ivRoleAvatar.setBackgroundResource(drawableId)
-        binding.tvRoleIntroduce.text = selectRole.introduceReplace
+        binding.tvRoleIntroduce.text = selectRole.introduce
         binding.tvRoleName.text = selectRole.chatBotName
     }
 

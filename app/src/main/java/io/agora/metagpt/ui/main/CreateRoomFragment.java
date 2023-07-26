@@ -45,8 +45,10 @@ import io.agora.metagpt.ui.aiPartner.GameAIPartnerActivity;
 import io.agora.metagpt.ui.underCover.GameUnderCoverActivity;
 import io.agora.metagpt.ui.base.BaseFragment;
 import io.agora.metagpt.ui.view.CustomDialog;
+import io.agora.metagpt.utils.Config;
 import io.agora.metagpt.utils.Constants;
 import io.agora.metagpt.utils.KeyCenter;
+import io.agora.metagpt.utils.Utils;
 import io.reactivex.disposables.Disposable;
 
 public class CreateRoomFragment extends BaseFragment {
@@ -284,21 +286,23 @@ public class CreateRoomFragment extends BaseFragment {
         mViewModel.getRequestDownloading().observe(owner, aBoolean -> {
             if (!MetaContext.getInstance().isInitmeta()) return;
             if (aBoolean) {
-                downloadingChooserDialog = CustomDialog.showDownloadingChooser(context, materialDialog -> {
-                    mViewModel.downloadScene(MetaContext.getInstance().getSceneInfo());
-                    return null;
-                }, null);
+                downloadingChooserDialog = CustomDialog.showDownloadingChooser(context,
+                        MetaContext.getInstance().getSceneInfo().mTotalSize, materialDialog -> {
+                            mViewModel.downloadScene(MetaContext.getInstance().getSceneInfo());
+                            return null;
+                        }, null);
             }
         });
         mViewModel.getDownloadingProgress().observe(owner, integer -> {
-            if (!MetaContext.getInstance().isInitmeta())   return;
+            if (!MetaContext.getInstance().isInitmeta()) return;
             if (integer >= 0) downloadProgress = integer;
             if (progressDialog == null) {
-                progressDialog = CustomDialog.showDownloadingProgress(context, materialDialog -> {
-                    downloadProgress = -1;
-                    mViewModel.cancelDownloadScene(MetaContext.getInstance().getSceneInfo());
-                    return null;
-                });
+                progressDialog = CustomDialog.showDownloadingProgress(context,
+                        MetaContext.getInstance().getSceneInfo().mTotalSize, materialDialog -> {
+                            downloadProgress = -1;
+                            mViewModel.cancelDownloadScene(MetaContext.getInstance().getSceneInfo());
+                            return null;
+                        });
             } else if (integer < 0) {
                 if (mIsFront) {
                     progressDialog.dismiss();

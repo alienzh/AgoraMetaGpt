@@ -105,6 +105,8 @@ public class Constants {
     public static final long INTERVAL_MIN_REQUEST_CHAT = 3000;
     public static final long INTERVAL_CHAT_IDLE_TIME = 10 * 1000;
 
+    public static final String ASSETS_REPLACE_GPT_RESPONSE_HELLO_USERNAME_LABEL = "username";
+
     public static final int MAX_COUNT_GPT_RESPONSE_HELLO = 3;
 
     public static final int GPT_MAX_TOKENS = 16384;
@@ -115,4 +117,5 @@ public class Constants {
     public static final String SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     public final static int WAIT_AUDIO_FRAME_COUNT = 3;
+    public final static int STT_FILTER_NUMBER = 3;
 }

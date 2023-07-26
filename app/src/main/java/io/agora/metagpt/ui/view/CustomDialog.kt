@@ -16,6 +16,7 @@ import com.afollestad.materialdialogs.customview.getCustomView
 import io.agora.metagpt.R
 import io.agora.metagpt.databinding.ProgressBarBinding
 import io.agora.metagpt.databinding.ProgressLoadingBinding
+import io.agora.metagpt.utils.AppUtils
 
 class CustomDialog {
 
@@ -42,30 +43,31 @@ class CustomDialog {
         @JvmStatic
         fun showDownloadingChooser(
             context: Context,
+            size: Long,
             positive: ((MaterialDialog) -> Unit)?,
             negative: ((MaterialDialog) -> Unit)?,
         ): MaterialDialog {
             return MaterialDialog(context).show {
-                title(text = "下载提示")
-                message(text = "首次进入MetaChat场景需下载350M数据包")
-                positiveButton(text = "立即下载", click = positive)
-                negativeButton(text = "下次再说", click = negative)
+                title(text = getContext().getString(R.string.download_title))
+                message(text = getContext().getString(R.string.download_content,AppUtils.getNetFileSizeDescription(size)))
+                positiveButton(text = getContext().getString(R.string.download_now), click = positive)
+                negativeButton(text = getContext().getString(R.string.download_next_time), click = negative)
             }
         }
 
         @JvmStatic
         fun showDownloadingProgress(
-            context: Context, negative: ((MaterialDialog) -> Unit)?,
+            context: Context, size: Long, negative: ((MaterialDialog) -> Unit)?,
         ): MaterialDialog {
             return MaterialDialog(context).show {
-                title(text = "下载中")
-                message(text = "首次进入MetaChat场景需下载350M数据包")
+                title(text = getContext().getString(R.string.download_title))
+                message(text = getContext().getString(R.string.download_content,AppUtils.getNetFileSizeDescription(size)))
                 customView(
                     view = ProgressBarBinding.inflate(LayoutInflater.from(context)).root,
                     horizontalPadding = true,
                 )
                 cancelOnTouchOutside(false)
-                negativeButton(text = "取消", click = negative)
+                negativeButton(text = getContext().getString(R.string.cancel), click = negative)
             }
         }
 

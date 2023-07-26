@@ -177,10 +177,6 @@ public class MetaContext implements IMetaServiceEventHandler, IMetaSceneEventHan
                 rtcEngineConfig.mAudioScenario = io.agora.rtc2.Constants.AudioScenario.getValue(io.agora.rtc2.Constants.AudioScenario.DEFAULT);
                 rtcEngine = RtcEngine.create(rtcEngineConfig);
 
-                rtcEngine.registerExtension("agora_video_filters_metakit", "metakit", io.agora.rtc2.Constants.MediaSourceType.CUSTOM_VIDEO_SOURCE);
-
-                rtcEngine.setExternalVideoSource(true, true, io.agora.rtc2.Constants.ExternalVideoSourceType.VIDEO_FRAME);
-
                 rtcEngine.setVideoEncoderConfiguration(new VideoEncoderConfiguration(
                         new VideoEncoderConfiguration.VideoDimensions(240, 240),
                         VideoEncoderConfiguration.FRAME_RATE.FRAME_RATE_FPS_30,
@@ -190,7 +186,6 @@ public class MetaContext implements IMetaServiceEventHandler, IMetaSceneEventHan
 
                 rtcEngine.setParameters("{\"rtc.enable_debug_log\":true}");
                 rtcEngine.enableAudio();
-                //rtcEngine.enableVideo();
                 rtcEngine.setAudioProfile(
                         io.agora.rtc2.Constants.AUDIO_PROFILE_DEFAULT, io.agora.rtc2.Constants.AUDIO_SCENARIO_GAME_STREAMING
                 );
@@ -259,6 +254,10 @@ public class MetaContext implements IMetaServiceEventHandler, IMetaSceneEventHan
 
         MetaSceneConfig sceneConfig = new MetaSceneConfig();
         sceneConfig.mActivityContext = activityContext;
+        sceneConfig.mEnableVoiceDriveAvatar = true;
+        sceneConfig.mEnableFaceCapture = false;
+        sceneConfig.mFaceCaptureAppId = "";
+        sceneConfig.mFaceCaptureCertificate = "";
 
         int ret = -1;
         if (metaScene == null) {
@@ -380,7 +379,7 @@ public class MetaContext implements IMetaServiceEventHandler, IMetaSceneEventHan
 
     @Override
     public void onGetSceneAssetsInfoResult(MetaSceneAssetsInfo[] scenes, int errorCode) {
-        Log.i(TAG, "onGetSceneAssetsInfoResult scenes:" + scenes.length);
+        Log.i(TAG, "onGetSceneAssetsInfoResult scenes:" + Arrays.toString(scenes));
         for (IMetaServiceEventHandler handler : metaServiceEventHandlerMap.keySet()) {
             handler.onGetSceneAssetsInfoResult(scenes, errorCode);
         }
@@ -629,5 +628,13 @@ public class MetaContext implements IMetaServiceEventHandler, IMetaSceneEventHan
         if (null != metaScene) {
             metaScene.pushAudioToDriveAvatar(data, timestamp, Constants.RTC_AUDIO_SAMPLE_RATE, Constants.RTC_AUDIO_SAMPLE_NUM_OF_CHANNEL);
         }
+    }
+
+    public void updateAvatar(){
+        // TODO: 2023/7/26 unity 游戏中切换角色
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("2dbg", "");
+//        jsonObject.put("avatar", avatarType);
+//        localUserAvatar.setExtraInfo(jsonObject.toJSONString().getBytes());
     }
 }

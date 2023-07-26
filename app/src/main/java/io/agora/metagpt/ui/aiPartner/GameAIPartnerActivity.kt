@@ -26,6 +26,7 @@ import io.agora.metagpt.ui.main.CreateRoomActivity
 import io.agora.metagpt.ui.view.ChooseRoleDialog
 import io.agora.metagpt.utils.Config
 import io.agora.metagpt.utils.Constants
+import io.agora.rtc2.DataStreamConfig
 import io.reactivex.disposables.Disposable
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
@@ -53,6 +54,9 @@ class GameAIPartnerActivity : BaseActivity() {
     private val isEnterScene get() = _isEnterScene.get()
 
     private lateinit var aiPartnerViewModel: AiPartnerViewModel
+
+    private var mJoinChannelSuccess = false
+    private var mStreamId = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,6 +94,11 @@ class GameAIPartnerActivity : BaseActivity() {
             tvRoomId.text = GameContext.getInstance().roomName
             GameContext.getInstance().currentChatBotRole?.let { chatRole ->
                 btnCalling.text = getString(R.string.calling, chatRole.chatBotName)
+                aiPartnerViewModel.setChatBotRole(chatRole)
+                if (Config.ENABLE_SHARE_CHAT) {
+                    MetaContext.getInstance()
+                        .setAvatarType(resources.getStringArray(R.array.avatar_model_value)[GameContext.getInstance().currentChatBotRoleIndex])
+                }
             }
         }
     }
@@ -100,7 +109,6 @@ class GameAIPartnerActivity : BaseActivity() {
             .throttleFirst(1, TimeUnit.SECONDS)
             .subscribe {
                 aiPartnerViewModel.exit()
-                Toast.makeText(this, "btnExit", Toast.LENGTH_LONG).show()
             }
         compositeDisposable.add(disposable)
 
@@ -155,6 +163,10 @@ class GameAIPartnerActivity : BaseActivity() {
             binding.ivHangUp.visibility = View.INVISIBLE
             GameContext.getInstance().currentChatBotRole?.let { chatRole ->
                 binding.btnCalling.text = getString(R.string.calling, chatRole.chatBotName)
+                aiPartnerViewModel.setChatBotRole(chatRole)
+                MetaContext.getInstance()
+                    .setAvatarType(resources.getStringArray(R.array.avatar_model_value)[GameContext.getInstance().currentChatBotRoleIndex])
+                MetaContext.getInstance().updateAvatar()
             }
         }
         chooseRoleDialog.show()
@@ -222,8 +234,20 @@ class GameAIPartnerActivity : BaseActivity() {
         maybeCreateScene()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        aiPartnerViewModel.onDestroy()
+    }
+
     override fun onJoinChannelSuccess(channel: String?, uid: Int, elapsed: Int) {
         super.onJoinChannelSuccess(channel, uid, elapsed)
+        mJoinChannelSuccess = true
+        if (-1 == mStreamId) {
+            val cfg = DataStreamConfig()
+            cfg.syncWithAudio = false
+            cfg.ordered = true
+            mStreamId = MetaContext.getInstance().createDataStream(cfg)
+        }
         if (Config.ENABLE_SHARE_CHAT) {
             MetaContext.getInstance().registerAudioFrameObserver(this)
             //pullPlaybackAudioFrame();
@@ -231,6 +255,7 @@ class GameAIPartnerActivity : BaseActivity() {
                 MetaContext.getInstance().enableVoiceDriveAvatar(true)
             }
         }
+        aiPartnerViewModel.onJoinSuccess(mStreamId)
     }
 
     override fun onRecordAudioFrame(

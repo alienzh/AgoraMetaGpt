@@ -9,6 +9,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import java.text.DecimalFormat;
+
 public class AppUtils {
 
     /**
@@ -110,5 +112,28 @@ public class AppUtils {
             Log.e("getResources()", e.getMessage());
         }
         return resId;
+    }
+
+    public static String getNetFileSizeDescription(long size){
+        StringBuilder bytes = new StringBuilder();
+        DecimalFormat format = new DecimalFormat("###.0");
+        if (size >= 1024 * 1024 * 1024) {
+            double i = size / (1024.0 * 1024.0 * 1024.0);
+            bytes.append(format.format(i)).append("GB");
+        } else if (size >= 1024 * 1024) {
+            double i = size / (1024.0 * 1024.0);
+            bytes.append(format.format(i)).append("MB");
+        } else if (size >= 1024) {
+            double i = size / 1024.0;
+            bytes.append(format.format(i)).append("KB");
+        } else {
+            if (size <= 0) {
+                bytes.append("0B");
+            } else {
+                bytes.append(size).append("B");
+            }
+        }
+        return bytes.toString();
+
     }
 }
