@@ -28,6 +28,7 @@ import io.agora.meta.MetaUserPositionInfo;
 import io.agora.metagpt.inf.IRtcEventCallback;
 import io.agora.metagpt.models.DataStreamModel;
 import io.agora.metagpt.models.EnterSceneExtraInfo;
+import io.agora.metagpt.models.UnityMessage;
 import io.agora.metagpt.utils.Constants;
 import io.agora.metagpt.utils.KeyCenter;
 import io.agora.metagpt.utils.Utils;
@@ -636,5 +637,12 @@ public class MetaContext implements IMetaServiceEventHandler, IMetaSceneEventHan
 //        jsonObject.put("2dbg", "");
 //        jsonObject.put("avatar", avatarType);
 //        localUserAvatar.setExtraInfo(jsonObject.toJSONString().getBytes());
+    }
+
+    public void updateAvatarBg(String path) {
+        UnityMessage message = new UnityMessage();
+        message.setKey("updateBg");
+        message.setValue(path);
+        MetaContext.getInstance().sendSceneMessage(JSONObject.toJSONString(message));
     }
 }

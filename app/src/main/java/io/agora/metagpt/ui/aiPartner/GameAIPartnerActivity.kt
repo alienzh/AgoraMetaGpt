@@ -26,10 +26,9 @@ import io.agora.metagpt.ui.main.CreateRoomActivity
 import io.agora.metagpt.ui.view.ChooseRoleDialog
 import io.agora.metagpt.utils.Config
 import io.agora.metagpt.utils.Constants
-import io.agora.metagpt.utils.Utils
-import io.agora.metagpt.utils.WaveFile
 import io.agora.rtc2.DataStreamConfig
 import io.reactivex.disposables.Disposable
+import java.io.File
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -171,6 +170,13 @@ class GameAIPartnerActivity : BaseActivity() {
                 MetaContext.getInstance()
                     .setAvatarType(resources.getStringArray(R.array.avatar_model_value)[GameContext.getInstance().currentChatBotRoleIndex])
                 MetaContext.getInstance().updateAvatar()
+                var avatarBgPath = externalCacheDir!!.path + File.separator
+                avatarBgPath += if (chatRole.chatBotRole.contains("男")) {
+                    "bg_ai_male.png"
+                } else {
+                    "bg_ai_female.png"
+                }
+                MetaContext.getInstance().updateAvatarBg(avatarBgPath)
             }
         }
         chooseRoleDialog.show()
@@ -339,6 +345,15 @@ class GameAIPartnerActivity : BaseActivity() {
             //异步线程回调需在主线程处理
             runOnUiThread {
                 MetaContext.getInstance().enterScene()
+                GameContext.getInstance().currentChatBotRole?.let {
+                    var avatarBgPath = externalCacheDir!!.path + File.separator
+                    avatarBgPath += if (it.chatBotRole.contains("男")) {
+                        "bg_ai_male.png"
+                    } else {
+                        "bg_ai_female.png"
+                    }
+                    MetaContext.getInstance().updateAvatarBg(avatarBgPath)
+                }
             }
         }
     }

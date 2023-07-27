@@ -3,6 +3,7 @@ package io.agora.metagpt.ui.main;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -10,7 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import java.io.IOException;
+
 import io.agora.metagpt.R;
+import io.agora.metagpt.utils.Constants;
 import io.agora.metagpt.utils.Utils;
 
 public class CreateRoomActivity extends AppCompatActivity {
@@ -41,6 +45,17 @@ public class CreateRoomActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, CreateRoomFragment.newInstance())
                     .commitNow();
+        }
+
+        initFiles();
+    }
+
+    private void initFiles() {
+        try {
+            Utils.copyAssetFile(this, "bg_ai_female.png");
+            Utils.copyAssetFile(this, "bg_ai_male.png");
+        } catch (IOException e) {
+            Log.d(Constants.TAG, "copyAssetFile error " + e.getMessage());
         }
     }
 

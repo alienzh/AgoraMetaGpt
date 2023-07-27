@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -329,5 +330,20 @@ public class Utils {
             sb.append(str.charAt(number));
         }
         return sb.toString();
+    }
+
+    public static void copyAssetFile(Context context, String fileName) throws IOException {
+        InputStream inputStream = context.getResources().getAssets().open(fileName);
+        File out = new File(context.getExternalCacheDir().getPath() + File.separator + fileName);
+        OutputStream outputStream = new FileOutputStream(out);
+        byte[] buffer = new byte[10240];
+        while (true) {
+            int len = inputStream.read(buffer);
+            if (len < 0) break;
+            outputStream.write(buffer, 0, len);
+        }
+        outputStream.flush();
+        outputStream.close();
+        inputStream.close();
     }
 }
