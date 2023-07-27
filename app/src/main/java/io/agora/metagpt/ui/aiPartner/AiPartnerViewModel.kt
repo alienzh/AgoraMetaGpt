@@ -3,7 +3,6 @@ package io.agora.metagpt.ui.aiPartner
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.os.Process
 import android.text.TextUtils
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -23,10 +22,8 @@ import io.agora.metagpt.utils.Config
 import io.agora.metagpt.utils.Constants
 import io.agora.metagpt.utils.ErrorCode
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.IOException
 import java.io.InputStream
+import java.nio.ByteBuffer
 import java.util.Random
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -65,6 +62,8 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
     private var mTtsStartTime: Long = 0
     private var mSttStartTime: Long = 0
     private var mChatStartTime: Long = 0
+    private var mChatIdleStartTime: Long = 0
+
 
     private var mJoinChannelSuccess = false
     private var mStreamId = -1
@@ -102,7 +101,6 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
             }
         }
 
-
         if (null == mChatRobotManager) {
             mChatRobotManager = ChatRobotManager(MainApplication.mGlobalApplication)
             mChatRobotManager!!.setChatCallback(this)
@@ -125,11 +123,11 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         mSttResults.clear()
         mChatAnswerPending.clear()
         mIsSpeaking = false
+        mSttStartTime = 0
+        mChatIdleStartTime = 0
         mCancelRequest = true
         mGptResponseCount = 0
-
         mGptRequestStart = true
-
         mRequestChatKeyInfoIndex = 0
 
         val chatTipMessageArray =
@@ -181,7 +179,7 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         this.mJoinChannelSuccess = true
     }
 
-    fun onDestroy(){
+    fun onDestroy() {
         mHandler.removeCallbacksAndMessages(null)
     }
 
@@ -236,15 +234,15 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
 //                    handleChatGptAnswer(answer)
                 }
             } else {
-                    mChatRobotManager?.deleteLastChatMessage()
+                mChatRobotManager?.deleteLastChatMessage()
                 if (ErrorCode.ERROR_CHAT_LENGTH_LIMIT == code) {
-                    Log.d(TAG,"GPT回答长度限制截止")
+                    Log.d(TAG, "GPT回答长度限制截止")
                 } else {
                     if (answer == "timeout") {
-                        Log.d(TAG,"GPT请求超时(" + costTime + "ms)")
+                        Log.d(TAG, "GPT请求超时(" + costTime + "ms)")
                         mChatRobotManager?.requestChat()
                     } else {
-                        Log.d(TAG,"GPT请求错误:$code,$answer")
+                        Log.d(TAG, "GPT请求错误:$code,$answer")
                     }
                 }
             }
@@ -305,76 +303,11 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
 
     override fun onTtsFinish(isOnSpeaking: Boolean) {
         Log.d(TAG, "onTtsFinish isOnSpeaking:$isOnSpeaking ${(System.currentTimeMillis() - mTtsStartTime)}ms")
-        if (isOnSpeaking) {
-            pushTtsToChannel()
-        }
     }
 
     override fun updateTtsHistoryInfo(message: String?) {
         Log.d(TAG, "updateTtsHistoryInfo message:$message")
     }
-
-    private fun pushTtsToChannel() {
-        if (mJoinChannelSuccess) {
-            parseAndPushTtsAudio()
-        } else {
-            Log.e(TAG, "not yet join channel success")
-        }
-    }
-
-    private fun parseAndPushTtsAudio() {
-        mExecutorService.execute(Runnable {
-            Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
-            if (null == mTtsInputStream) {
-                mTtsInputStream = try {
-                    FileInputStream(mTempPcmFilePath)
-                } catch (e: FileNotFoundException) {
-                    e.printStackTrace()
-                    return@Runnable
-                }
-            }
-            val startTime = System.currentTimeMillis()
-            var sentAudioFrames = 0
-            var buffer: ByteArray
-            while (true) {
-                buffer = ByteArray(Constants.TTS_BUFFER_BYTE_SIZE)
-                try {
-                    if (mTtsInputStream!!.read(buffer) <= 0) {
-                        break
-                    }
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-                val ret = MetaContext.getInstance().pushExternalAudioFrame(buffer, System.currentTimeMillis())
-                Log.i(TAG, "pushExternalAudioFrame tts data:ret = $ret")
-                ++sentAudioFrames
-                val nextFrameStartTime = sentAudioFrames * Constants.TTS_BUFFER_DURATION + startTime
-                val now = System.currentTimeMillis()
-                if (nextFrameStartTime > now) {
-                    val sleepDuration = nextFrameStartTime - now
-                    try {
-                        Thread.sleep(sleepDuration)
-                    } catch (e: InterruptedException) {
-                        e.printStackTrace()
-                    }
-                }
-            }
-            if (mTtsInputStream != null) {
-                try {
-                    mTtsInputStream!!.close()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                } finally {
-                    mTtsInputStream = null
-                }
-            }
-            runOnUiThread {
-                Log.d(TAG, "tts语音推流成功！")
-                MetaContext.getInstance().sendDataStreamMessage(mStreamId, Constants.DATA_STREAM_CMD_AI_ANSWER_OVER, "")
-            }
-        })
-    }
-
 
     private fun runOnUiThread(action: Runnable) {
         if (Thread.currentThread() !== Looper.getMainLooper().thread) {
@@ -382,6 +315,53 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         } else {
             action.run()
         }
+    }
+
+    fun onRecordAudioFrame(origin: ByteArray) {
+        if (mIsSpeaking) {
+            if (Config.ENABLE_AGORA_GPT_SERVER) {
+                mAgoraGptServerManager?.sendPcmData(origin)
+            } else {
+                mSttRobotManager?.requestStt(origin)
+            }
+        }
+    }
+
+    fun onPlaybackAudioFrame(buffer: ByteBuffer): Boolean {
+        if (Config.ENABLE_SHARE_CHAT) {
+            var bytes: ByteArray? = null
+            if (Config.ENABLE_AGORA_GPT_SERVER) {
+                if (null != mAgoraGptServerManager) {
+                    bytes = mAgoraGptServerManager!!.getBuffer(buffer.capacity())
+                }
+            } else {
+                if (null != mTtsRobotManager) {
+                    bytes = mTtsRobotManager!!.getTtsBuffer(buffer.capacity())
+                }
+            }
+            if (null != bytes) {
+                buffer.put(bytes, 0, buffer.capacity())
+                if (0L != mChatIdleStartTime) {
+                    mChatIdleStartTime = 0L
+                }
+                val audioBytes: ByteArray = bytes
+                mExecutorService.execute {
+                    MetaContext.getInstance().pushAudioToDriveAvatar(audioBytes, System.currentTimeMillis())
+                }
+            } else {
+                if (mIsSpeaking) {
+                    if (mChatIdleStartTime == 0L) {
+                        mChatIdleStartTime = System.currentTimeMillis()
+                    } else {
+                        val now = System.currentTimeMillis()
+                        if (now - mChatIdleStartTime >= Constants.INTERVAL_CHAT_IDLE_TIME) {
+                            mTtsRobotManager?.requestChatTip()
+                        }
+                    }
+                }
+            }
+        }
+        return true
     }
 
 }

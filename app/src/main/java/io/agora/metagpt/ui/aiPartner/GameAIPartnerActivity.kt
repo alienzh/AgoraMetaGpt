@@ -26,6 +26,8 @@ import io.agora.metagpt.ui.main.CreateRoomActivity
 import io.agora.metagpt.ui.view.ChooseRoleDialog
 import io.agora.metagpt.utils.Config
 import io.agora.metagpt.utils.Constants
+import io.agora.metagpt.utils.Utils
+import io.agora.metagpt.utils.WaveFile
 import io.agora.rtc2.DataStreamConfig
 import io.reactivex.disposables.Disposable
 import java.nio.ByteBuffer
@@ -259,27 +261,40 @@ class GameAIPartnerActivity : BaseActivity() {
     }
 
     override fun onRecordAudioFrame(
+        channelId: String,
+        type: Int,
+        samplesPerChannel: Int,
+        bytesPerSample: Int,
+        channels: Int,
+        samplesPerSec: Int,
+        buffer: ByteBuffer,
+        renderTimeMs: Long,
+        avsync_type: Int
+    ): Boolean {
+        val length = buffer.remaining()
+        val origin = ByteArray(length)
+        buffer[origin]
+        buffer.flip()
+        if (Utils.isByteArrayAllZero(origin)) {
+            return false
+        }
+        aiPartnerViewModel.onRecordAudioFrame(origin)
+        return false
+    }
+
+    override fun onPlaybackAudioFrame(
         channelId: String?,
         type: Int,
         samplesPerChannel: Int,
         bytesPerSample: Int,
         channels: Int,
         samplesPerSec: Int,
-        buffer: ByteBuffer?,
+        buffer: ByteBuffer,
         renderTimeMs: Long,
         avsync_type: Int
     ): Boolean {
-        return super.onRecordAudioFrame(
-            channelId,
-            type,
-            samplesPerChannel,
-            bytesPerSample,
-            channels,
-            samplesPerSec,
-            buffer,
-            renderTimeMs,
-            avsync_type
-        )
+        aiPartnerViewModel.onPlaybackAudioFrame(buffer)
+        return true
     }
 
     override fun onEnterSceneResult(errorCode: Int) {

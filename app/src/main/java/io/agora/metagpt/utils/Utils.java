@@ -249,6 +249,15 @@ public class Utils {
         return number;
     }
 
+    public static boolean isByteArrayAllZero(byte[] bytes) {
+        for (byte b : bytes) {
+            if (b != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static byte[] readFileToByteArray(String path) {
         File file = new File(path);
         if (!file.exists()) {
