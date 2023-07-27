@@ -1,7 +1,6 @@
 package io.agora.metagpt.ui.view
 
 import android.content.Context
-import android.graphics.Color
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -9,13 +8,12 @@ import android.view.WindowManager
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import io.agora.metagpt.R
-import io.agora.metagpt.ui.adapter.RoleSelectAdapter
 import io.agora.metagpt.context.GameContext
 import io.agora.metagpt.databinding.ChooseAiRoleDialogBinding
 import io.agora.metagpt.models.chat.ChatBotRole
+import io.agora.metagpt.ui.adapter.RoleSelectAdapter
 import io.agora.metagpt.ui.base.BaseDialog
 import io.agora.metagpt.utils.AppUtils
-import io.agora.metagpt.utils.StatusBarUtil
 
 /**
  * @author create by zhangwei03
@@ -38,9 +36,10 @@ class ChooseRoleDialog constructor(context: Context) : BaseDialog<ChooseAiRoleDi
     override fun setContentView(view: View) {
         super.setContentView(view)
         window?.let { window ->
-            StatusBarUtil.hideStatusBar(window, Color.BLACK, true)
+//            StatusBarUtil.hideStatusBar(window, Color.BLACK, true)
             window.setBackgroundDrawableResource(android.R.color.transparent)
             window.setDimAmount(0f)
+            window.setType(WindowManager.LayoutParams.TYPE_APPLICATION_PANEL)
             window.setFlags(
                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN, WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
             )
@@ -92,15 +91,6 @@ class ChooseRoleDialog constructor(context: Context) : BaseDialog<ChooseAiRoleDi
     }
 
     override fun setGravity() {
-        window?.attributes?.gravity = Gravity.BOTTOM
-    }
-
-    override fun onStart() {
-        super.onStart()
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
-            val inset = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPaddingRelative(inset.left, 0, inset.right, inset.bottom)
-            WindowInsetsCompat.CONSUMED
-        }
+        window?.attributes?.gravity = Gravity.TOP
     }
 }

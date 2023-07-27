@@ -638,11 +638,4 @@ public class MetaContext implements IMetaServiceEventHandler, IMetaSceneEventHan
 //        jsonObject.put("avatar", avatarType);
 //        localUserAvatar.setExtraInfo(jsonObject.toJSONString().getBytes());
     }
-
-    public void updateAvatarBg(String path) {
-        UnityMessage message = new UnityMessage();
-        message.setKey("updateBg");
-        message.setValue(path);
-        MetaContext.getInstance().sendSceneMessage(JSONObject.toJSONString(message));
-    }
 }

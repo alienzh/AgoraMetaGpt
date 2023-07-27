@@ -103,7 +103,8 @@ public class CreateRoomFragment extends BaseFragment {
         super.initView();
         int prefixIndex = random.nextInt(nicknamePrefix.length);
         int suffixIndex = random.nextInt(nicknameSuffix.length);
-        binding.etNickname.setText(nicknamePrefix[prefixIndex] + nicknameSuffix[suffixIndex]);
+        String nickname = nicknamePrefix[prefixIndex] + nicknameSuffix[suffixIndex];
+        binding.etNickname.setText(nickname);
         binding.etNickname.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -157,7 +158,12 @@ public class CreateRoomFragment extends BaseFragment {
         binding.groupNickname.setVisibility(View.INVISIBLE);
 
         GameContext.getInstance().setGameRole(Constants.GAME_ROLE_MODERATOR);
-        GameContext.getInstance().setUserName(getResources().getString(R.string.moderator));
+        if (gameId == Constants.GAME_AI_VOICE_ASSISTANT) {
+            GameContext.getInstance().setUserName(nickname);
+        } else {
+            GameContext.getInstance().setUserName(getResources().getString(R.string.moderator));
+        }
+
     }
 
     @Override

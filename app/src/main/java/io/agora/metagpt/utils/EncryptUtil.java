@@ -1,10 +1,19 @@
 package io.agora.metagpt.utils;
 
+import android.util.Log;
+
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -62,5 +71,35 @@ public class EncryptUtil {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static String assembleAgoraRequestUrl(String requestUrl, String apiKey, String token,
+                                                 int uid) {
+        URL url = null;
+        String httpRequestUrl = requestUrl.replace("ws://", "http://").replace("wss://", "https://");
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+            format.setTimeZone(TimeZone.getTimeZone("GMT"));
+            String date = format.format(new Date());
+
+            Charset charset = Charset.forName("UTF-8");
+            Mac mac = Mac.getInstance("hmacsha256");
+            SecretKeySpec spec = new SecretKeySpec(apiKey.getBytes(charset), "hmacsha256");
+            mac.init(spec);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                String authorization = String.format("api_key=\"%s\", token=\"%s\", uid=\"%s\",algorithm=\"%s\"", apiKey, token, String.valueOf(uid), "hmacsha256");
+                byte[] hexDigits = mac.doFinal(authorization.toString().getBytes(charset));
+                authorization = java.util.Base64.getEncoder().encodeToString(hexDigits);
+                String result = String.format("%s?authorization=%s&date=%s", requestUrl, URLEncoder.encode(authorization), URLEncoder.encode(date));
+                Log.i(Constants.TAG, "assembleAgoraRequestUrl result=" + result);
+                return result;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            // throw new RuntimeException("assemble requestUrl error:"+e.getMessage());
+            throw new RuntimeException(e);
+        }
+
     }
 }

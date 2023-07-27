@@ -159,7 +159,7 @@ public class ChatRobotManager {
                 case Constants.AI_PLATFORM_MINIMAX_CHAT_COMPLETION_PRO_55:
                     MinimaxProMessage minimaxProMessage = new MinimaxProMessage();
                     minimaxProMessage.setSender_type(Constants.MINIMAX_SENDER_TYPE_USER);
-                    minimaxProMessage.setSender_name("我");
+                    minimaxProMessage.setSender_name(mChatBotRole.getChatBotUserName());
                     minimaxProMessage.setText(mGptKeyInfoPrompt.replace("botName", null != mChatBotRole ? mChatBotRole.getChatBotName() : "Bot"));
                     requestMessage.add(JSON.toJSON(minimaxProMessage));
                     break;

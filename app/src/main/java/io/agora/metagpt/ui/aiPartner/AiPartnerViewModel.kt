@@ -15,12 +15,14 @@ import io.agora.metagpt.context.MetaContext
 import io.agora.metagpt.inf.ChatCallback
 import io.agora.metagpt.inf.SttCallback
 import io.agora.metagpt.inf.TtsCallback
+import io.agora.metagpt.models.UserInfo
 import io.agora.metagpt.models.chat.ChatBotRole
 import io.agora.metagpt.stt.SttRobotManager
 import io.agora.metagpt.tts.TtsRobotManager
 import io.agora.metagpt.utils.Config
 import io.agora.metagpt.utils.Constants
 import io.agora.metagpt.utils.ErrorCode
+import io.agora.metagpt.utils.KeyCenter
 import io.agora.metagpt.utils.Utils
 import java.io.File
 import java.io.InputStream
@@ -123,9 +125,14 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
             mSttRobotManager!!.setSttCallback(this)
         }
         mSttRobotManager!!.setAiSttPlatformIndex(Constants.STT_PLATFORM_XF_IST)
-        if (null == mAgoraGptServerManager) {
-            mAgoraGptServerManager = AgoraGptServerManager()
-            mAgoraGptServerManager!!.init(mTempPcmFilePath)
+        if (Config.ENABLE_AGORA_GPT_SERVER) {
+            if (null == mAgoraGptServerManager) {
+                mAgoraGptServerManager = AgoraGptServerManager()
+                mAgoraGptServerManager!!.init(
+                    mTempPcmFilePath,
+                    UserInfo(KeyCenter.getAiUid(), MetaContext.getInstance().userName)
+                )
+            }
         }
 
         mSttResults.clear()
@@ -148,8 +155,8 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
     fun isSpeaking(): Boolean = mIsSpeaking
 
     fun startCalling() {
-        if (mIsSpeaking){
-            Log.e(TAG,"calling already...")
+        if (mIsSpeaking) {
+            Log.e(TAG, "calling already...")
             return
         }
         mIsSpeaking = true
@@ -160,13 +167,17 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         mHandler.sendEmptyMessageDelayed(MESSAGE_REQUEST_CHAT_KEY_INFO, (60 * 1000).toLong())
     }
 
-    fun hangUp(){
-        if (!mIsSpeaking){
-            Log.e(TAG,"hang up already...")
+    fun hangUp() {
+        if (!mIsSpeaking) {
+            Log.e(TAG, "hang up already...")
             return
         }
         mIsSpeaking = false
-        mSttRobotManager?.requestStt(null)
+        if (Config.ENABLE_AGORA_GPT_SERVER) {
+            mAgoraGptServerManager?.sendPcmData(null)
+        } else {
+            mSttRobotManager?.requestStt(null)
+        }
         MetaContext.getInstance().updateRoleSpeak(false)
         mTtsRobotManager?.clearData()
     }

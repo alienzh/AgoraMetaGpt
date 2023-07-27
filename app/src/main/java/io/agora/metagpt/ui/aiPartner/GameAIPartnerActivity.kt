@@ -26,6 +26,9 @@ import io.agora.metagpt.ui.main.CreateRoomActivity
 import io.agora.metagpt.ui.view.ChooseRoleDialog
 import io.agora.metagpt.utils.Config
 import io.agora.metagpt.utils.Constants
+import io.agora.metagpt.utils.StatusBarUtil
+import io.agora.metagpt.utils.TextureVideoViewOutlineProvider
+import io.agora.metagpt.utils.Utils
 import io.agora.rtc2.DataStreamConfig
 import io.reactivex.disposables.Disposable
 import java.io.File
@@ -170,13 +173,7 @@ class GameAIPartnerActivity : BaseActivity() {
                 MetaContext.getInstance()
                     .setAvatarType(resources.getStringArray(R.array.avatar_model_value)[GameContext.getInstance().currentChatBotRoleIndex])
                 MetaContext.getInstance().updateAvatar()
-                var avatarBgPath = externalCacheDir!!.path + File.separator
-                avatarBgPath += if (chatRole.chatBotRole.contains("男")) {
-                    "bg_ai_male.png"
-                } else {
-                    "bg_ai_female.png"
-                }
-                MetaContext.getInstance().updateAvatarBg(avatarBgPath)
+                updateAvatarBg()
             }
         }
         chooseRoleDialog.show()
@@ -184,6 +181,8 @@ class GameAIPartnerActivity : BaseActivity() {
 
     private fun initUnityView() {
         mTextureView = TextureView(this)
+        mTextureView?.outlineProvider = TextureVideoViewOutlineProvider(Utils.dip2px(this, 24f).toFloat());
+        mTextureView?.clipToOutline = true
         mTextureView?.surfaceTextureListener = object : SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
                 mReCreateScene = true
@@ -306,6 +305,7 @@ class GameAIPartnerActivity : BaseActivity() {
         runOnUiThread {
             _isEnterScene.set(true)
             updateViewMode()
+            updateAvatarBg()
         }
     }
 
@@ -316,6 +316,21 @@ class GameAIPartnerActivity : BaseActivity() {
         valueJson["viewMode"] = 1
         message.value = valueJson.toJSONString()
         MetaContext.getInstance().sendSceneMessage(JSONObject.toJSONString(message))
+    }
+
+    private fun updateAvatarBg() {
+        GameContext.getInstance().currentChatBotRole?.let {
+            var avatarBgPath = externalCacheDir!!.path + File.separator
+            avatarBgPath += if (it.chatBotRole.contains("男")) {
+                "bg_ai_male.png"
+            } else {
+                "bg_ai_female.png"
+            }
+            val message = UnityMessage()
+            message.key = "updateBg"
+            message.value = avatarBgPath
+            MetaContext.getInstance().sendSceneMessage(JSONObject.toJSONString(message))
+        }
     }
 
     override fun onLeaveSceneResult(errorCode: Int) {
@@ -345,15 +360,6 @@ class GameAIPartnerActivity : BaseActivity() {
             //异步线程回调需在主线程处理
             runOnUiThread {
                 MetaContext.getInstance().enterScene()
-                GameContext.getInstance().currentChatBotRole?.let {
-                    var avatarBgPath = externalCacheDir!!.path + File.separator
-                    avatarBgPath += if (it.chatBotRole.contains("男")) {
-                        "bg_ai_male.png"
-                    } else {
-                        "bg_ai_female.png"
-                    }
-                    MetaContext.getInstance().updateAvatarBg(avatarBgPath)
-                }
             }
         }
     }
