@@ -131,17 +131,18 @@ class GameAIPartnerActivity : BaseActivity() {
                 binding.btnCalling.visibility = View.INVISIBLE
                 binding.ivVoice.visibility = View.VISIBLE
                 binding.ivHangUp.visibility = View.VISIBLE
+                aiPartnerViewModel.startCalling()
             }
         compositeDisposable.add(disposable)
 
         disposable = RxView.clicks(binding.ivVoice)
             .throttleFirst(1, TimeUnit.SECONDS)
             .subscribe {
-                aiPartnerViewModel.startSpeaking { isSpeaking ->
-                    if (isSpeaking) {
-                        binding.ivVoice.setImageResource(R.drawable.ic_unmute)
-                    } else {
+                aiPartnerViewModel.mute { isMute ->
+                    if (isMute) {
                         binding.ivVoice.setImageResource(R.drawable.ic_mute)
+                    } else {
+                        binding.ivVoice.setImageResource(R.drawable.ic_unmute)
                     }
                 }
             }
@@ -153,6 +154,7 @@ class GameAIPartnerActivity : BaseActivity() {
                 binding.btnCalling.visibility = View.VISIBLE
                 binding.ivVoice.visibility = View.INVISIBLE
                 binding.ivHangUp.visibility = View.INVISIBLE
+                aiPartnerViewModel.hangUp()
             }
         compositeDisposable.add(disposable)
     }
@@ -275,11 +277,7 @@ class GameAIPartnerActivity : BaseActivity() {
         val origin = ByteArray(length)
         buffer[origin]
         buffer.flip()
-        if (Utils.isByteArrayAllZero(origin)) {
-            return false
-        }
-        aiPartnerViewModel.onRecordAudioFrame(origin)
-        return false
+        return aiPartnerViewModel.onRecordAudioFrame(origin)
     }
 
     override fun onPlaybackAudioFrame(

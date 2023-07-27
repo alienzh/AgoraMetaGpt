@@ -21,6 +21,7 @@ import io.agora.metagpt.tts.TtsRobotManager
 import io.agora.metagpt.utils.Config
 import io.agora.metagpt.utils.Constants
 import io.agora.metagpt.utils.ErrorCode
+import io.agora.metagpt.utils.Utils
 import java.io.File
 import java.io.InputStream
 import java.nio.ByteBuffer
@@ -74,8 +75,14 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         SynchronousQueue(), Executors.defaultThreadFactory(), ThreadPoolExecutor.AbortPolicy()
     )
 
+    // 语音转文字
     private val mSttResults: StringBuilder = java.lang.StringBuilder()
+
+    // gpt 回答
     private val mChatAnswerPending: StringBuilder = java.lang.StringBuilder()
+
+    private var mIsMute = false
+    private var mFirstRecordAudio = false
     private var mIsSpeaking = false
     private var mCancelRequest = false
     private var mGptResponseCount = 0
@@ -105,6 +112,7 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
             mChatRobotManager = ChatRobotManager(MainApplication.mGlobalApplication)
             mChatRobotManager!!.setChatCallback(this)
         }
+        mChatRobotManager?.setChatRobotPlatformIndex(Constants.AI_PLATFORM_MINIMAX_CHAT_COMPLETION_PRO_55)
         if (null == mTtsRobotManager) {
             mTtsRobotManager = TtsRobotManager()
             mTtsRobotManager!!.setTtsCallback(this)
@@ -123,6 +131,7 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         mSttResults.clear()
         mChatAnswerPending.clear()
         mIsSpeaking = false
+        mIsMute = false
         mSttStartTime = 0
         mChatIdleStartTime = 0
         mCancelRequest = true
@@ -138,20 +147,39 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
 
     fun isSpeaking(): Boolean = mIsSpeaking
 
-    fun startSpeaking(callback: ((isSpeaking: Boolean) -> Unit)) {
-        if (mIsSpeaking) {
-            mIsSpeaking = false
-            mSttRobotManager?.requestStt(null)
-            MetaContext.getInstance().updateRoleSpeak(false)
-            mTtsRobotManager?.clearData()
-        } else {
-            mIsSpeaking = true
-            mSttResults.delete(0, mSttResults.length)
-            mTtsRobotManager?.setIsSpeaking(mIsSpeaking)
-            MetaContext.getInstance().updateRoleSpeak(true)
-            mHandler.sendEmptyMessageDelayed(MESSAGE_REQUEST_CHAT_KEY_INFO, (60 * 1000).toLong())
+    fun startCalling() {
+        if (mIsSpeaking){
+            Log.e(TAG,"calling already...")
+            return
         }
-        callback.invoke(mIsSpeaking)
+        mIsSpeaking = true
+        mFirstRecordAudio = true
+        mSttResults.delete(0, mSttResults.length)
+        mTtsRobotManager?.setIsSpeaking(mIsSpeaking)
+        MetaContext.getInstance().updateRoleSpeak(true)
+        mHandler.sendEmptyMessageDelayed(MESSAGE_REQUEST_CHAT_KEY_INFO, (60 * 1000).toLong())
+    }
+
+    fun hangUp(){
+        if (!mIsSpeaking){
+            Log.e(TAG,"hang up already...")
+            return
+        }
+        mIsSpeaking = false
+        mSttRobotManager?.requestStt(null)
+        MetaContext.getInstance().updateRoleSpeak(false)
+        mTtsRobotManager?.clearData()
+    }
+
+    fun mute(callback: ((isSpeaking: Boolean) -> Unit)) {
+        if (mIsMute) {
+            mIsMute = false
+            MetaContext.getInstance().enableLocalAudio(true)
+        } else {
+            mIsMute = true
+            MetaContext.getInstance().enableLocalAudio(false)
+        }
+        callback.invoke(mIsMute)
     }
 
     fun setChatBotRole(chatBotRole: ChatBotRole) {
@@ -190,7 +218,14 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
 
     override fun onChatKeyInfoUpdate(text: String?) {
         super.onChatKeyInfoUpdate(text)
-        Log.d(TAG, "onChatKeyInfoUpdate $text")
+        Log.d(
+            TAG,
+            "第" + mRequestChatKeyInfoIndex + "次请求用户关键信息" + "\n" +
+                    "===============" + "\n" +
+                    text +
+                    "\n" +
+                    "==============="
+        )
     }
 
     override fun onChatRequestStart(text: String?) {
@@ -317,7 +352,14 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         }
     }
 
-    fun onRecordAudioFrame(origin: ByteArray) {
+    fun onRecordAudioFrame(origin: ByteArray): Boolean {
+        if (Utils.isByteArrayAllZero(origin)) {
+            return false
+        }
+        if (mFirstRecordAudio) {
+            mFirstRecordAudio = false
+            mSttStartTime = System.currentTimeMillis()
+        }
         if (mIsSpeaking) {
             if (Config.ENABLE_AGORA_GPT_SERVER) {
                 mAgoraGptServerManager?.sendPcmData(origin)
@@ -325,6 +367,7 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
                 mSttRobotManager?.requestStt(origin)
             }
         }
+        return false
     }
 
     fun onPlaybackAudioFrame(buffer: ByteBuffer): Boolean {
