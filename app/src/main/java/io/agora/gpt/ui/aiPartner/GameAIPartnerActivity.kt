@@ -111,6 +111,12 @@ class GameAIPartnerActivity : BaseActivity() {
         var disposable: Disposable = RxView.clicks(binding.btnExit)
             .throttleFirst(1, TimeUnit.SECONDS)
             .subscribe {
+                if (binding.ivHangUp.visibility==View.VISIBLE){
+                    binding.btnCalling.visibility = View.VISIBLE
+                    binding.ivVoice.visibility = View.INVISIBLE
+                    binding.ivHangUp.visibility = View.INVISIBLE
+                    aiPartnerViewModel.hangUp()
+                }
                 aiPartnerViewModel.exit()
             }
         compositeDisposable.add(disposable)
@@ -220,7 +226,7 @@ class GameAIPartnerActivity : BaseActivity() {
                 MetaContext.getInstance().setRecordingAudioFrameParameters(
                     Constants.RTC_AUDIO_SAMPLE_RATE,
                     Constants.RTC_AUDIO_SAMPLE_NUM_OF_CHANNEL,
-                    io.agora.rtc2.Constants.RAW_AUDIO_FRAME_OP_MODE_READ_WRITE,
+                    io.agora.rtc2.Constants.RAW_AUDIO_FRAME_OP_MODE_READ_ONLY,
                     Constants.RTC_AUDIO_SAMPLES
                 )
             }

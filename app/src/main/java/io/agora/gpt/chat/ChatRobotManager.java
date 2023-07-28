@@ -211,7 +211,7 @@ public class ChatRobotManager {
                     chatGptMsg = mGptChatMessageList.get(i);
                     if (chatGptMsg.getRole().equals(Constants.GPT_ROLE_USER)) {
                         minimaxProMessage.setSender_type(Constants.MINIMAX_SENDER_TYPE_USER);
-                        minimaxProMessage.setSender_name("我");
+                        minimaxProMessage.setSender_name(mChatBotRole.getChatBotUserName());
                     } else if (chatGptMsg.getRole().equals(Constants.GPT_ROLE_ASSISTANT)) {
                         minimaxProMessage.setSender_type(Constants.MINIMAX_SENDER_TYPE_BOT);
                         minimaxProMessage.setSender_name(mChatBotRole.getChatBotName());

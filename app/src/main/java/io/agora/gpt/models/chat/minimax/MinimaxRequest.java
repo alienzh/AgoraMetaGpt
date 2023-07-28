@@ -1,11 +1,8 @@
-package io.agora.gpt.chat.minimax;
+package io.agora.gpt.models.chat.minimax;
 
 
 import com.alibaba.fastjson.JSONObject;
 
-import io.agora.gpt.models.chat.minimax.MinimaxChatCompletionProRequestBody;
-import io.agora.gpt.models.chat.minimax.MinimaxChatCompletionRequestBody;
-import io.agora.gpt.models.chat.minimax.MinimaxCompletionRequestBody;
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.http.Body;

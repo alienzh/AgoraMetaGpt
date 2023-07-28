@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import io.agora.gpt.BuildConfig;
+import io.agora.gpt.models.chat.minimax.MinimaxRequest;
 import io.agora.gpt.utils.Config;
 import io.agora.gpt.utils.Constants;
 import okhttp3.Interceptor;
