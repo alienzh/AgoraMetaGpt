@@ -4,4 +4,4 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="io.agora.metagpt.ui.main.MainActivity" />
+    tools:context="io.agora.gpt.ui.main.MainActivity" />

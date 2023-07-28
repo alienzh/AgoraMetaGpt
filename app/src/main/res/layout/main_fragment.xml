@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@mipmap/bg2"
-    tools:context="io.agora.metagpt.ui.activity.UserActivity">
+    tools:context="io.agora.gpt.ui.activity.UserActivity">
 
 
     <TextView
