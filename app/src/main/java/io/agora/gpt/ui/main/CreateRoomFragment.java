@@ -57,8 +57,7 @@ public class CreateRoomFragment extends BaseFragment {
     private MainViewModel mViewModel;
 
     private Random random = new Random();
-    private String[] nicknamePrefix;
-    private String[] nicknameSuffix;
+    private String[] nicknameArray;
 
     private int gameId = Constants.GAME_AI_VOICE_ASSISTANT;
     private int role = Constants.GAME_ROLE_MODERATOR;
@@ -92,16 +91,14 @@ public class CreateRoomFragment extends BaseFragment {
     protected void initData() {
         super.initData();
         downloadProgress = -1;
-        nicknamePrefix = getResources().getStringArray(R.array.user_nickname_prefix);
-        nicknameSuffix = getResources().getStringArray(R.array.user_nickname_suffix);
+        nicknameArray = getResources().getStringArray(R.array.user_nickname);
     }
 
     @Override
     protected void initView() {
         super.initView();
-        int prefixIndex = random.nextInt(nicknamePrefix.length);
-        int suffixIndex = random.nextInt(nicknameSuffix.length);
-        String nickname = nicknamePrefix[prefixIndex] + nicknameSuffix[suffixIndex];
+        int nameIndex = random.nextInt(nicknameArray.length);
+        String nickname = nicknameArray[nameIndex];
         binding.etNickname.setText(nickname);
         binding.etNickname.addTextChangedListener(new TextWatcher() {
             @Override
@@ -228,9 +225,8 @@ public class CreateRoomFragment extends BaseFragment {
         compositeDisposable.add(disposable);
 
         disposable = RxView.clicks(binding.tvNicknameRandom).throttleFirst(1, TimeUnit.SECONDS).subscribe(o -> {
-            int prefixIndex = random.nextInt(nicknamePrefix.length);
-            int suffixIndex = random.nextInt(nicknameSuffix.length);
-            binding.etNickname.setText(nicknamePrefix[prefixIndex] + nicknameSuffix[suffixIndex]);
+            int nameIndex = random.nextInt(nicknameArray.length);
+            binding.etNickname.setText(nicknameArray[nameIndex]);
         });
         compositeDisposable.add(disposable);
 

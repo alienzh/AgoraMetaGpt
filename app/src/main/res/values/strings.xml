@@ -121,4 +121,47 @@
         <item>冰淇淋</item>
         <item>橘子蛋糕</item>
     </string-array>
+
+    <string-array name="user_nickname">
+        <item>James</item>
+        <item>William</item>
+        <item>Ethan</item>
+        <item>Noah</item>
+        <item>Alexander</item>
+        <item>Benjamin</item>
+        <item>Daniel</item>
+        <item>Samuel</item>
+        <item>Matthew</item>
+        <item>Michael</item>
+        <item>Joseph</item>
+        <item>Andrew</item>
+        <item>David</item>
+        <item>Christopher</item>
+        <item>Joshua</item>
+        <item>Jacob</item>
+        <item>Daniel</item>
+        <item>Jason</item>
+        <item>Ryan</item>
+        <item>Anthony</item>
+        <item>Emma</item>
+        <item>Olivia</item>
+        <item>Ava</item>
+        <item>Sophia</item>
+        <item>Isabella</item>
+        <item>Mia</item>
+        <item>Charlotte</item>
+        <item>Amelia</item>
+        <item>Harper</item>
+        <item>Evelyn</item>
+        <item>Abigail</item>
+        <item>Emily</item>
+        <item>Elizabeth</item>
+        <item>Samantha</item>
+        <item>Natalie</item>
+        <item>Victoria</item>
+        <item>Grace</item>
+        <item>Lily</item>
+        <item>Scarlett</item>
+        <item>Hannah</item>
+    </string-array>
 </resources>
