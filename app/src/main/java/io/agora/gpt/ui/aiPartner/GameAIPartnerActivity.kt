@@ -2,6 +2,7 @@ package io.agora.gpt.ui.aiPartner
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.os.Bundle
 import android.util.Log
@@ -34,6 +35,7 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.random.Random
 
 class GameAIPartnerActivity : BaseActivity() {
 
@@ -326,8 +328,8 @@ class GameAIPartnerActivity : BaseActivity() {
 
     private fun updateAvatarBg() {
         GameContext.getInstance().currentChatBotRole?.let {
-            var avatarBgPath = externalCacheDir!!.path + File.separator
-            avatarBgPath += if (it.chatBotRole.contains("男")) {
+//            var avatarBgPath = externalCacheDir!!.path + File.separator
+            val avatarBgPath = if (it.chatBotRole.contains("男")) {
                 "bg_ai_male.png"
             } else {
                 "bg_ai_female.png"
@@ -335,6 +337,7 @@ class GameAIPartnerActivity : BaseActivity() {
             val message = UnityMessage()
             message.key = "updateBg"
             message.value = avatarBgPath
+//            message.value = "#FF0000"
             MetaContext.getInstance().sendSceneMessage(JSONObject.toJSONString(message))
         }
     }

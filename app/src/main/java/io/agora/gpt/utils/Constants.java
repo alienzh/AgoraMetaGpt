@@ -5,7 +5,7 @@ public class Constants {
 
     public static final String MMKV_ID = TAG;
 
-    public static final int SCENE_ID_GPT = 24;
+    public static final int SCENE_ID_GPT = 25;
     public static final int SCENE_INDEX_LIVE = 0;
 
     public static final int GAME_ROLE_USER = 0;
