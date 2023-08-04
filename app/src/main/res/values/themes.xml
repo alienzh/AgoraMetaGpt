@@ -38,4 +38,11 @@
         <item name="android:windowEnterAnimation">@anim/dialog_bottom_in</item>
         <item name="android:windowExitAnimation">@anim/dialog_bottom_out</item>
     </style>
+
+    <style name="ShapeAppearance.MaterialComponents.Avatar.BottomRound" parent="ShapeAppearance.MaterialComponents">
+        <item name="cornerFamilyBottomRight">rounded</item>
+        <item name="cornerSizeBottomRight">40dp</item>
+        <item name="cornerFamilyBottomLeft">rounded</item>
+        <item name="cornerSizeBottomLeft">40dp</item>
+    </style>
 </resources>
