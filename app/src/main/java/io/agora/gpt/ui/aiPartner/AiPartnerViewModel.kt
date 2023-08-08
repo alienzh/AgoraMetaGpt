@@ -1,12 +1,15 @@
 package io.agora.gpt.ui.aiPartner
 
+import android.app.Activity
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.text.TextUtils
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import io.agora.gpt.BuildConfig
 import io.agora.gpt.MainApplication
+import io.agora.gpt.R
 import io.agora.gpt.agora_server.AgoraGptServerManager
 import io.agora.gpt.chat.ChatRobotManager
 import io.agora.gpt.context.GameContext
@@ -20,10 +23,11 @@ import io.agora.gpt.stt.SttRobotManager
 import io.agora.gpt.tts.TtsRobotManager
 import io.agora.gpt.utils.Config
 import io.agora.gpt.utils.Constants
+import io.agora.gpt.utils.EncryptUtil
 import io.agora.gpt.utils.ErrorCode
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.Utils
-import io.agora.gpt.R
+import io.agora.gpt.voice.DubbingVoiceEngine
 import java.io.File
 import java.io.InputStream
 import java.nio.ByteBuffer
@@ -98,7 +102,11 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
 
     private var mAgoraGptServerManager: AgoraGptServerManager? = null
 
+    private var mDubbingEngine: DubbingVoiceEngine? = null
 
+    private var mDubbingInitSuccess = false
+
+    private var mVoiceChangeEnable = false
     fun initData() {
         mTempPcmFilePath = MainApplication.mGlobalApplication.externalCacheDir!!.path + "/temp/tempTts.pcm"
         val tempTtsFile = File(mTempPcmFilePath)
@@ -193,7 +201,18 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         callback.invoke(mIsMute)
     }
 
-    fun setChatBotRole(chatBotRole: ChatBotRole) {
+    fun setChatBotRole(activity: Activity, chatBotRole: ChatBotRole) {
+        if (chatBotRole.chatBotName == "芋泥啵啵") {
+            // 芋泥啵啵改成大饼 ai 变声
+            mVoiceChangeEnable = true
+            initDubbingEngine(activity)
+        }else{
+            mVoiceChangeEnable = false
+            mDubbingEngine?.let {
+                it.stop()
+                it.release()
+            }
+        }
         mChatRobotManager?.setChatBotRole(chatBotRole)
         mChatRobotManager?.clearChatMessage()
         mTtsRobotManager?.setChatBotRole(chatBotRole)
@@ -211,6 +230,10 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         }
         mHandler.removeMessages(MESSAGE_REQUEST_CHAT_KEY_INFO)
         mHandler.removeCallbacksAndMessages(null)
+
+        mDubbingEngine?.stop()
+        mDubbingEngine?.release()
+        mDubbingInitSuccess = false
     }
 
     fun onJoinSuccess(streamId: Int) {
@@ -261,6 +284,10 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
                 if (mCancelRequest) {
                     mCancelRequest = false
                     mTtsRobotManager?.cancelTtsRequest(false)
+
+                    if (mVoiceChangeEnable) {
+                        mDubbingEngine?.stop()
+                    }
                 }
                 if (Config.ENABLE_SHARE_CHAT) {
                     var helloAnswer = answer!!
@@ -365,6 +392,7 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
 
     fun onRecordAudioFrame(origin: ByteArray): Boolean {
         if (Utils.isByteArrayAllZero(origin)) {
+            mFirstRecordAudio = true
             return false
         }
         if (mFirstRecordAudio) {
@@ -393,6 +421,12 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
                     bytes = mTtsRobotManager!!.getTtsBuffer(buffer.capacity())
                 }
             }
+            if (mVoiceChangeEnable && mDubbingInitSuccess) {
+                if (null != bytes) {
+                    mDubbingEngine!!.putDubbingVoiceBuffer(bytes)
+                }
+                bytes = mDubbingEngine!!.getDubbingVoiceBuffer(buffer.capacity())
+            }
             if (null != bytes) {
                 buffer.put(bytes, 0, buffer.capacity())
                 if (0L != mChatIdleStartTime) {
@@ -418,9 +452,32 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         return true
     }
 
-    fun resetRequestChatKeyInfo(){
+    fun resetRequestChatKeyInfo() {
         mHandler.removeMessages(MESSAGE_REQUEST_CHAT_KEY_INFO)
         mHandler.removeCallbacksAndMessages(null)
         mHandler.sendEmptyMessageDelayed(MESSAGE_REQUEST_CHAT_KEY_INFO, (60 * 1000).toLong())
+    }
+
+    private fun initDubbingEngine(activity: Activity) {
+        if (null == mDubbingEngine) {
+            mDubbingEngine = DubbingVoiceEngine().also {
+                it.setCallBack {
+                    mDubbingInitSuccess = true
+                    it.start()
+                }
+            }
+        }
+        mDubbingEngine?.initEngine(
+            activity,
+            EncryptUtil.buildDubbingToken(
+                KeyCenter.getAiUid(),
+                BuildConfig.DUBBING_SECRET_KEY,
+                BuildConfig.DUBBING_ACCESS_KEY
+            ),
+            Constants.RTC_AUDIO_SAMPLE_RATE,
+            Constants.RTC_AUDIO_SAMPLE_RATE,
+            Constants.RTC_AUDIO_SAMPLES * Constants.STT_BITS_PER_SAMPLE / 8,
+            false
+        )
     }
 }

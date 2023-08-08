@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.agora.gpt.BuildConfig;
 import io.agora.gpt.R;
 import io.agora.gpt.chat.gpt.GptRetrofitManager;
 import io.agora.gpt.chat.minimax.MiniMaxRetrofitManager;
@@ -46,7 +47,9 @@ import io.agora.gpt.ui.underCover.GameUnderCoverActivity;
 import io.agora.gpt.ui.base.BaseFragment;
 import io.agora.gpt.ui.view.CustomDialog;
 import io.agora.gpt.utils.Constants;
+import io.agora.gpt.utils.EncryptUtil;
 import io.agora.gpt.utils.KeyCenter;
+import io.agora.gpt.voice.DubbingVoiceEngine;
 import io.reactivex.disposables.Disposable;
 
 public class CreateRoomFragment extends BaseFragment {
@@ -297,6 +300,9 @@ public class CreateRoomFragment extends BaseFragment {
             if (!MetaContext.getInstance().isInitmeta()) return;
             if (integer >= 0) downloadProgress = integer;
             if (progressDialog == null) {
+                DubbingVoiceEngine dubbingVoiceEngine = new DubbingVoiceEngine();
+                dubbingVoiceEngine.initEngine(getActivity(), EncryptUtil.buildDubbingToken(KeyCenter.getAiUid(), BuildConfig.DUBBING_SECRET_KEY, BuildConfig.DUBBING_ACCESS_KEY), Constants.RTC_AUDIO_SAMPLE_RATE, Constants.RTC_AUDIO_SAMPLE_RATE, Constants.RTC_AUDIO_SAMPLES * Constants.STT_BITS_PER_SAMPLE / 8, true);
+
                 progressDialog = CustomDialog.showDownloadingProgress(context,
                         MetaContext.getInstance().getSceneInfo().mTotalSize, materialDialog -> {
                             downloadProgress = -1;

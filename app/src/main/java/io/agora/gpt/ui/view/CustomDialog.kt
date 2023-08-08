@@ -49,6 +49,7 @@ class CustomDialog {
             return MaterialDialog(context).show {
                 title(text = getContext().getString(R.string.download_title))
                 message(text = getContext().getString(R.string.download_content,AppUtils.getNetFileSizeDescription(size)))
+                cancelOnTouchOutside(false)
                 positiveButton(text = getContext().getString(R.string.download_now), click = positive)
                 negativeButton(text = getContext().getString(R.string.download_next_time), click = negative)
             }

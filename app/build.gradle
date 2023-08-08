@@ -16,7 +16,7 @@ android {
         minSdk 23
         targetSdk 30
         versionCode 401201
-        versionName "401.201.220.0804.4"
+        versionName "401.201.220.0808.2"
 
         flavorDimensions "versionCode"
 

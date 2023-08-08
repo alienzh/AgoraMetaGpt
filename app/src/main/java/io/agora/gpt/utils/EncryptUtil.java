@@ -1,11 +1,14 @@
 package io.agora.gpt.utils;
 
+import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,6 +16,7 @@ import java.security.SignatureException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 import java.util.TimeZone;
 
 import javax.crypto.Mac;
@@ -101,5 +105,32 @@ public class EncryptUtil {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public static String buildDubbingToken(int uid, String secretKey, String accessKey) {
+        long timestamp = System.currentTimeMillis() / 1000;
+        char[] nonceChars = new char[16];
+        for (int index = 0; index < nonceChars.length; ++index) {
+            nonceChars[index] = Constants.SYMBOLS.charAt(new Random().nextInt(Constants.SYMBOLS.length()));
+        }
+        String nonce = new String(nonceChars);
+
+        String data = timestamp + "\n" + nonce + "\n" + uid + "\n";
+        String signature = "";
+        SecretKeySpec secret = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), Constants.HMAC_SHA1);
+        try {
+            Mac mac = Mac.getInstance(Constants.HMAC_SHA1);
+            mac.init(secret);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                signature = java.util.Base64.getUrlEncoder().encodeToString(mac.doFinal(data.getBytes()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (!TextUtils.isEmpty(signature)) {
+            String tokenStr = "access_key=\"%s\",timestamp=\"%s\",nonce=\"%s\",id=\"%s\",signature=\"%s\"";
+            return String.format(tokenStr, accessKey, timestamp, nonce, String.valueOf(uid), signature);
+        }
+        return null;
     }
 }

@@ -99,7 +99,7 @@ class GameAIPartnerActivity : BaseActivity() {
             tvRoomId.text = GameContext.getInstance().roomName
             GameContext.getInstance().currentChatBotRole?.let { chatRole ->
                 btnCalling.text = getString(R.string.calling, chatRole.chatBotName)
-                aiPartnerViewModel.setChatBotRole(chatRole)
+                aiPartnerViewModel.setChatBotRole(this@GameAIPartnerActivity,chatRole)
                 if (Config.ENABLE_SHARE_CHAT) {
                     MetaContext.getInstance()
                         .setAvatarType(resources.getStringArray(R.array.avatar_model_value)[GameContext.getInstance().currentChatBotRoleIndex])
@@ -176,7 +176,7 @@ class GameAIPartnerActivity : BaseActivity() {
             binding.ivHangUp.visibility = View.INVISIBLE
             GameContext.getInstance().currentChatBotRole?.let { chatRole ->
                 binding.btnCalling.text = getString(R.string.calling, chatRole.chatBotName)
-                aiPartnerViewModel.setChatBotRole(chatRole)
+                aiPartnerViewModel.setChatBotRole(this@GameAIPartnerActivity,chatRole)
                 MetaContext.getInstance()
                     .setAvatarType(resources.getStringArray(R.array.avatar_model_value)[GameContext.getInstance().currentChatBotRoleIndex])
                 MetaContext.getInstance().updateAvatar()
