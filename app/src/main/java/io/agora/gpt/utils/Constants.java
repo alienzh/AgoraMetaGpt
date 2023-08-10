@@ -5,7 +5,7 @@ public class Constants {
 
     public static final String MMKV_ID = TAG;
 
-    public static final int SCENE_ID_GPT = 25;
+    public static final int SCENE_ID_GPT = 26;
     public static final int SCENE_INDEX_LIVE = 0;
 
     public static final int GAME_ROLE_USER = 0;
@@ -109,13 +109,16 @@ public class Constants {
 
     public static final int MAX_COUNT_GPT_RESPONSE_HELLO = 3;
 
-    public static final int GPT_MAX_TOKENS = 16384;
-    public static final float GPT_TEMPERATURE = 0.5f;
-    public static final float GPT_TOP_P = 0.95f;
+    public static final int GPT_MAX_TOKENS = 2048;
+    public static final float GPT_TEMPERATURE = 0.9f;
+    public static final float GPT_TOP_P = 0.7f;
 
     public static final String HMAC_SHA1 = "HmacSHA1";
     public static final String SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     public final static int WAIT_AUDIO_FRAME_COUNT = 3;
     public final static int STT_FILTER_NUMBER = 3;
+
+    public static final String LANG_ZH_CN = "zh-CN";
+    public static final String LANG_EN_US = "en-US";
 }
