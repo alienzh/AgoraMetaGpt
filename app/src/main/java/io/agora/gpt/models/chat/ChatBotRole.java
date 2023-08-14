@@ -5,11 +5,12 @@ import java.util.Arrays;
 public class ChatBotRole {
     private int chatBotId;
     private boolean isEnable;
+    private String chatBotRoleName;
     private String chatBotRole;
     private String chatBotName;
     private String chatBotUserName;
     private String chatBotPrompt;
-    private String introduceReplace;
+    private String selfIntroduce;
     private String introduce;
     private String welcomeMessage;
     private VoiceName[] voiceNames;
@@ -28,6 +29,14 @@ public class ChatBotRole {
 
     public void setEnable(boolean enable) {
         isEnable = enable;
+    }
+
+    public String getChatBotRoleName() {
+        return chatBotRoleName;
+    }
+
+    public void setChatBotRoleName(String chatBotRoleName) {
+        this.chatBotRoleName = chatBotRoleName;
     }
 
     public String getChatBotRole() {
@@ -62,12 +71,12 @@ public class ChatBotRole {
         this.chatBotPrompt = chatBotPrompt;
     }
 
-    public String getIntroduceReplace() {
-        return introduceReplace;
+    public String getSelfIntroduce() {
+        return selfIntroduce;
     }
 
-    public void setIntroduceReplace(String introduceReplace) {
-        this.introduceReplace = introduceReplace;
+    public void setSelfIntroduce(String selfIntroduce) {
+        this.selfIntroduce = selfIntroduce;
     }
 
     public String getIntroduce() {
@@ -103,7 +112,7 @@ public class ChatBotRole {
                 ", chatBotName='" + chatBotName + '\'' +
                 ", chatBotUserName='" + chatBotUserName + '\'' +
                 ", chatBotPrompt='" + chatBotPrompt + '\'' +
-                ", introduceReplace='" + introduceReplace + '\'' +
+                ", selfIntroduce='" + selfIntroduce + '\'' +
                 ", introduce='" + introduce + '\'' +
                 ", welcomeMessage='" + welcomeMessage + '\'' +
                 ", voiceNames=" + Arrays.toString(voiceNames) +

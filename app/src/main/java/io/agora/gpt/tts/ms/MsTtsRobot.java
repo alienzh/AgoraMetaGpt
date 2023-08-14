@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import io.agora.gpt.BuildConfig;
+import io.agora.gpt.context.GameContext;
 import io.agora.gpt.models.ResponsePendingData;
 import io.agora.gpt.net.HttpURLRequest;
 import io.agora.gpt.tts.TtsRobotBase;
@@ -64,7 +65,8 @@ public class MsTtsRobot extends TtsRobotBase {
                                 if (mIsOnSpeaking && (!mIsSpeaking || !mRequestThreadIds.contains(Thread.currentThread().getId()) || mIsCancelRequest)) {
                                     return;
                                 }
-                                if (isFirstResponse && mIsOnSpeaking) {
+                                if (isFirstResponse && mIsOnSpeaking && index == 0 && null != mCallback) {
+                                    mCallback.onFirstTts();
                                     mCallback.updateTtsHistoryInfo("微软tts第一条返回结果(" + (System.currentTimeMillis() - curTime) + "ms)");
                                 }
 //                                synchronized (mLock) {
@@ -131,12 +133,12 @@ public class MsTtsRobot extends TtsRobotBase {
                         params.put("Ocp-Apim-Subscription-Key", BuildConfig.MS_SPEECH_KEY);
                         params.put("X-Microsoft-OutputFormat", "raw-16khz-16bit-mono-pcm");
 
-                        String requestStr = "<speak version='1.0' xml:lang='zh-CN'>" +
-                                "<voice xml:lang='zh-CN' xml:gender='Female' name='" + mVoiceNameValue + "'  style='" + mVoiceNameStyle + "'>" +
+                        String requestStr = "<speak version='1.0' xml:lang='" + GameContext.getInstance().getLanguage() + "'>" +
+                                "<voice xml:lang='" + GameContext.getInstance().getLanguage() + "' xml:gender='Female' name='" + mVoiceNameValue + "'  style='" + mVoiceNameStyle + "'>" +
                                 message +
                                 "</voice>" +
                                 "</speak>";
-                        request.requestPostUrl(BuildConfig.MS_SERVER_HOST + "cognitiveservices/v1", params, requestStr);
+                        request.requestPostUrl(BuildConfig.MS_SERVER_HOST + "cognitiveservices/v1", params, requestStr, true);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -144,8 +146,8 @@ public class MsTtsRobot extends TtsRobotBase {
             });
         } else {
             long curTime = System.currentTimeMillis();
-            String requestStr = "<speak version='1.0' xml:lang='zh-CN'>" +
-                    "<voice xml:lang='zh-CN' xml:gender='Female' name='" + mVoiceNameValue + "'  style='" + mVoiceNameStyle + "'>" +
+            String requestStr = "<speak version='1.0' xml:lang='" + GameContext.getInstance().getLanguage() + "'>" +
+                    "<voice xml:lang='" + GameContext.getInstance().getLanguage() + "' xml:gender='Female' name='" + mVoiceNameValue + "'  style='" + mVoiceNameStyle + "'>" +
                     message +
                     "</voice>" +
                     "</speak>";
@@ -218,8 +220,8 @@ public class MsTtsRobot extends TtsRobotBase {
     @Override
     public void requestTipTts(String tip, String path) {
         super.requestTipTts(tip, path);
-        String requestStr = "<speak version='1.0' xml:lang='zh-CN'>" +
-                "<voice xml:lang='zh-CN' xml:gender='Female' name='" + mVoiceNameValue + "'  style='" + mVoiceNameStyle + "'>" +
+        String requestStr = "<speak version='1.0' xml:lang='" + GameContext.getInstance().getLanguage() + "'>" +
+                "<voice xml:lang='" + GameContext.getInstance().getLanguage() + "' xml:gender='Female' name='" + mVoiceNameValue + "'  style='" + mVoiceNameStyle + "'>" +
                 tip +
                 "</voice>" +
                 "</speak>";

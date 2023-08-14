@@ -27,13 +27,13 @@ import io.agora.gpt.context.MetaContext;
 import io.agora.gpt.inf.TtsCallback;
 import io.agora.gpt.models.DataStreamModel;
 import io.agora.gpt.models.DisplayUserInfo;
-import io.agora.gpt.models.VoteInfo;
 import io.agora.gpt.models.chat.ChatRobotMessage;
 import io.agora.gpt.models.chat.gpt.Gpt4RequestBody;
 import io.agora.gpt.models.chat.gpt.GptResponse;
 import io.agora.gpt.models.wiu.GamePrompt;
 import io.agora.gpt.models.wiu.GamerInfo;
 import io.agora.gpt.models.wiu.UserSpeakInfoModel;
+import io.agora.gpt.models.wiu.VoteInfo;
 import io.agora.gpt.tts.TtsRobotManager;
 import io.agora.gpt.utils.Constants;
 import io.agora.gpt.utils.KeyCenter;
@@ -442,6 +442,11 @@ public class AIModeratorViewModel extends ModeratorViewModel implements TtsCallb
     @Override
     public void onTtsStart(String text, boolean isOnSpeaking) {
         updateHistoryList(getString(R.string.ai), "讯飞tts 请求：" + text);
+    }
+
+    @Override
+    public void onFirstTts() {
+        updateHistoryList(getString(R.string.ai), "播放TTS语音");
     }
 
     @Override

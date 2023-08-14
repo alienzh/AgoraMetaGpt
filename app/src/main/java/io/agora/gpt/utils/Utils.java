@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.Random;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -345,5 +346,9 @@ public class Utils {
         outputStream.flush();
         outputStream.close();
         inputStream.close();
+    }
+
+    public static String getSessionId() {
+        return UUID.randomUUID().toString();
     }
 }

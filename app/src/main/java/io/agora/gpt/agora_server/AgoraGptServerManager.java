@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -28,12 +29,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import io.agora.gpt.BuildConfig;
 import io.agora.gpt.models.UserInfo;
 import io.agora.gpt.net.HttpURLRequest;
 import io.agora.gpt.utils.Constants;
-import io.agora.gpt.utils.EncryptUtil;
-import io.agora.gpt.utils.KeyCenter;
 import io.agora.gpt.utils.RingBuffer;
 
 public class AgoraGptServerManager {
@@ -66,6 +64,8 @@ public class AgoraGptServerManager {
     private String mSid;
     private final boolean mIsWsRequest = true;
 
+    private int index;
+
     public AgoraGptServerManager() {
         mRingBuffer = new RingBuffer(1024 * 1024 * 5);
         mRingBufferLock = new Object();
@@ -92,12 +92,44 @@ public class AgoraGptServerManager {
                 initWebSocketClient();
             }
         });
+        getBusinessStrategy();
+    }
+
+    private void getBusinessStrategy() {
+        mExecutorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    HttpURLRequest request = new HttpURLRequest();
+                    request.setCallback(new HttpURLRequest.RequestCallback() {
+                        @Override
+                        public void onHttpResponse(String responseTxt) {
+                            Log.i(Constants.TAG, "onHttpResponse responseTxt=" + responseTxt);
+
+                        }
+
+                        @Override
+                        public void requestFail(int errorCode, String msg) {
+                            Log.i(Constants.TAG, "requestFail errorCode=" + errorCode + ",msg=" + msg);
+                        }
+
+                    });
+                    Map<String, String> params = new HashMap<>(1);
+                    params.put("Content-Type", "application/json");
+
+                    request.requestGetUrl("http://10.203.3.39:8081/gpt/getChatStrategy?sid=222", params);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void initWebSocketClient() {
         try {
-            String wsUrl = EncryptUtil.assembleAgoraRequestUrl("ws://10.203.0.207:9999/ws", BuildConfig.APP_ID, KeyCenter.getRtmToken(mUserInfo.getUid()), mUserInfo.getUid());
-            //String wsUrl = "ws://10.203.0.207:9999/ws";
+            //String wsUrl = EncryptUtil.assembleAgoraRequestUrl("ws://10.203.0.207:9998/ws", BuildConfig.APP_ID, KeyCenter.getRtmToken(mUserInfo.getUid()), mUserInfo.getUid());
+            String wsUrl = "ws://10.203.3.39:9998/ws";
             Log.i(TAG, "AgoraGptServer initWebSocketClient,wsUrl:" + wsUrl);
             mWebSocketClient = new WebSocketClient(new URI(wsUrl), new Draft_6455(), null, 5000) {
                 @Override
@@ -296,7 +328,7 @@ public class AgoraGptServerManager {
                 @Override
                 public void updateResponseData(byte[] bytes, int len, boolean isFirstResponse) {
                     try {
-                        mServerResponse.append(new String(bytes, 0, len, "utf-8"));
+                        mServerResponse.append(new String(bytes, 0, len, StandardCharsets.UTF_8));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -319,7 +351,7 @@ public class AgoraGptServerManager {
                     requestBody = "{\"authorization\":\"wedsfs@2fsf234242SDSFS\",\"common\":{\"user\":{\"userName\":\"Paul\"},\"sid\":\"rta0000000a@ch312c0e3f63609f0900\"},\"data\":{\"inputFormat\":\"raw-16khz-16bit-mono-pcm\",\"payload\":\"" + Base64.getEncoder().encodeToString(Arrays.copyOf(bytes, bytes.length)) + "\"},\"date\":\"Wed, 29 Jun 2023 11:12:15 UTC\"}";
                 }
                 Log.i(Constants.TAG, "requestBody=" + requestBody);
-                request.requestPostUrl("http://10.203.0.207:8081/gpt/getChatMsg", params, requestBody);
+                request.requestPostUrl("http://10.203.0.207:8081/gpt/getChatMsg", params, requestBody, true);
             } catch (Exception e) {
                 e.printStackTrace();
             }

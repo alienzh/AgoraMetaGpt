@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.regex.Pattern;
 
-import io.agora.gpt.R;
+import io.agora.gpt.context.GameContext;
 import io.agora.gpt.inf.ITtsRobot;
 import io.agora.gpt.inf.TtsCallback;
 import io.agora.gpt.models.chat.ChatBotRole;
@@ -58,9 +58,9 @@ public class TtsRobotManager {
         mTempTtsPcmFilePath = tempPcmPath;
         clearData();
         mIsSpeaking = false;
-        mSttAiSentence = context.getResources().getStringArray(R.array.stt_ai_self_sentence);
+        mSttAiSentence = GameContext.getInstance().getAiSelfIntroduceReplaceArray();
         if (null != mChatBotRole) {
-            mSttAiSentenceReplace = mChatBotRole.getIntroduceReplace();
+            mSttAiSentenceReplace = mChatBotRole.getSelfIntroduce();
         }
     }
 
@@ -149,7 +149,7 @@ public class TtsRobotManager {
                 return mTtsRobot.getTtsBuffer(length);
             } else {
                 //wait length*WAIT_AUDIO_FRAME_COUNT data
-                if (mTtsRobot.getTtsBufferLength() >= length * Constants.WAIT_AUDIO_FRAME_COUNT) {
+                if (mTtsRobot.getTtsBufferLength() >= length * Constants.MAX_COUNT_AUDIO_FRAME) {
                     mRingBufferReady = true;
                     return mTtsRobot.getTtsBuffer(length);
                 } else {
@@ -181,6 +181,8 @@ public class TtsRobotManager {
             mTtsRobot.close();
         }
         mWelcomeTip = false;
+        mIsSpeaking = false;
+        mChatBotRole = null;
     }
 
     public void requestChatTip() {

@@ -1,4 +1,4 @@
-package io.agora.gpt.models;
+package io.agora.gpt.models.wiu;
 
 import androidx.annotation.NonNull;
 

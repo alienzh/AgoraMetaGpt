@@ -515,7 +515,7 @@ public class MetaContext implements IMetaServiceEventHandler, IMetaSceneEventHan
     }
 
     public int getSceneId() {
-        return Constants.SCENE_ID_GPT;
+        return Constants.SCENE_ID_AIGC;
     }
 
     public void updatePublishCustomAudioTrackChannelOptions(boolean enable, int sampleRate, int channels, int sourceNumber, boolean localPlayback, boolean publish) {

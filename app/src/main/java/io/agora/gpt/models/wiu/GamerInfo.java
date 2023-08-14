@@ -11,8 +11,6 @@ public class GamerInfo {
 
     private boolean isOut;
 
-    private boolean isAi;
-
     public int getUid() {
         return uid;
     }
@@ -62,14 +60,6 @@ public class GamerInfo {
         isOut = out;
     }
 
-    public boolean isAi() {
-        return isAi;
-    }
-
-    public void setAi(boolean ai) {
-        isAi = ai;
-    }
-
     @NonNull
     @Override
     public String toString() {
@@ -80,7 +70,6 @@ public class GamerInfo {
                 ", gameName='" + gameName + '\'' +
                 ", word='" + word + '\'' +
                 ", isOut=" + isOut +
-                ", isAi=" + isAi +
                 '}';
     }
 }

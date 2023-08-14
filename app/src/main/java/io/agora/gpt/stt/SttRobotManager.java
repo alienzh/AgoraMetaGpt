@@ -2,6 +2,7 @@ package io.agora.gpt.stt;
 
 import io.agora.gpt.inf.ISttRobot;
 import io.agora.gpt.inf.SttCallback;
+import io.agora.gpt.stt.ms.MsSttRobot;
 import io.agora.gpt.stt.xf.XFSttIstRobot;
 import io.agora.gpt.stt.xf.XFSttRtasrRobot;
 import io.agora.gpt.utils.Constants;
@@ -27,6 +28,9 @@ public class SttRobotManager {
                 break;
             case Constants.STT_PLATFORM_XF_IST:
                 mSttRobot = new XFSttIstRobot();
+                break;
+            case Constants.STT_PLATFORM_MS:
+                mSttRobot = new MsSttRobot();
                 break;
             default:
                 break;

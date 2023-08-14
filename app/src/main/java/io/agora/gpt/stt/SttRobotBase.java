@@ -15,6 +15,7 @@ public class SttRobotBase implements ISttRobot {
     protected SttCallback mCallback;
     protected final Gson mGson;
     protected final ExecutorService mExecutorService;
+    protected final ExecutorService mExecutorCacheService;
 
     protected boolean mIsFinished;
 
@@ -24,6 +25,9 @@ public class SttRobotBase implements ISttRobot {
         mExecutorService = new ThreadPoolExecutor(1, 1,
                 0, TimeUnit.MILLISECONDS,
                 new LinkedBlockingDeque<Runnable>(), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
+        mExecutorCacheService = new ThreadPoolExecutor(Integer.MAX_VALUE, Integer.MAX_VALUE,
+                0, TimeUnit.SECONDS,
+                new LinkedBlockingDeque<>(), Executors.defaultThreadFactory(), new ThreadPoolExecutor.AbortPolicy());
         mGson = new Gson();
         mIsFinished = false;
         mLastSendTime = 0;

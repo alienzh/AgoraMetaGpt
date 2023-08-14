@@ -1,5 +1,6 @@
 package io.agora.gpt.net;
 
+
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -8,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -31,12 +33,15 @@ public class HttpURLRequest {
         this.mCancelled = cancelled;
     }
 
-    public void requestPostUrl(String urlStr, Map<String, String> requestProperty, String writeData) {
+    public void requestPostUrl(String urlStr, Map<String, String> requestProperty, String writeData, boolean isStream) {
         InputStream is = null;
+        StringBuilder responseContent = new StringBuilder();
         try {
             URL url = new URL(urlStr);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(Constants.HTTP_TIMEOUT * 1000);
+            conn.setReadTimeout(Constants.HTTP_TIMEOUT * 1000);
 
             conn.setRequestMethod("POST");
             for (Map.Entry<String, String> entry : requestProperty.entrySet()) {
@@ -82,13 +87,22 @@ public class HttpURLRequest {
                     if (Config.ENABLE_HTTP_LOG) {
                         Log.i(Constants.TAG, "http read len: " + len);
                     }
-                    if (null != mCallback) {
-                        if (!isFirstResponse) {
-                            isFirstResponse = true;
-                            mCallback.updateResponseData(bytes, len, true);
-                        } else {
-                            mCallback.updateResponseData(bytes, len, false);
+                    if (isStream) {
+                        if (null != mCallback) {
+                            if (!isFirstResponse) {
+                                isFirstResponse = true;
+                                mCallback.updateResponseData(bytes, len, true);
+                            } else {
+                                mCallback.updateResponseData(bytes, len, false);
+                            }
                         }
+                    } else {
+                        responseContent.append(new String(bytes, 0, len, StandardCharsets.UTF_8));
+                    }
+                }
+                if (!isStream) {
+                    if (null != mCallback) {
+                        mCallback.onHttpResponse(responseContent.toString());
                     }
                 }
 
@@ -121,6 +135,8 @@ public class HttpURLRequest {
             URL url = new URL(urlStr);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(Constants.HTTP_TIMEOUT * 1000);
+            conn.setReadTimeout(Constants.HTTP_TIMEOUT * 1000);
 
             conn.setRequestMethod("GET");
             if (null != headers) {

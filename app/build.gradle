@@ -16,7 +16,7 @@ android {
         minSdk 23
         targetSdk 30
         versionCode 401201
-        versionName "401.201.220.0808.2"
+        versionName "401.201.220.0810.1"
 
         flavorDimensions "versionCode"
 
@@ -50,11 +50,16 @@ android {
         buildConfigField("String", "MINIMAX_AUTHORIZATION", "\"${properties.getProperty("MINIMAX_AUTHORIZATION", "")}\"")
         buildConfigField("String", "MINIMAX_GROUP_ID", "\"${properties.getProperty("MINIMAX_GROUP_ID", "")}\"")
 
+        buildConfigField("String", "MS_SPEECH_REGION", "\"eastasia\"")
         buildConfigField("String", "MS_SERVER_HOST", "\"https://eastasia.tts.speech.microsoft.com/\"")
         buildConfigField("String", "MS_SPEECH_KEY", "\"${properties.getProperty("MS_SPEECH_KEY", "")}\"")
 
         buildConfigField("String", "DUBBING_SECRET_KEY", "\"${properties.getProperty("DUBBING_SECRET_KEY", "")}\"")
         buildConfigField("String", "DUBBING_ACCESS_KEY", "\"${properties.getProperty("DUBBING_ACCESS_KEY", "")}\"")
+
+        buildConfigField("String", "BIG_MODEL_SERVER_HOST", "\"https://open.bigmodel.cn/api/paas/v3/model-api/modelName/sse-invoke\"")
+        buildConfigField("String", "BIG_MODEL_API_KEY", "\"${properties.getProperty("BIG_MODEL_API_KEY", "")}\"")
+
 
 
         ndk {
@@ -146,8 +151,14 @@ dependencies {
     implementation "org.java-websocket:Java-WebSocket:1.4.1"
 
     // Speech SDK
-    //implementation 'com.microsoft.cognitiveservices.speech:client-sdk:1.27.0'
+    implementation 'com.microsoft.cognitiveservices.speech:client-sdk:1.31.0'
+    // Diff lib for pronunciation assessment
     //implementation "io.github.java-diff-utils:java-diff-utils:4.11"
+
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    //implementation 'io.jsonwebtoken:jjwt-api:0.11.1'
+    //implementation 'io.jsonwebtoken:jjwt-impl:0.11.1'
+    //implementation 'io.jsonwebtoken:jjwt-jackson:0.11.1'
 }
 
 static def releaseTime() {

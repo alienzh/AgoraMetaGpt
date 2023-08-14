@@ -51,48 +51,51 @@ public class DubbingVoiceEngine {
     }
 
     public void initEngine(Activity activity, String token, int inputSampleRate, int outputSampleRate, int samplesPerCall, final boolean onlyDownload) {
-        mExecutorService.execute(() -> {
-            mEngine = new VCEngine.Builder(activity)
-                    .log()
-                    .transformLog()
-                    .token(token)
-                    .inputSampleRate(inputSampleRate)
-                    .outputSampleRate(outputSampleRate)
-                    .samplesPerCall(samplesPerCall)
-                    .thirdRTC(ThirdRTC.AGORA)
-                    .engineCallback(new VCEngineCallback() {
-                        @Override
-                        public void onDownload(int percent, int index, int count) {
-                            Log.i(TAG, "onDownload percent:" + percent + ",index:" + index + ",count:" + count);
-                        }
+        mExecutorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                mEngine = new VCEngine.Builder(activity)
+                        .log()
+                        .transformLog()
+                        .token(token)
+                        .inputSampleRate(inputSampleRate)
+                        .outputSampleRate(outputSampleRate)
+                        .samplesPerCall(samplesPerCall)
+                        .thirdRTC(ThirdRTC.AGORA)
+                        .engineCallback(new VCEngineCallback() {
+                            @Override
+                            public void onDownload(int percent, int index, int count) {
+                                Log.i(TAG, "onDownload percent:" + percent + ",index:" + index + ",count:" + count);
+                            }
 
-                        @Override
-                        public void onActionResult(@NonNull VCAction vcAction, @NonNull VCEngineCode vcEngineCode, @Nullable String msg) {
-                            Log.i(TAG, "onActionResult action:" + vcAction + ",code:" + vcEngineCode + ",msg:" + msg);
-                            if (!onlyDownload) {
-                                if (vcAction == VCAction.PREPARE && vcEngineCode == VCEngineCode.SUCCESS) {
-                                    mEngine.initEngine();
-                                } else if (vcAction == VCAction.INITIALIZE && vcEngineCode == VCEngineCode.SUCCESS) {
-                                    List<VCVoice> vcVoices = mEngine.getVoiceList();
-                                    for (VCVoice voice : vcVoices) {
-                                        //192:芊芊,190:小奇
-                                        if (voice.getId() == 192) {
-                                            mEngine.setVoice(voice);
-                                            break;
+                            @Override
+                            public void onActionResult(@NonNull VCAction vcAction, @NonNull VCEngineCode vcEngineCode, @Nullable String msg) {
+                                Log.i(TAG, "onActionResult action:" + vcAction + ",code:" + vcEngineCode + ",msg:" + msg);
+                                if (!onlyDownload) {
+                                    if (vcAction == VCAction.PREPARE && vcEngineCode == VCEngineCode.SUCCESS) {
+                                        mEngine.initEngine();
+                                    } else if (vcAction == VCAction.INITIALIZE && vcEngineCode == VCEngineCode.SUCCESS) {
+                                        List<VCVoice> vcVoices = mEngine.getVoiceList();
+                                        for (VCVoice voice : vcVoices) {
+                                            //192:芊芊,190:小奇
+                                            if (voice.getId() == 192) {
+                                                mEngine.setVoice(voice);
+                                                break;
+                                            }
                                         }
-                                    }
 
-                                } else if (vcAction == VCAction.SET_VOICE && vcEngineCode == VCEngineCode.SUCCESS) {
-                                    if (null != mCallBack) {
-                                        mCallBack.onDubbingInitSuccess();
+                                    } else if (vcAction == VCAction.SET_VOICE && vcEngineCode == VCEngineCode.SUCCESS) {
+                                        if (null != mCallBack) {
+                                            mCallBack.onDubbingInitSuccess();
+                                        }
                                     }
                                 }
                             }
-                        }
-                    })
-                    .build();
+                        })
+                        .build();
 
-            mEngine.prepare();
+                mEngine.prepare();
+            }
         });
     }
 
@@ -170,7 +173,7 @@ public class DubbingVoiceEngine {
                 return getRingBuffer(length);
             } else {
                 //wait length*WAIT_AUDIO_FRAME_COUNT data
-                if (mDubbingVoiceRingBuffer.size() >= length * Constants.WAIT_AUDIO_FRAME_COUNT) {
+                if (mDubbingVoiceRingBuffer.size() >= length * Constants.MAX_COUNT_AUDIO_FRAME) {
                     mRingBufferReady = true;
                     return getRingBuffer(length);
                 } else {

@@ -24,12 +24,12 @@ import io.agora.gpt.MainApplication;
 import io.agora.gpt.R;
 import io.agora.gpt.context.GameContext;
 import io.agora.gpt.context.MetaContext;
-import io.agora.gpt.models.ChatMessageModel;
 import io.agora.gpt.models.DataStreamModel;
 import io.agora.gpt.models.DisplayUserInfo;
-import io.agora.gpt.models.VoteInfo;
+import io.agora.gpt.models.wiu.ChatMessageModel;
 import io.agora.gpt.models.wiu.GamerInfo;
 import io.agora.gpt.models.wiu.UserSpeakInfoModel;
+import io.agora.gpt.models.wiu.VoteInfo;
 import io.agora.gpt.utils.Constants;
 import io.agora.gpt.utils.KeyCenter;
 

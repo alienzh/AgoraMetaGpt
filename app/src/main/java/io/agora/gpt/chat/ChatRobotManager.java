@@ -13,6 +13,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import io.agora.gpt.chat.bigmodel.BigModelChatRobot;
 import io.agora.gpt.chat.gpt.GptChatRobot;
 import io.agora.gpt.chat.minimax.MinimaxChatRobot;
 import io.agora.gpt.chat.xf.XfChatRobot;
@@ -64,6 +65,11 @@ public class ChatRobotManager {
                 break;
             case Constants.AI_PLATFORM_CHAT_XUNFEI:
                 mChatRobot = new XfChatRobot();
+                break;
+            case Constants.AI_PLATFORM_BIG_MODEL_CHATGLM_PRO:
+            case Constants.AI_PLATFORM_BIG_MODEL_CHATGLM_STD:
+            case Constants.AI_PLATFORM_BIG_MODEL_CHATGLM_LITE:
+                mChatRobot = new BigModelChatRobot();
                 break;
             default:
                 break;
@@ -162,6 +168,14 @@ public class ChatRobotManager {
                     minimaxProMessage.setSender_name(mChatBotRole.getChatBotUserName());
                     minimaxProMessage.setText(mGptKeyInfoPrompt.replace("botName", null != mChatBotRole ? mChatBotRole.getChatBotName() : "Bot"));
                     requestMessage.add(JSON.toJSON(minimaxProMessage));
+                    break;
+                case Constants.AI_PLATFORM_BIG_MODEL_CHATGLM_PRO:
+                case Constants.AI_PLATFORM_BIG_MODEL_CHATGLM_STD:
+                case Constants.AI_PLATFORM_BIG_MODEL_CHATGLM_LITE:
+                    ChatRobotMessage chatRobotMessage = new ChatRobotMessage();
+                    chatRobotMessage.setRole(Constants.GPT_ROLE_USER);
+                    chatRobotMessage.setContent(mGptKeyInfoPrompt.replace("botName", null != mChatBotRole ? mChatBotRole.getChatBotName() : "Bot"));
+                    requestMessage.add(JSON.toJSON(chatRobotMessage));
                     break;
                 default:
                     break;

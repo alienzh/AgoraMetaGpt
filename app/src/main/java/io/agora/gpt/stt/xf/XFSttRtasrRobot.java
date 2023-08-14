@@ -176,6 +176,9 @@ public class XFSttRtasrRobot extends SttRobotBase {
                     JSONArray cwArr = wsArrObj.getJSONArray("cw");
                     for (int k = 0; k < cwArr.size(); k++) {
                         JSONObject cwArrObj = cwArr.getJSONObject(k);
+                        if (k == 0 && "p".equals(cwArrObj.getString("wp"))) {
+                            continue;
+                        }
                         String wStr = cwArrObj.getString("w");
                         resultBuilder.append(wStr);
                     }

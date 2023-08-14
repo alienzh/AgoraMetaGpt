@@ -41,6 +41,13 @@ public class GameContext {
 
     private int currentChatBotRoleIndex;
 
+    private String mLanguage;
+
+    private boolean mEnableSpeakerDiarization;
+
+    private String[] mChatIdleTipMessagesArray;
+    private String[] mAiSelfIntroduceReplaceArray;
+
     private GameContext() {
         mInitRes = false;
         initData();
@@ -52,6 +59,10 @@ public class GameContext {
         mRoomName = "";
         mUserName = "";
         mAvatar = "";
+
+        mLanguage = Constants.LANG_ZH_CN;
+
+        mEnableSpeakerDiarization = false;
     }
 
     public static GameContext getInstance() {
@@ -88,9 +99,14 @@ public class GameContext {
             mChatBotRoleArray = JSON.parseObject(jsonStr, ChatBotRole[].class);
             currentChatBotRoleIndex = 0;
 
-
             jsonStr = Utils.getFromAssets(context, Constants.ASSETS_GPT_RESPONSE_HELLO);
             mGptResponseHello = JSON.parseObject(jsonStr, String[].class);
+
+            jsonStr = Utils.getFromAssets(context,  Constants.ASSETS_CHAT_IDLE_TIP_MESSAGES);
+            mChatIdleTipMessagesArray = JSON.parseObject(jsonStr, String[].class);
+
+            jsonStr = Utils.getFromAssets(context,  Constants.ASSETS_AI_SELF_INTRODUCE_REPLACE);
+            mAiSelfIntroduceReplaceArray = JSON.parseObject(jsonStr, String[].class);
 
             mInitRes = true;
         } catch (Exception e) {
@@ -243,6 +259,30 @@ public class GameContext {
             }
         }
         return null;
+    }
+
+    public String getLanguage() {
+        return mLanguage;
+    }
+
+    public void setLanguage(String language) {
+        this.mLanguage = language;
+    }
+
+    public boolean isEnableSpeakerDiarization() {
+        return mEnableSpeakerDiarization;
+    }
+
+    public void setEnableSpeakerDiarization(boolean enableSpeakerDiarization) {
+        this.mEnableSpeakerDiarization = enableSpeakerDiarization;
+    }
+
+    public String[] getChatIdleTipMessagesArray() {
+        return mChatIdleTipMessagesArray;
+    }
+
+    public String[] getAiSelfIntroduceReplaceArray() {
+        return mAiSelfIntroduceReplaceArray;
     }
 
 }

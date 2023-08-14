@@ -24,9 +24,9 @@ public class GptChatRobot extends ChatRobotBase {
     public void requestChat(JSONArray messageJsonArray) {
         super.requestChat(messageJsonArray);
         if (mModelIndex == Constants.AI_PLATFORM_CHAT_GPT_35) {
-            requestGpt(Constants.CHAT_GPT_MODEL_35, messageJsonArray);
+            requestGpt(Constants.MODEL_CHAT_GPT_35, messageJsonArray);
         } else if (mModelIndex == Constants.AI_PLATFORM_CHAT_GPT_40) {
-            requestGpt(Constants.CHAT_GPT_MODEL_40, messageJsonArray);
+            requestGpt(Constants.MODEL_CHAT_GPT_40, messageJsonArray);
         }
     }
 
@@ -42,7 +42,7 @@ public class GptChatRobot extends ChatRobotBase {
         GptRequestBody body = new GptRequestBody();
         body.setQuestions(question);
         if (null != mCallback) {
-            mCallback.onChatRequestStart("请求ChatGPT：" + Arrays.toString(question));
+            mCallback.onChatRequestStart("请求GPT：" + Arrays.toString(question));
         }
         GptRetrofitManager.getInstance().getGptRequest().getGptResponse(body)
                 .subscribeOn(Schedulers.io())
@@ -89,7 +89,7 @@ public class GptChatRobot extends ChatRobotBase {
         body.setMessages(message);
         body.setStream(Config.GPT_REQUEST_STREAM);
         if (null != mCallback) {
-            mCallback.onChatRequestStart("请求ChatGPT：" + message.toJSONString());
+            mCallback.onChatRequestStart("请求GPT：" + message.toJSONString());
         }
         GptRetrofitManager.getInstance().getGptRequest().getGpt4Response(body)
                 .subscribeOn(Schedulers.io())

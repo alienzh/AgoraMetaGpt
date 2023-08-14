@@ -374,6 +374,10 @@ class AiPartnerViewModel : ViewModel(), ChatCallback, SttCallback, TtsCallback {
         }
     }
 
+    override fun onFirstTts() {
+        Log.d(TAG, "onFirstTts text")
+    }
+
     override fun onTtsFinish(isOnSpeaking: Boolean) {
         Log.d(TAG, "onTtsFinish isOnSpeaking:$isOnSpeaking ${(System.currentTimeMillis() - mTtsStartTime)}ms")
     }

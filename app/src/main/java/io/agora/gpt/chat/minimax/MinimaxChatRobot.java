@@ -136,7 +136,7 @@ public class MinimaxChatRobot extends ChatRobotBase {
                     params.put("Authorization", "Bearer " + BuildConfig.MINIMAX_AUTHORIZATION);
 
                     String url = BuildConfig.MINIMAX_SERVER_HOST + "v1/text/chatcompletion?GroupId=" + BuildConfig.MINIMAX_GROUP_ID;
-                    request.requestPostUrl(url, params, JSON.toJSONString(body));
+                    request.requestPostUrl(url, params, JSON.toJSONString(body), true);
                     mHttpUrlRequests.add(request);
                 } else {
                     MiniMaxRetrofitManager.getInstance().getMinimaxRequest().getMinimaxChatCompletionResponse(BuildConfig.MINIMAX_GROUP_ID, body)
@@ -202,7 +202,7 @@ public class MinimaxChatRobot extends ChatRobotBase {
                 }
 
                 if (null != mCallback) {
-                    mCallback.onChatRequestStart("请求Minimax chat Completion5:" + messageJsonArray.toJSONString());
+                    mCallback.onChatRequestStart("请求Minimax chat Completion5:" + JSON.toJSONString(body));
                 }
 
                 HttpURLRequest request = new HttpURLRequest();
@@ -281,7 +281,7 @@ public class MinimaxChatRobot extends ChatRobotBase {
                 params.put("Authorization", "Bearer " + BuildConfig.MINIMAX_AUTHORIZATION);
 
                 String url = BuildConfig.MINIMAX_SERVER_HOST + "v1/text/chatcompletion_pro?GroupId=" + BuildConfig.MINIMAX_GROUP_ID;
-                request.requestPostUrl(url, params, JSON.toJSONString(body));
+                request.requestPostUrl(url, params, JSON.toJSONString(body), true);
                 mHttpUrlRequests.add(request);
             }
         });
@@ -315,7 +315,7 @@ public class MinimaxChatRobot extends ChatRobotBase {
                     body.setReply_constraints(replyConstraints);
                 }
 
-                Log.i(Constants.TAG, "body:" + body.toString());
+                Log.i(Constants.TAG, "body:" + JSON.toJSONString(body));
 
                 MiniMaxRetrofitManager.getInstance().getMinimaxRequest().getMinimaxChatCompletionProResponse(BuildConfig.MINIMAX_GROUP_ID, body)
                         .subscribeOn(Schedulers.io())
@@ -354,11 +354,11 @@ public class MinimaxChatRobot extends ChatRobotBase {
     }
 
     private String getModelName() {
-        String modelName = Constants.MINIMAX_MODEL_55;
+        String modelName = Constants.MODEL_MINIMAX_55;
         if (mModelIndex == Constants.AI_PLATFORM_MINIMAX_CHAT_COMPLETION_55 || mModelIndex == Constants.AI_PLATFORM_MINIMAX_CHAT_COMPLETION_PRO_55) {
-            modelName = Constants.MINIMAX_MODEL_55;
+            modelName = Constants.MODEL_MINIMAX_55;
         } else if (mModelIndex == Constants.AI_PLATFORM_MINIMAX_CHAT_COMPLETION_5) {
-            modelName = Constants.MINIMAX_MODEL_5;
+            modelName = Constants.MODEL_MINIMAX_5;
         }
         return modelName;
     }

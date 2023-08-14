@@ -24,11 +24,11 @@ import java.util.concurrent.TimeUnit;
 
 import io.agora.gpt.MainApplication;
 import io.agora.gpt.R;
+import io.agora.gpt.models.wiu.VoteInfo;
 import io.agora.gpt.ui.adapter.IMessageView;
 import io.agora.gpt.context.MetaContext;
 import io.agora.gpt.models.DataStreamModel;
 import io.agora.gpt.models.DisplayUserInfo;
-import io.agora.gpt.models.VoteInfo;
 import io.agora.gpt.models.wiu.GamerInfo;
 import io.agora.gpt.utils.Constants;
 

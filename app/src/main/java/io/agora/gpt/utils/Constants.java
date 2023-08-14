@@ -5,7 +5,7 @@ public class Constants {
 
     public static final String MMKV_ID = TAG;
 
-    public static final int SCENE_ID_GPT = 26;
+    public static final int SCENE_ID_AIGC = 26;
     public static final int SCENE_INDEX_LIVE = 0;
 
     public static final int GAME_ROLE_USER = 0;
@@ -19,6 +19,7 @@ public class Constants {
     public static final int STT_PLATFORM_XF_RTASR = 0;
     //讯飞直连平台
     public static final int STT_PLATFORM_XF_IST = 1;
+    public static final int STT_PLATFORM_MS = 2;
 
     public static final String DATA_STREAM_CMD_USER_JOIN = "user_join";
     public static final String DATA_STREAM_CMD_REQUEST_SYNC_USER = "request_sync_user";
@@ -50,6 +51,9 @@ public class Constants {
     public static final int AI_PLATFORM_MINIMAX_CHAT_COMPLETION_55 = 3;
     public static final int AI_PLATFORM_MINIMAX_CHAT_COMPLETION_PRO_55 = 4;
     public static final int AI_PLATFORM_CHAT_XUNFEI = 5;
+    public static final int AI_PLATFORM_BIG_MODEL_CHATGLM_PRO = 6;
+    public static final int AI_PLATFORM_BIG_MODEL_CHATGLM_STD = 7;
+    public static final int AI_PLATFORM_BIG_MODEL_CHATGLM_LITE = 8;
 
 
     public static final int TTS_PLATFORM_XF = 0;
@@ -69,21 +73,26 @@ public class Constants {
 
     public static final int MAX_GAMER_NUM = 6;
 
-    public static final String CHAT_GPT_MODEL_35 = "gpt-3.5-turbo";
-    public static final String CHAT_GPT_MODEL_40 = "gpt-4";
+    public static final String MODEL_CHAT_GPT_35 = "gpt-3.5-turbo";
+    public static final String MODEL_CHAT_GPT_40 = "gpt-4";
 
-    public static final String MINIMAX_MODEL_5 = "abab5-chat";
-    public static final String MINIMAX_MODEL_55 = "abab5.5-chat";
+    public static final String MODEL_MINIMAX_5 = "abab5-chat";
+    public static final String MODEL_MINIMAX_55 = "abab5.5-chat";
+
+    public static final String MODEL_BIT_MODEL_CHATGLM_PRO = "chatglm_pro";
+    public static final String MODEL_BIT_MODEL_CHATGLM_STD = "chatglm_std";
+    public static final String MODEL_BIT_MODEL_CHATGLM_LITE = "chatglm_lite";
 
     public static final String ASSETS_AI_ROLE = "ai_role.json";
     public static final String ASSETS_GAMES = "games.json";
     public static final String ASSETS_LOCAL_GAME_WORDS = "local_game_words.json";
     public static final String ASSETS_QUESTION_WORDS = "question_words.json";
     public static final String ASSETS_TEST_TTS = "test_tts.json";
-
     public static final String ASSETS_CHAT_BOT_ROLE = "chat_bot_role.json";
     public static final String ASSETS_GPT_RESPONSE_HELLO = "gpt_response_hello.json";
     public static final String ASSETS_GPT_KEY_INFO_PROMPT = "gpt_key_info_prompt.txt";
+    public static final String ASSETS_CHAT_IDLE_TIP_MESSAGES = "chat_idle_tip_messages.json";
+    public static final String ASSETS_AI_SELF_INTRODUCE_REPLACE = "ai_self_introduce_replace.json";
 
     public static final Integer RTC_AUDIO_SAMPLE_RATE = 16000;
     public static final Integer RTC_AUDIO_SAMPLE_NUM_OF_CHANNEL = 1;
@@ -106,8 +115,12 @@ public class Constants {
     public static final long INTERVAL_CHAT_IDLE_TIME = 10 * 1000;
 
     public static final String ASSETS_REPLACE_GPT_RESPONSE_HELLO_USERNAME_LABEL = "username";
-
+    public static final String REPLACE_GPT_MODEL_NAME_LABEL = "modelName";
     public static final int MAX_COUNT_GPT_RESPONSE_HELLO = 3;
+    public final static int MAX_COUNT_AUDIO_FRAME = 3;
+    public static final int MAX_COUNT_SPEAKER_DIARIZATION = 10;
+
+    public static final int STT_FILTER_NUMBER = 3;
 
     public static final int GPT_MAX_TOKENS = 2048;
     public static final float GPT_TEMPERATURE = 0.9f;
@@ -116,9 +129,8 @@ public class Constants {
     public static final String HMAC_SHA1 = "HmacSHA1";
     public static final String SYMBOLS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    public final static int WAIT_AUDIO_FRAME_COUNT = 3;
-    public final static int STT_FILTER_NUMBER = 3;
-
     public static final String LANG_ZH_CN = "zh-CN";
     public static final String LANG_EN_US = "en-US";
+
+    public static final String UNKNOWN = "Unknown";
 }

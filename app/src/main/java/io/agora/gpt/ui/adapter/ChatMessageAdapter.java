@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import io.agora.gpt.R;
-import io.agora.gpt.models.ChatMessageModel;
+import io.agora.gpt.models.wiu.ChatMessageModel;
 
 
 public class ChatMessageAdapter extends RecyclerView.Adapter<ChatMessageAdapter.MyViewHolder> implements IMessageView{

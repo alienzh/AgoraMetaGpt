@@ -183,6 +183,7 @@ public class TtsRobotBase implements ITtsRobot {
         if (null != mAndroidPcmPlayer) {
             mAndroidPcmPlayer.stop();
         }
+        mIsSpeaking = false;
     }
 
     protected synchronized void handleResponsePendingData(ResponsePendingData pendingData, int index, byte[] bytes, int len, boolean isFirstResponse) {

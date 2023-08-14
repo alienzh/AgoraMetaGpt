@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Base64;
 
 import io.agora.gpt.BuildConfig;
+import io.agora.gpt.context.GameContext;
 import io.agora.gpt.stt.SttRobotBase;
 import io.agora.gpt.utils.Constants;
 
@@ -54,6 +55,7 @@ public class XFSttIstRobot extends SttRobotBase {
         try {
             String wsUrl = XfAuthUtils.assembleRequestUrl(BuildConfig.XF_STT_IST_HOST, BuildConfig.XF_STT_API_KEY, BuildConfig.XF_STT_API_SECRET);
 
+            Log.i(Constants.TAG, "initWebSocketClient ist wsUrl=" + wsUrl);
             mWebSocketClient = new WebSocketClient(new URI(wsUrl), new Draft_6455(), null, 5000) {
                 @Override
                 public void onOpen(ServerHandshake serverHandshake) {
@@ -165,6 +167,11 @@ public class XFSttIstRobot extends SttRobotBase {
                             business.addProperty("language", "zh_cn");
                             business.addProperty("domain", "ist_ed_open");
                             business.addProperty("accent", "mandarin");
+                            if (Constants.LANG_ZH_CN.equals(GameContext.getInstance().getLanguage())) {
+                                business.addProperty("language_type", 1);
+                            } else if (Constants.LANG_EN_US.equals(GameContext.getInstance().getLanguage())) {
+                                business.addProperty("language_type", 3);
+                            }
                             business.addProperty("rate", "16000");
                             business.addProperty("dwa", "wpgs");
                             business.addProperty("spkdia", 2);
@@ -250,6 +257,9 @@ public class XFSttIstRobot extends SttRobotBase {
                 JSONArray cwArr = wsArrObj.getJSONArray("cw");
                 for (int k = 0; k < cwArr.size(); k++) {
                     JSONObject cwArrObj = cwArr.getJSONObject(k);
+                    if (k == 0 && "p".equals(cwArrObj.getString("wp"))) {
+                        continue;
+                    }
                     String wStr = cwArrObj.getString("w");
                     resultBuilder.append(wStr);
                 }

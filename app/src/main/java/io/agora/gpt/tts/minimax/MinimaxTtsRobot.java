@@ -136,7 +136,7 @@ public class MinimaxTtsRobot extends TtsRobotBase {
                         body.setText(message);
                         body.setModel("speech-01");
 
-                        request.requestPostUrl(BuildConfig.MINIMAX_SERVER_HOST + "v1/text_to_speech?GroupId=" + BuildConfig.MINIMAX_GROUP_ID, params, JSON.toJSONString(body));
+                        request.requestPostUrl(BuildConfig.MINIMAX_SERVER_HOST + "v1/text_to_speech?GroupId=" + BuildConfig.MINIMAX_GROUP_ID, params, JSON.toJSONString(body), true);
 
                     } catch (Exception e) {
                         e.printStackTrace();
