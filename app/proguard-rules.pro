@@ -19,3 +19,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class io.agora.** { *; }
+-keepnames class io.agora.* { *; }
+-keepnames interface io.agora.* { *; }
+-dontwarn io.agora.**
+-keep class com.gerzz.dubbing.sdk.** { *; }
+-keepnames class com.gerzz.dubbing.sdk.* { *; }
+-keepnames interface com.gerzz.dubbing.sdk.* { *; }
+-dontwarn com.gerzz.dubbing.sdk.*

@@ -44,6 +44,7 @@
     <string name="stay_tuned">敬请期待</string>
     <string name="choose_role">身份选择</string>
     <string name="nickname">昵称</string>
+    <string name="random">随机</string>
     <string name="enter_nickname">请输入昵称</string>
     <string name="enter_room">进入房间</string>
     <string name="user_no">%1$d号玩家</string>
@@ -94,6 +95,7 @@
     <string name="downloading">下载中</string>
     <string name="cancel">取消</string>
     <string name="choose_ai">角色选择</string>
+    <string name="voice_change">变声</string>
 
     <string-array name="user_nickname_prefix">
         <item>忧郁的</item>
@@ -165,4 +167,7 @@
         <item>Scarlett</item>
         <item>Hannah</item>
     </string-array>
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

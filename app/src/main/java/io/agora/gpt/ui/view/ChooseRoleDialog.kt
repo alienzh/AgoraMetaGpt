@@ -1,14 +1,11 @@
 package io.agora.gpt.ui.view
 
 import android.content.Context
-import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
+import io.agora.ai.sdk.AIRole
 import io.agora.gpt.R
-import io.agora.gpt.context.GameContext
 import io.agora.gpt.databinding.ChooseAiRoleDialogBinding
-import io.agora.gpt.models.chat.ChatBotRole
 import io.agora.gpt.ui.adapter.RoleSelectAdapter
 import io.agora.gpt.ui.base.BaseDialog
 import io.agora.gpt.utils.AppUtils
@@ -16,10 +13,11 @@ import io.agora.gpt.utils.AppUtils
 /**
  * @author create by zhangwei03
  */
-class ChooseRoleDialog constructor(context: Context) : BaseDialog<ChooseAiRoleDialogBinding>(context) {
+class ChooseRoleDialog constructor(context: Context) : BaseDialog(context) {
 
+    private lateinit var binding: ChooseAiRoleDialogBinding
 
-    private var mRoleAdapter: RoleSelectAdapter? = null
+    private lateinit var mRoleAdapter: RoleSelectAdapter
 
     private var selectRoleCallback: ((index: Int) -> Unit)? = null
 
@@ -27,14 +25,14 @@ class ChooseRoleDialog constructor(context: Context) : BaseDialog<ChooseAiRoleDi
         this.selectRoleCallback = callback
     }
 
-    override fun getViewBinding(inflater: LayoutInflater): ChooseAiRoleDialogBinding {
-        return ChooseAiRoleDialogBinding.inflate(inflater)
+    override fun initContentView() {
+        binding = ChooseAiRoleDialogBinding.inflate(layoutInflater)
+        setContentView(binding.root)
     }
 
     override fun setContentView(view: View) {
         super.setContentView(view)
         window?.let { window ->
-//            StatusBarUtil.hideStatusBar(window, Color.BLACK, true)
             window.setBackgroundDrawableResource(android.R.color.transparent)
             window.setDimAmount(0f)
             window.setType(WindowManager.LayoutParams.TYPE_APPLICATION_PANEL)
@@ -60,35 +58,28 @@ class ChooseRoleDialog constructor(context: Context) : BaseDialog<ChooseAiRoleDi
             dismiss()
         }
         binding.btnSelectRole.setOnClickListener {
-            val selectIndex = mRoleAdapter?.selectIndex ?: 0
-            GameContext.getInstance().currentChatBotRoleIndex = selectIndex
-            selectRoleCallback?.invoke(selectIndex)
+            selectRoleCallback?.invoke(mRoleAdapter.selectIndex)
             dismiss()
         }
-        mRoleAdapter = RoleSelectAdapter(
-            context, GameContext.getInstance().currentChatBotRoleIndex,
-            GameContext.getInstance().availableChatBotRoles
-        ).apply {
-        }
-        mRoleAdapter?.setOnSelectItemClickListener {
-            val selectIndex = mRoleAdapter?.selectIndex ?: 0
-            setupCurrentRoleView(GameContext.getInstance().getChatBotRoleByIndex(selectIndex))
-        }
-        binding.recyclerRole.adapter = mRoleAdapter
-        GameContext.getInstance().getChatBotRoleByIndex(GameContext.getInstance().currentChatBotRoleIndex)?.let {
-            setupCurrentRoleView(it)
-        }
     }
 
-    private fun setupCurrentRoleView(selectRole: ChatBotRole) {
-        var drawableId = AppUtils.getDrawableRes(context, "ai_avatar_" + selectRole.chatBotId)
+    private fun setupCurrentRoleView(index: Int, selectRole: AIRole) {
+        var drawableId = AppUtils.getDrawableRes(context, "ai_avatar_" + (index + 1))
         if (drawableId == 0) drawableId = R.drawable.ai_avatar_1
         binding.ivRoleAvatar.setImageResource(drawableId)
-        binding.tvRoleIntroduce.text = selectRole.introduce
-        binding.tvRoleName.text = selectRole.chatBotName
+        binding.tvRoleIntroduce.text = selectRole.profession
+        binding.tvRoleName.text = selectRole.aiName
     }
 
-    override fun setGravity() {
-        window?.attributes?.gravity = Gravity.TOP
+    fun setupAiRoles(selectIndex: Int, aiRoles: Array<AIRole>) {
+        mRoleAdapter = RoleSelectAdapter(context, selectIndex, aiRoles)
+        mRoleAdapter.setOnSelectItemClickListener {
+            val selectedIndex = mRoleAdapter.selectIndex
+            val aiChatRole = aiRoles[selectedIndex]
+            setupCurrentRoleView(selectedIndex, aiChatRole)
+        }
+        binding.recyclerRole.adapter = mRoleAdapter
+        val aiChatRole = aiRoles[selectIndex]
+        setupCurrentRoleView(selectIndex, aiChatRole)
     }
 }

@@ -15,29 +15,40 @@ public class KeyCenter {
 
     private static int USER_RTC_UID = -1;
 
-    private static int AI_RTC_UID = -1;
+    private static String mRoomName;
 
-    private static int MODERATOR_RTC_UID = -1;
+    private static String mUserName;
+
+    private static String mAiRoleName;
+
+    public static String getRoomName() {
+        if (mRoomName==null|| mRoomName.equals("")){
+            mRoomName = getRandomString(12);
+        }
+        return mRoomName;
+    }
+
+    public static String getUserName() {
+        return mUserName;
+    }
+
+    public static void setUserName(String userName) {
+        mUserName = userName;
+    }
+
+    public static String getAiRoleName(){
+        return mAiRoleName;
+    }
+
+    public static void setAiRoleName(String aiRoleName){
+        mAiRoleName = aiRoleName;
+    }
 
     public static int getUserUid() {
         if (-1 == USER_RTC_UID) {
             USER_RTC_UID = new Random().nextInt(USER_MAX_UID);
         }
         return USER_RTC_UID;
-    }
-
-    public static int getAiUid() {
-        if (-1 == AI_RTC_UID) {
-            AI_RTC_UID = new Random().nextInt(USER_MAX_UID) + USER_MAX_UID;
-        }
-        return AI_RTC_UID;
-    }
-
-    public static int getModeratorUid() {
-        if (-1 == MODERATOR_RTC_UID) {
-            MODERATOR_RTC_UID = new Random().nextInt(USER_MAX_UID) + AI_MAX_UID;
-        }
-        return MODERATOR_RTC_UID;
     }
 
     public static String getRtcToken(String channelId, int uid) {
@@ -64,7 +75,17 @@ public class KeyCenter {
             e.printStackTrace();
             return null;
         }
+    }
 
+    public static String getRandomString(int length) {
+        String str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random = new Random();
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < length; i++) {
+            int number = random.nextInt(62);
+            sb.append(str.charAt(number));
+        }
+        return sb.toString();
     }
 
 }

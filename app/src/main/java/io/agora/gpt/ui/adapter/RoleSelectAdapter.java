@@ -10,16 +10,17 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 import java.util.List;
 
+import io.agora.ai.sdk.AIRole;
+import io.agora.ai.sdk.Constants;
 import io.agora.gpt.R;
-import io.agora.gpt.models.chat.ChatBotRole;
 import io.agora.gpt.utils.AppUtils;
-
 
 public class RoleSelectAdapter extends RecyclerView.Adapter<RoleSelectAdapter.MyViewHolder> implements IMessageView {
     private final Context mContext;
-    private final List<ChatBotRole> mDataList;
+    private final AIRole[] mDataList;
 
     private int selectIndex;
 
@@ -29,10 +30,10 @@ public class RoleSelectAdapter extends RecyclerView.Adapter<RoleSelectAdapter.My
         this.onClickListener = onClickListener;
     }
 
-    public RoleSelectAdapter(Context context, int selectIndex, List<ChatBotRole> list) {
+    public RoleSelectAdapter(Context context, int selectIndex, AIRole[] aiRoles) {
         this.mContext = context;
         this.selectIndex = selectIndex;
-        this.mDataList = list;
+        this.mDataList = aiRoles;
     }
 
     @NonNull
@@ -45,16 +46,16 @@ public class RoleSelectAdapter extends RecyclerView.Adapter<RoleSelectAdapter.My
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, @SuppressLint("RecyclerView") int position) {
         if (null != mDataList) {
-            ChatBotRole chatRoleModel = mDataList.get(position);
-            if (chatRoleModel.getChatBotRole().contains("男")) {
+            AIRole chatRoleModel = mDataList[position];
+            if (Constants.GENDER_MALE.equals(chatRoleModel.getGender())) {
                 holder.ivGender.setBackgroundResource(R.drawable.ic_gender_male);
                 holder.ivSelect.setBackgroundResource(R.drawable.bg_button_76a_corners_male);
             } else {
                 holder.ivGender.setBackgroundResource(R.drawable.ic_gender_female);
                 holder.ivSelect.setBackgroundResource(R.drawable.bg_button_e25_corners_female);
             }
-            int drawableId = AppUtils.getDrawableRes(mContext, "ai_portrait_" + chatRoleModel.getChatBotId());
-            if (drawableId == 0) drawableId = R.drawable.ai_avatar_1;
+            int drawableId = AppUtils.getDrawableRes(mContext, "ai_portrait_" + (position+1));
+            if (drawableId == 0) drawableId = R.drawable.ai_portrait_1;
             holder.ivRolePortrait.setImageResource(drawableId);
             if (selectIndex == position) {
                 holder.ivRolePortrait.setBackgroundResource(R.drawable.bg_button_role_select);
@@ -82,15 +83,15 @@ public class RoleSelectAdapter extends RecyclerView.Adapter<RoleSelectAdapter.My
         if (null == mDataList) {
             return 0;
         }
-        return mDataList.size();
+        return mDataList.length;
     }
 
-    public List<ChatBotRole> getDataList() {
+    public AIRole[] getDataList() {
         return mDataList;
     }
 
     public int getSelectIndex() {
-        if (selectIndex >= 0 && selectIndex < mDataList.size()) {
+        if (selectIndex >= 0 && selectIndex < mDataList.length) {
             return selectIndex;
         }
         return 0;

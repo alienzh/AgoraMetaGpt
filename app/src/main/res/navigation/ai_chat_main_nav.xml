@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainNav"
+    app:startDestination="@id/crateRoomFragment">
+
+    <fragment
+        android:id="@+id/crateRoomFragment"
+        android:name="io.agora.gpt.ui.main.CreateRoomFragment"
+        android:label="crateRoomFragment"
+        tools:layout="@layout/create_room_fragment">
+        <action
+            android:id="@+id/action_createRoomFragment_to_aiRoomFragment"
+            app:destination="@id/aiRoomFragment"
+            app:enterAnim="@anim/fragment_slide_in_right"
+            app:exitAnim="@anim/fragment_slide_out_left"
+            app:popEnterAnim="@anim/fragment_slide_in_left"
+            app:popExitAnim="@anim/fragment_slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/aiRoomFragment"
+        android:name="io.agora.gpt.ui.main.AiPartnerFragment"
+        android:label="aiRoomFragment"
+        tools:layout="@layout/fragment_ai_partner">
+        <action
+            android:id="@+id/action_aiRoomFragment_to_crateRoomFragment"
+            app:destination="@id/crateRoomFragment"
+            app:enterAnim="@anim/fragment_slide_in_right"
+            app:exitAnim="@anim/fragment_slide_out_left"
+            app:popEnterAnim="@anim/fragment_slide_in_left"
+            app:popExitAnim="@anim/fragment_slide_out_right" />
+    </fragment>
+</navigation>
