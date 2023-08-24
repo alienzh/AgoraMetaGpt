@@ -15,6 +15,7 @@ import io.agora.gpt.MainApplication
 import io.agora.gpt.R
 import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
+import io.agora.gpt.utils.SPUtil
 
 class AiShareViewModel : ViewModel(), AIEngineCallback {
 
@@ -35,6 +36,19 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     val mChatMessageDataList = mutableListOf<ChatMessageModel>()
 
     private var onSpeechRecognitionTime: Long = 0
+
+    init {
+        val currentLanguage = SPUtil.get(Constant.CURRENT_LANGUAGE, "zh") as String
+        language = if (currentLanguage == "zh") {
+            Constants.LANG_ZH_CN
+        } else {
+            Constants.LANG_EN_US
+        }
+    }
+
+    fun currentLanguage(): String {
+        return language
+    }
 
     fun initAiEngine(activity: Activity) {
         if (aiEngine == null) {

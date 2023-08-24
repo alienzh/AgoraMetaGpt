@@ -138,9 +138,16 @@ class CreateRoomFragment : BaseFragment() {
 
     override fun initView() {
         super.initView()
-        binding?.btnAiPartner?.isActivated = true
-        binding?.etNickname?.doAfterTextChanged {
-            KeyCenter.setUserName(it.toString())
+        binding?.apply {
+            btnAiPartner.isActivated = true
+            etNickname.doAfterTextChanged {
+                KeyCenter.setUserName(it.toString())
+            }
+            if (aiShareViewModel.currentLanguage() == Constants.LANG_ZH_CN) {
+                btnSwitchLanguage.setImageResource(R.drawable.icon_zh_to_en)
+            } else {
+                btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
+            }
         }
     }
 
