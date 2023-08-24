@@ -23,6 +23,8 @@
     <string name="voice_default">默认</string>
     <string name="voice_change">变声</string>
     <string name="message_font_text"><![CDATA[<font color="#A6C4FF">%1$s：</font>]]>%2$s</string>
+    <string
+        name="message_font_text_ai"><![CDATA[<img src="icon_lightning.png"> <font color="#FFFFFF">%1$s</font> <font color="#A6C4FF">%2$s：</font>]]>%3$s</string>
     <string name="role_foodie">芋泥啵啵</string>
     <string name="role_foodie_tips">美食博主，爱好打卡各类美食</string>
     <string name="role_latte_love">静香</string>

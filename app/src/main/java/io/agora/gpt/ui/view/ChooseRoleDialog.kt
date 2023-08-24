@@ -68,12 +68,12 @@ class ChooseRoleDialog constructor(context: Context) : BaseDialog(context) {
         var drawableId = AppUtils.getDrawableRes(context, "ai_avatar_" + (index + 1))
         if (drawableId == 0) drawableId = R.drawable.ai_avatar_1
         binding.ivRoleAvatar.setImageResource(drawableId)
-        binding.tvRoleIntroduce.text = when (selectRole.aiRoleName) {
+        binding.tvRoleIntroduce.text = when (selectRole.aiRoleId) {
             Constant.ROLE_FOODIE -> context.getString(R.string.role_foodie_tips)
             Constant.ROLE_LATTE_LOVE -> context.getString(R.string.role_latte_love_tips)
             else -> context.getString(R.string.role_foodie_tips)
         }
-        binding.tvRoleName.text = when (selectRole.aiRoleName) {
+        binding.tvRoleName.text = when (selectRole.aiRoleId) {
             Constant.ROLE_FOODIE -> context.getString(R.string.role_foodie)
             Constant.ROLE_LATTE_LOVE -> context.getString(R.string.role_latte_love)
             else -> context.getString(R.string.role_foodie)

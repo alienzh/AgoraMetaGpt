@@ -34,7 +34,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     val mChatMessageDataList = mutableListOf<ChatMessageModel>()
 
-    private var onStartPlayAiChatAnswerTime: Long = 0
+    private var onSpeechRecognitionTime: Long = 0
 
     fun initAiEngine(activity: Activity) {
         if (aiEngine == null) {
@@ -73,6 +73,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // 语音转文字的回调
     override fun onSpeechRecognitionResults(result: String) {
+        onSpeechRecognitionTime = System.currentTimeMillis()
         Log.i(TAG, "onSpeechRecognitionResults: $result")
         val messageModel = ChatMessageModel(
             isAiMessage = false,
@@ -81,6 +82,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             message = result,
             costTime = 0
         )
+        Log.i(TAG, "onSpeechRecognitionResults: $messageModel")
         mChatMessageDataList.add(messageModel)
         newLineMessageModel.postValue(Pair(messageModel, true))
     }
@@ -90,8 +92,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         Log.i(TAG, "onAiChatAnswer: $sid $answer")
         val lastChatMessageModel = mChatMessageDataList.getOrNull(mChatMessageDataList.size - 1)
         if (lastChatMessageModel?.sid == sid) {
-            lastChatMessageModel.message.plus(answer)
-            lastChatMessageModel.costTime = System.currentTimeMillis() - onStartPlayAiChatAnswerTime
+            lastChatMessageModel.message = lastChatMessageModel.message.plus(answer)
+            lastChatMessageModel.costTime = System.currentTimeMillis() - onSpeechRecognitionTime
+            Log.i(TAG, "onAiChatAnswer: $lastChatMessageModel")
             newLineMessageModel.postValue(Pair(lastChatMessageModel, false))
         } else {
             val messageModel = ChatMessageModel(
@@ -99,8 +102,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 sid = sid,
                 name = getAvatarName(),
                 message = answer,
-                costTime = System.currentTimeMillis() - onStartPlayAiChatAnswerTime
+                costTime = System.currentTimeMillis() - onSpeechRecognitionTime
             )
+            Log.i(TAG, "onAiChatAnswer: $messageModel")
             mChatMessageDataList.add(messageModel)
             newLineMessageModel.postValue(Pair(messageModel, true))
         }
@@ -116,8 +120,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     override fun onStartPlayAiChatAnswer() {
-        onStartPlayAiChatAnswerTime = System.currentTimeMillis()
-        Log.i(TAG, "onStartPlayAiChatAnswer $onStartPlayAiChatAnswerTime")
+        Log.i(TAG, "onStartPlayAiChatAnswer ${System.currentTimeMillis()}")
     }
 
     fun cancelDownloadRes() {
@@ -152,7 +155,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     fun getAiRoleName(): String {
-        return aiEngine?.currentAiRole?.aiRoleName ?: ""
+        return aiEngine?.currentAiRole?.aiRoleId ?: ""
     }
 
     // 设置 texture
