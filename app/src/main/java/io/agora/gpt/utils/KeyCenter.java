@@ -9,8 +9,6 @@ import io.agora.rtm.RtmTokenBuilder;
 public class KeyCenter {
     public static final int USER_MAX_UID = 10000;
 
-    public static final int AI_MAX_UID = 20000;
-
     public static final String APP_ID = BuildConfig.APP_ID;
 
     private static int USER_RTC_UID = -1;
@@ -18,8 +16,6 @@ public class KeyCenter {
     private static String mRoomName;
 
     private static String mUserName;
-
-    private static String mAiRoleName;
 
     public static String getRoomName() {
         if (mRoomName==null|| mRoomName.equals("")){
@@ -34,14 +30,6 @@ public class KeyCenter {
 
     public static void setUserName(String userName) {
         mUserName = userName;
-    }
-
-    public static String getAiRoleName(){
-        return mAiRoleName;
-    }
-
-    public static void setAiRoleName(String aiRoleName){
-        mAiRoleName = aiRoleName;
     }
 
     public static int getUserUid() {

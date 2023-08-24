@@ -8,6 +8,9 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import io.agora.gpt.utils.Constant
+import io.agora.gpt.utils.LanguageUtil
+import io.agora.gpt.utils.SPUtil
 import io.reactivex.disposables.CompositeDisposable
 
 open class BaseActivity : AppCompatActivity() {
@@ -19,12 +22,20 @@ open class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setTransparent(window)
         adaptAndroidP(window)
+        setLanguage()
         initContentView()
         initData()
         initView()
         initListener()
         initClickEvent()
     }
+
+    private fun setLanguage() {
+        val currentCountry = SPUtil.get(Constant.CURRENT_COUNTRY, "CN") as String
+        val currentLanguage = SPUtil.get(Constant.CURRENT_LANGUAGE, "zh") as String
+        LanguageUtil.changeLanguage(this, currentLanguage, currentCountry)
+    }
+
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)

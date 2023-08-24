@@ -14,3 +14,11 @@ data class ActionResultModel constructor(
     val vcEngineCode: AIEngineCode,
     val extraInfo: String?
 )
+
+data class ChatMessageModel constructor(
+    val isAiMessage: Boolean,
+    val sid: String,
+    val name: String,
+    var message: String,
+    var costTime: Long
+)

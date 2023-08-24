@@ -1,7 +1,6 @@
 package io.agora.gpt.ui.main
 
 import android.graphics.SurfaceTexture
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,25 +8,22 @@ import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.afollestad.materialdialogs.MaterialDialog
 import com.jakewharton.rxbinding2.view.RxView
-import io.agora.ai.sdk.AIEngine
 import io.agora.ai.sdk.AIEngineAction
 import io.agora.ai.sdk.AIEngineCode
 import io.agora.gpt.R
 import io.agora.gpt.databinding.FragmentAiPartnerBinding
+import io.agora.gpt.ui.adapter.ChatMessageAdapter
 import io.agora.gpt.ui.base.BaseFragment
 import io.agora.gpt.ui.view.ChooseRoleDialog
-import io.agora.gpt.ui.view.CustomDialog
+import io.agora.gpt.ui.view.WrapContentLinearLayoutManager
+import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.TextureVideoViewOutlineProvider
 import io.agora.gpt.utils.Utils
 import io.reactivex.disposables.Disposable
-import org.json.JSONException
-import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 class AiPartnerFragment : BaseFragment() {
@@ -41,6 +37,8 @@ class AiPartnerFragment : BaseFragment() {
     private var selectIndex: Int = 0
 
     private val aiShareViewModel: AiShareViewModel by activityViewModels()
+
+    private var mHistoryListAdapter: ChatMessageAdapter? = null
 
     override fun initContentView(inflater: LayoutInflater, container: ViewGroup?, attachToParent: Boolean) {
         super.initContentView(inflater, container, attachToParent)
@@ -66,9 +64,24 @@ class AiPartnerFragment : BaseFragment() {
                     // 需要下载
                 }
             } else if (AIEngineAction.PREPARE == it.vcAction && AIEngineCode.SUCCESS == it.vcEngineCode) {
-                binding?.btnCalling?.text = resources.getString(R.string.calling,aiShareViewModel.getAvatarName())
+                val avatarName = when (aiShareViewModel.getAiRoleName()) {
+                    Constant.ROLE_FOODIE -> requireContext().getString(R.string.role_foodie)
+                    Constant.ROLE_LATTE_LOVE -> requireContext().getString(R.string.role_latte_love)
+                    else -> requireContext().getString(R.string.role_foodie)
+                }
+                binding?.btnCalling?.text = resources.getString(R.string.calling, avatarName)
             } else if (AIEngineAction.RELEASED == it.vcAction && AIEngineCode.SUCCESS == it.vcEngineCode) {
-
+                findNavController().navigate(R.id.action_aiRoomFragment_to_crateRoomFragment)
+            }
+        }
+        aiShareViewModel.newLineMessageModel.observe(viewLifecycleOwner){
+            mHistoryListAdapter?.let { chatMessageAdapter ->
+                if (it.second){
+                    chatMessageAdapter.notifyItemInserted(aiShareViewModel.mChatMessageDataList.size-1)
+                }else{
+                    chatMessageAdapter.notifyItemChanged(aiShareViewModel.mChatMessageDataList.size-1)
+                }
+                binding?.aiHistoryList?.scrollToPosition(chatMessageAdapter.dataList.size-1)
             }
         }
     }
@@ -78,6 +91,16 @@ class AiPartnerFragment : BaseFragment() {
         initUnityView()
         binding?.apply {
             tvUserName.text = KeyCenter.getUserName()
+            if (mHistoryListAdapter == null) {
+                mHistoryListAdapter = ChatMessageAdapter(requireContext(), aiShareViewModel.mChatMessageDataList)
+                aiHistoryList.layoutManager = WrapContentLinearLayoutManager(requireContext())
+//                aiHistoryList.addItemDecoration(ChatMessageAdapter.SpacesItemDecoration(10))
+                aiHistoryList.adapter = mHistoryListAdapter
+            }else{
+                Log.d("AiPartnerFragment","clear history messages")
+                aiShareViewModel.mChatMessageDataList.clear()
+                mHistoryListAdapter?.notifyDataSetChanged()
+            }
         }
     }
 
@@ -93,8 +116,7 @@ class AiPartnerFragment : BaseFragment() {
                         ivHangUp.visibility = View.INVISIBLE
                         aiShareViewModel.stopVoiceChat()
                     }
-                    findNavController().popBackStack()
-//                    aiShareViewModel.releaseEngine()
+                    aiShareViewModel.releaseEngine()
                 }
             compositeDisposable.add(disposable)
 
@@ -103,7 +125,7 @@ class AiPartnerFragment : BaseFragment() {
                 .throttleFirst(1, TimeUnit.SECONDS)
                 .subscribe {
                     if (mIsSpeaking) {
-                        Toast.makeText(requireContext(), "正在对话中，无法切换角色！", Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), getString(R.string.switch_role_tips), Toast.LENGTH_LONG).show()
                     } else {
                         showChooseRoleDialog()
                     }
@@ -115,20 +137,26 @@ class AiPartnerFragment : BaseFragment() {
                 .throttleFirst(1, TimeUnit.SECONDS)
                 .subscribe {
                     aiShareViewModel.enableVoiceChange { isVoiceChange ->
-                        if (isVoiceChange) {
-                            tvVoiceChange.setCompoundDrawablesRelative(
-                                null,
-                                AppCompatResources.getDrawable(requireContext(), R.drawable.icon_voice_change),
-                                null,
-                                null
-                            )
-                        } else {
-                            tvVoiceChange.setCompoundDrawablesRelative(
-                                null,
-                                AppCompatResources.getDrawable(requireContext(), R.drawable.icon_voice_default),
-                                null,
-                                null
-                            )
+                        context?.let {
+                            if (isVoiceChange) {
+                                tvVoiceChange.setCompoundDrawablesRelative(
+                                    null,
+                                    it.getDrawable(R.drawable.icon_voice_change)?.apply {
+                                        setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+                                    },
+                                    null,
+                                    null
+                                )
+                            } else {
+                                tvVoiceChange.setCompoundDrawablesRelative(
+                                    null,
+                                    it.getDrawable(R.drawable.icon_voice_default)?.apply {
+                                        setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+                                    },
+                                    null,
+                                    null
+                                )
+                            }
                         }
                     }
                 }
@@ -182,7 +210,7 @@ class AiPartnerFragment : BaseFragment() {
                 aiShareViewModel.setTexture(requireActivity(), mTextureView!!)
                 val allAIRoles = aiShareViewModel.getAllAiRoles()
                 if (allAIRoles.isNotEmpty()) {
-                    aiShareViewModel.setAiRole(allAIRoles[1])
+                    aiShareViewModel.setAiRole(allAIRoles[0])
                 }
                 aiShareViewModel.prepare()
             }
@@ -213,9 +241,10 @@ class AiPartnerFragment : BaseFragment() {
                 ivHangUp.visibility = View.INVISIBLE
             }
             val allAIRoles = aiShareViewModel.getAllAiRoles()
+
             if (allAIRoles.isNotEmpty()) {
                 aiShareViewModel.setAiRole(allAIRoles[it])
-                aiShareViewModel.prepare()
+//                aiShareViewModel.prepare()
 //                binding?.btnCalling?.text = resources.getString(R.string.calling,aiShareViewModel.getAvatarName())
             }
         }

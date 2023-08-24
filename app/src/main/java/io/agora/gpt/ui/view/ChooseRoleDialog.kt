@@ -9,6 +9,7 @@ import io.agora.gpt.databinding.ChooseAiRoleDialogBinding
 import io.agora.gpt.ui.adapter.RoleSelectAdapter
 import io.agora.gpt.ui.base.BaseDialog
 import io.agora.gpt.utils.AppUtils
+import io.agora.gpt.utils.Constant
 
 /**
  * @author create by zhangwei03
@@ -67,8 +68,16 @@ class ChooseRoleDialog constructor(context: Context) : BaseDialog(context) {
         var drawableId = AppUtils.getDrawableRes(context, "ai_avatar_" + (index + 1))
         if (drawableId == 0) drawableId = R.drawable.ai_avatar_1
         binding.ivRoleAvatar.setImageResource(drawableId)
-        binding.tvRoleIntroduce.text = selectRole.profession
-        binding.tvRoleName.text = selectRole.aiName
+        binding.tvRoleIntroduce.text = when (selectRole.aiRoleName) {
+            Constant.ROLE_FOODIE -> context.getString(R.string.role_foodie_tips)
+            Constant.ROLE_LATTE_LOVE -> context.getString(R.string.role_latte_love_tips)
+            else -> context.getString(R.string.role_foodie_tips)
+        }
+        binding.tvRoleName.text = when (selectRole.aiRoleName) {
+            Constant.ROLE_FOODIE -> context.getString(R.string.role_foodie)
+            Constant.ROLE_LATTE_LOVE -> context.getString(R.string.role_latte_love)
+            else -> context.getString(R.string.role_foodie)
+        }
     }
 
     fun setupAiRoles(selectIndex: Int, aiRoles: Array<AIRole>) {

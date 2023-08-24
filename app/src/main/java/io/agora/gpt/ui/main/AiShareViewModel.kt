@@ -12,6 +12,8 @@ import io.agora.ai.sdk.AIEngineCode
 import io.agora.ai.sdk.AIRole
 import io.agora.ai.sdk.Constants
 import io.agora.gpt.MainApplication
+import io.agora.gpt.R
+import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
 
 class AiShareViewModel : ViewModel(), AIEngineCallback {
@@ -24,10 +26,15 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     val downloadProgress: MutableLiveData<DownloadProgressModel> = MutableLiveData()
     val actionResultModel: MutableLiveData<ActionResultModel> = MutableLiveData()
+    val newLineMessageModel: MutableLiveData<Pair<ChatMessageModel, Boolean>> = MutableLiveData()
 
     private var mute: Boolean = false
     private var voiceChange: Boolean = false
     private var language: String = Constants.LANG_ZH_CN
+
+    val mChatMessageDataList = mutableListOf<ChatMessageModel>()
+
+    private var onStartPlayAiChatAnswerTime: Long = 0
 
     fun initAiEngine(activity: Activity) {
         if (aiEngine == null) {
@@ -56,21 +63,61 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     override fun onActionResult(vcAction: AIEngineAction, vcEngineCode: AIEngineCode, extraInfo: String?) {
         Log.i(TAG, "onActionResult: $vcAction $vcEngineCode $extraInfo")
+        if (AIEngineAction.RELEASED == vcAction && AIEngineCode.SUCCESS == vcEngineCode) {
+            // released 后需要重新创建
+            aiEngine = null
+            KeyCenter.setUserName("")
+        }
         actionResultModel.postValue(ActionResultModel(vcAction, vcEngineCode, extraInfo))
     }
 
     // 语音转文字的回调
     override fun onSpeechRecognitionResults(result: String) {
         Log.i(TAG, "onSpeechRecognitionResults: $result")
+        val messageModel = ChatMessageModel(
+            isAiMessage = false,
+            sid = "",
+            name = KeyCenter.getUserName(),
+            message = result,
+            costTime = 0
+        )
+        mChatMessageDataList.add(messageModel)
+        newLineMessageModel.postValue(Pair(messageModel, true))
     }
 
     // gpt的回答，是流式的，同一个回答，是同一个sid
     override fun onAiChatAnswer(sid: String, answer: String) {
         Log.i(TAG, "onAiChatAnswer: $sid $answer")
+        val lastChatMessageModel = mChatMessageDataList.getOrNull(mChatMessageDataList.size - 1)
+        if (lastChatMessageModel?.sid == sid) {
+            lastChatMessageModel.message.plus(answer)
+            lastChatMessageModel.costTime = System.currentTimeMillis() - onStartPlayAiChatAnswerTime
+            newLineMessageModel.postValue(Pair(lastChatMessageModel, false))
+        } else {
+            val messageModel = ChatMessageModel(
+                isAiMessage = true,
+                sid = sid,
+                name = getAvatarName(),
+                message = answer,
+                costTime = System.currentTimeMillis() - onStartPlayAiChatAnswerTime
+            )
+            mChatMessageDataList.add(messageModel)
+            newLineMessageModel.postValue(Pair(messageModel, true))
+        }
+    }
+
+    private fun getAvatarName(): String {
+        val avatarName = when (getAiRoleName()) {
+            Constant.ROLE_FOODIE -> MainApplication.mGlobalApplication.getString(R.string.role_foodie)
+            Constant.ROLE_LATTE_LOVE -> MainApplication.mGlobalApplication.getString(R.string.role_latte_love)
+            else -> MainApplication.mGlobalApplication.getString(R.string.role_foodie)
+        }
+        return avatarName
     }
 
     override fun onStartPlayAiChatAnswer() {
-        Log.i(TAG, "onStartPlayAiChatAnswer")
+        onStartPlayAiChatAnswerTime = System.currentTimeMillis()
+        Log.i(TAG, "onStartPlayAiChatAnswer $onStartPlayAiChatAnswerTime")
     }
 
     fun cancelDownloadRes() {
@@ -91,8 +138,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // 获取SDK预制的所有AIRole数组
     fun getAllAiRoles(): Array<AIRole> {
-        aiEngine?.currentAiRole
-        return aiEngine?.allAiRoles ?: emptyArray()
+        return aiEngine?.allAiRoles?.copyOfRange(0, 2) ?: emptyArray()
     }
 
     // 设置SDK使用的AIRol
@@ -105,8 +151,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         aiEngine?.setAiRole(aiRole)
     }
 
-    fun getAvatarName(): String {
-        return aiEngine?.currentAiRole?.aiName ?: ""
+    fun getAiRoleName(): String {
+        return aiEngine?.currentAiRole?.aiRoleName ?: ""
     }
 
     // 设置 texture
@@ -148,7 +194,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
         aiEngine?.setLanguage(language)
         callback.invoke(language)
-        aiEngine?.prepare()
     }
 
     fun releaseEngine() {

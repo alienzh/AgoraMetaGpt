@@ -28,13 +28,13 @@
         android:id="@+id/btnSwitchLanguage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tvTitle"
-        app:layout_constraintBottom_toBottomOf="@id/tvTitle"
         android:layout_marginEnd="20dp"
-        android:src="@drawable/icon_zh_to_en"
+        android:background="@android:color/transparent"
         android:padding="5dp"
-        android:background="@android:color/transparent"/>
+        android:src="@drawable/icon_zh_to_en"
+        app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvTitle" />
 
     <TextView
         android:id="@+id/tvChooseScene"
@@ -52,8 +52,8 @@
         android:id="@+id/layoutScene"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="20dp"
         android:layout_marginTop="8dp"
+        android:paddingHorizontal="20dp"
         app:layout_constraintTop_toBottomOf="@id/tvChooseScene">
 
         <androidx.appcompat.widget.AppCompatButton
@@ -61,9 +61,10 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:gravity="center"
             android:background="@drawable/bg_button_selector"
+            android:gravity="center"
             android:text="@string/game_ai_partner"
+            android:textAllCaps="false"
             android:textColor="#040925"
             android:textSize="18sp" />
 
@@ -73,9 +74,10 @@
             android:layout_height="48dp"
             android:layout_marginStart="16dp"
             android:layout_weight="1"
-            android:gravity="center"
             android:background="@drawable/bg_button_selector"
+            android:gravity="center"
             android:text="@string/stay_tuned"
+            android:textAllCaps="false"
             android:textColor="#040925"
             android:textSize="18sp" />
     </LinearLayout>
@@ -85,8 +87,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:text="@string/nickname"
         android:layout_marginTop="30dp"
+        android:text="@string/nickname"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -97,14 +99,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:text="@string/random"
         android:layout_marginTop="30dp"
+        android:layout_marginEnd="32dp"
+        android:drawableStart="@drawable/icon_random"
+        android:drawablePadding="3dp"
+        android:text="@string/random"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:drawableStart="@drawable/icon_random"
-        android:layout_marginEnd="32dp"
-        android:drawablePadding="3dp"
         app:layout_constraintTop_toBottomOf="@id/layoutScene" />
 
     <androidx.appcompat.widget.AppCompatEditText
@@ -112,18 +114,18 @@
         android:layout_width="0dp"
         android:layout_height="54dp"
         android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="20dp"
         android:background="@drawable/bg_button_default"
+        android:gravity="center_vertical"
         android:hint="@string/enter_nickname"
         android:maxLength="12"
         android:maxLines="1"
         android:paddingStart="18dp"
         android:paddingEnd="36dp"
-        android:gravity="center_vertical"
         android:textColor="#040925"
         android:textColorHint="#756C92"
         android:textSize="18sp"
-        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvNickname" />
@@ -134,11 +136,12 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="44dp"
+        android:background="@drawable/bg_enter_room"
+        android:gravity="center"
         android:text="@string/enter_room"
+        android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="18sp"
-        android:gravity="center"
-        android:background="@drawable/bg_enter_room"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

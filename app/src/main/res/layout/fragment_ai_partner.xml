@@ -106,6 +106,7 @@
         android:text="@string/calling"
         android:textColor="@color/white"
         android:textSize="18sp"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -144,5 +145,21 @@
         app:layout_constraintBottom_toBottomOf="@id/btnCalling"
         app:layout_constraintStart_toStartOf="@id/guideVertical50"
         app:layout_constraintTop_toTopOf="@id/btnCalling" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/aiHistoryList"
+        android:layout_width="0dp"
+        android:layout_height="260dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="10dp"
+        tools:listitem="@layout/item_chat_message"
+        android:requiresFadingEdge="vertical"
+        android:fadingEdgeLength="30dp"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="@id/layoutUnityContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tvVoiceChange" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

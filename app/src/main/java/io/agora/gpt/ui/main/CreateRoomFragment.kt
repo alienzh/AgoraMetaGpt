@@ -32,6 +32,7 @@ import io.agora.gpt.ui.view.CustomDialog.Companion.showDownloadingChooser
 import io.agora.gpt.ui.view.CustomDialog.Companion.showDownloadingProgress
 import io.agora.gpt.ui.view.CustomDialog.Companion.showLoadingProgress
 import io.agora.gpt.utils.KeyCenter
+import io.agora.gpt.utils.LanguageUtil
 import io.reactivex.disposables.Disposable
 import org.json.JSONException
 import org.json.JSONObject
@@ -137,6 +138,7 @@ class CreateRoomFragment : BaseFragment() {
 
     override fun initView() {
         super.initView()
+        binding?.btnAiPartner?.isActivated = true
         binding?.etNickname?.doAfterTextChanged {
             KeyCenter.setUserName(it.toString())
         }
@@ -163,21 +165,24 @@ class CreateRoomFragment : BaseFragment() {
             compositeDisposable.add(disposable)
 
             disposable = RxView.clicks(tvNicknameRandom)
-                    .throttleFirst(1, TimeUnit.SECONDS).subscribe { o: Any? ->
-                        val nameIndex = random.nextInt(nicknameArray.size)
-                        etNickname.setText(nicknameArray[nameIndex])
-                    }
+                .throttleFirst(1, TimeUnit.SECONDS).subscribe { o: Any? ->
+                    val nameIndex = random.nextInt(nicknameArray.size)
+                    etNickname.setText(nicknameArray[nameIndex])
+                }
             compositeDisposable.add(disposable)
 
             disposable = RxView.clicks(btnSwitchLanguage)
                 .throttleFirst(1, TimeUnit.SECONDS).subscribe { o: Any? ->
-                  aiShareViewModel.switchLanguage { language->
-                      if (language==Constants.LANG_ZH_CN){
-                          btnSwitchLanguage.setImageResource(R.drawable.icon_zh_to_en)
-                      }else{
-                          btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
-                      }
-                  }
+                    aiShareViewModel.switchLanguage { language ->
+                        if (language == Constants.LANG_ZH_CN) {
+                            btnSwitchLanguage.setImageResource(R.drawable.icon_zh_to_en)
+                            LanguageUtil.changeLanguage(requireContext(), "zh", "CN")
+                        } else {
+                            btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
+                            LanguageUtil.changeLanguage(requireContext(), "en", "US")
+                        }
+                        activity?.recreate()
+                    }
                 }
             compositeDisposable.add(disposable)
         }

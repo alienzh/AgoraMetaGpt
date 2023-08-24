@@ -25,45 +25,9 @@ android {
         buildConfigField("String", "APP_ID", "\"${properties.getProperty("APP_ID", "")}\"")
         buildConfigField("String", "APP_CERTIFICATE", "\"${properties.getProperty("APP_CERTIFICATE", "")}\"")
         buildConfigField("boolean", "DEBUG_MENUS", "${properties.getProperty("DEBUG_MENUS", "false")}")
-        buildConfigField("String", "AGORA_SERVICE_KEY", "\"${properties.getProperty("AGORA_SERVICE_KEY", "")}\"")
-
-        buildConfigField("String", "XF_APP_ID", "\"${properties.getProperty("XF_APP_ID", "")}\"")
-        buildConfigField("String", "XF_API_SECRET", "\"${properties.getProperty("XF_API_SECRET", "")}\"")
-        buildConfigField("String", "XF_API_KEY", "\"${properties.getProperty("XF_API_KEY", "")}\"")
-
-        buildConfigField("String", "XF_STT_APP_ID", "\"${properties.getProperty("XF_STT_APP_ID", "")}\"")
-        buildConfigField("String", "XF_STT_API_KEY", "\"${properties.getProperty("XF_STT_API_KEY", "")}\"")
-        buildConfigField("String", "XF_STT_API_SECRET", "\"${properties.getProperty("XF_STT_API_SECRET", "")}\"")
-
-        buildConfigField("String", "XF_GPT_APP_ID", "\"${properties.getProperty("XF_GPT_APP_ID", "")}\"")
-        buildConfigField("String", "XF_GPT_API_SECRET", "\"${properties.getProperty("XF_GPT_API_SECRET", "")}\"")
-        buildConfigField("String", "XF_GPT_API_KEY", "\"${properties.getProperty("XF_GPT_API_KEY", "")}\"")
-
-        buildConfigField("String", "XF_TTS_HOST", "\"https://tts-api.xfyun.cn/v2/tts\"")
-        buildConfigField("String", "XF_STT_HOST", "\"wss://rtasr.xfyun.cn/v1/ws\"")
-        buildConfigField("String", "XF_STT_IST_HOST", "\"wss://ist-api.xfyun.cn/v2/ist\"")
-        buildConfigField("String", "XF_GPT_HOST", "\"https://spark-api.xf-yun.com/v1.1/chat\"")
-
-        buildConfigField("String", "GPT_SERVER_HOST", "\"https://service.agora.io/\"")
-
-        buildConfigField("String", "MINIMAX_SERVER_HOST", "\"https://api.minimax.chat/\"")
-        buildConfigField("String", "MINIMAX_AUTHORIZATION", "\"${properties.getProperty("MINIMAX_AUTHORIZATION", "")}\"")
-        buildConfigField("String", "MINIMAX_GROUP_ID", "\"${properties.getProperty("MINIMAX_GROUP_ID", "")}\"")
-
-        buildConfigField("String", "MS_SPEECH_REGION", "\"eastasia\"")
-        buildConfigField("String", "MS_SERVER_HOST", "\"https://eastasia.tts.speech.microsoft.com/\"")
-        buildConfigField("String", "MS_SPEECH_KEY", "\"${properties.getProperty("MS_SPEECH_KEY", "")}\"")
-
-        buildConfigField("String", "DUBBING_SECRET_KEY", "\"${properties.getProperty("DUBBING_SECRET_KEY", "")}\"")
-        buildConfigField("String", "DUBBING_ACCESS_KEY", "\"${properties.getProperty("DUBBING_ACCESS_KEY", "")}\"")
-
-        buildConfigField("String", "BIG_MODEL_SERVER_HOST", "\"https://open.bigmodel.cn/api/paas/v3/model-api/modelName/sse-invoke\"")
-        buildConfigField("String", "BIG_MODEL_API_KEY", "\"${properties.getProperty("BIG_MODEL_API_KEY", "")}\"")
-
-
 
         ndk {
-            abiFilters 'arm64-v8a'
+            abiFilters 'arm64-v8a',"armeabi-v7a"
         }
     }
     signingConfigs {
