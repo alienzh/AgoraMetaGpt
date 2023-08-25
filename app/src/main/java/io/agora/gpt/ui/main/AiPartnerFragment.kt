@@ -74,14 +74,14 @@ class AiPartnerFragment : BaseFragment() {
                 findNavController().navigate(R.id.action_aiRoomFragment_to_crateRoomFragment)
             }
         }
-        aiShareViewModel.newLineMessageModel.observe(viewLifecycleOwner){
+        aiShareViewModel.newLineMessageModel.observe(viewLifecycleOwner) {
             mHistoryListAdapter?.let { chatMessageAdapter ->
-                if (it.second){
-                    chatMessageAdapter.notifyItemInserted(aiShareViewModel.mChatMessageDataList.size-1)
-                }else{
-                    chatMessageAdapter.notifyItemChanged(aiShareViewModel.mChatMessageDataList.size-1)
+                if (it.second) {
+                    chatMessageAdapter.notifyItemInserted(aiShareViewModel.mChatMessageDataList.size - 1)
+                } else {
+                    chatMessageAdapter.notifyItemChanged(aiShareViewModel.mChatMessageDataList.size - 1)
                 }
-                binding?.aiHistoryList?.scrollToPosition(chatMessageAdapter.dataList.size-1)
+                binding?.aiHistoryList?.scrollToPosition(chatMessageAdapter.dataList.size - 1)
             }
         }
     }
@@ -90,14 +90,15 @@ class AiPartnerFragment : BaseFragment() {
         super.initView()
         initUnityView()
         binding?.apply {
+            binding?.btnCalling?.text = resources.getString(R.string.calling, requireContext().getString(R.string.role_foodie))
             tvUserName.text = KeyCenter.getUserName()
             if (mHistoryListAdapter == null) {
                 mHistoryListAdapter = ChatMessageAdapter(requireContext(), aiShareViewModel.mChatMessageDataList)
                 aiHistoryList.layoutManager = WrapContentLinearLayoutManager(requireContext())
 //                aiHistoryList.addItemDecoration(ChatMessageAdapter.SpacesItemDecoration(10))
                 aiHistoryList.adapter = mHistoryListAdapter
-            }else{
-                Log.d("AiPartnerFragment","clear history messages")
+            } else {
+                Log.d("AiPartnerFragment", "clear history messages")
                 aiShareViewModel.mChatMessageDataList.clear()
                 mHistoryListAdapter?.notifyDataSetChanged()
             }
@@ -244,8 +245,12 @@ class AiPartnerFragment : BaseFragment() {
 
             if (allAIRoles.isNotEmpty()) {
                 aiShareViewModel.setAiRole(allAIRoles[it])
-//                aiShareViewModel.prepare()
-//                binding?.btnCalling?.text = resources.getString(R.string.calling,aiShareViewModel.getAvatarName())
+                val avatarName = when (aiShareViewModel.getAiRoleName()) {
+                    Constant.ROLE_FOODIE -> requireContext().getString(R.string.role_foodie)
+                    Constant.ROLE_LATTE_LOVE -> requireContext().getString(R.string.role_latte_love)
+                    else -> requireContext().getString(R.string.role_foodie)
+                }
+                binding?.btnCalling?.text = resources.getString(R.string.calling, avatarName)
             }
         }
         chooseRoleDialog.setupAiRoles(selectIndex, aiShareViewModel.getAllAiRoles())

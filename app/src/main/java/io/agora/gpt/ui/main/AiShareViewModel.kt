@@ -62,10 +62,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 )
                 .activity(activity)
                 .userName(KeyCenter.getUserName())
-                .language(Constants.LANG_ZH_CN)
+                .language(language)
                 .enableChatConversation(false)
                 .speechRecognitionFiltersLength(3)
-                .autoDownloadResource(false)
                 .build()
         }
     }
@@ -202,14 +201,13 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         callback.invoke(mute)
     }
 
-    // 设置AI语言环境,此步骤后需要重新prepare。
+    // 设置AI语言环境,只记录语言
     fun switchLanguage(callback: (String) -> Unit) {
         language = if (language == Constants.LANG_ZH_CN) {
             Constants.LANG_EN_US
         } else {
             Constants.LANG_ZH_CN
         }
-        aiEngine?.setLanguage(language)
         callback.invoke(language)
     }
 

@@ -47,7 +47,7 @@ class CreateRoomFragment : BaseFragment() {
     private val random = Random()
     private lateinit var nicknameArray: Array<String>
     private var downloadProgress = 0
-    private var progressDialog: MaterialDialog? = null
+    private var progressbarDialog: MaterialDialog? = null
     private var downloadingChooserDialog: MaterialDialog? = null
     private var progressLoadingDialog: AlertDialog? = null
     private var mTotalSize: Long = 0
@@ -65,42 +65,44 @@ class CreateRoomFragment : BaseFragment() {
 
     override fun initData() {
         super.initData()
+
         downloadProgress = -1
         nicknameArray = resources.getStringArray(R.array.user_nickname)
 
         aiShareViewModel.downloadProgress.observe(viewLifecycleOwner) {
             if (it.progress >= 0) downloadProgress = it.progress
-            if (progressDialog == null) {
-                progressDialog = showDownloadingProgress(requireContext(), mTotalSize) {
+            if (progressbarDialog == null) {
+                progressbarDialog = showDownloadingProgress(requireContext(), mTotalSize) {
                     downloadProgress = -1
                     aiShareViewModel.cancelDownloadRes()
+                    progressLoadingDialog?.let { dialog ->
+                        if (dialog.isShowing) dialog.dismiss()
+                        progressLoadingDialog = null
+                    }
                     null
                 }
-            } else if (it.progress < 0) {
-                if (mIsFront) {
-                    progressDialog!!.dismiss()
-                    progressDialog = null
-                }
-                return@observe
             }
-            if (!progressDialog!!.isShowing) progressDialog!!.show()
-            val constraintLayout = getCustomView<ConstraintLayout>(progressDialog!!)
-            val progressBar = constraintLayout.findViewById<ProgressBar>(R.id.progressBar)
-            val textView = constraintLayout.findViewById<TextView>(R.id.textView)
-            val countView = constraintLayout.findViewById<TextView>(R.id.count)
-            progressBar.progress = it.progress
-            textView.text = String.format(Locale.getDefault(), "%d%%", it.progress)
-            countView.text = "${it.index}/${it.count}"
+            progressbarDialog?.let { dialog ->
+                if (!dialog.isShowing) dialog.show()
+                val constraintLayout = getCustomView<ConstraintLayout>(dialog)
+                val progressBar = constraintLayout.findViewById<ProgressBar>(R.id.progressBar)
+                val textView = constraintLayout.findViewById<TextView>(R.id.textView)
+                val countView = constraintLayout.findViewById<TextView>(R.id.count)
+                progressBar.progress = it.progress
+                textView.text = String.format(Locale.getDefault(), "%d%%", it.progress)
+                countView.text = "${it.index}/${it.count}"
+            }
+
         }
         aiShareViewModel.actionResultModel.observe(viewLifecycleOwner) {
             if (AIEngineAction.DOWNLOAD == it.vcAction) {
                 if (AIEngineCode.SUCCESS == it.vcEngineCode) {
-                    progressDialog?.let { proDialog ->
-                        proDialog.dismiss()
-                        progressDialog = null
+                    progressbarDialog?.let { dialog ->
+                        if (dialog.isShowing) dialog.dismiss()
+                        progressbarDialog = null
                     }
-                    progressLoadingDialog?.let { proDialog ->
-                        proDialog.dismiss()
+                    progressLoadingDialog?.let { dialog ->
+                        if (dialog.isShowing) dialog.dismiss()
                         progressLoadingDialog = null
                     }
                     findNavController().navigate(R.id.action_createRoomFragment_to_aiRoomFragment)
@@ -116,19 +118,27 @@ class CreateRoomFragment : BaseFragment() {
                         e.printStackTrace()
                         mTotalSize = 99999
                     }
-                    if (downloadingChooserDialog == null) {
-                        downloadingChooserDialog =
-                            showDownloadingChooser(requireContext(), mTotalSize,
-                                { positive: MaterialDialog? ->
-                                    aiShareViewModel.downloadRes()
-                                    null
-                                },
-                                { negative: MaterialDialog? ->
-                                    downloadProgress = -1
-                                    aiShareViewModel.cancelDownloadRes()
-                                    null
-                                })
+                    downloadingChooserDialog?.let { dialog ->
+                        if (dialog.isShowing) dialog.dismiss()
+                        downloadingChooserDialog = null
                     }
+                    downloadingChooserDialog =
+                        showDownloadingChooser(requireContext(), mTotalSize,
+                            { dialog: MaterialDialog? ->
+                                aiShareViewModel.downloadRes()
+                                downloadingChooserDialog = null
+                                null
+                            },
+                            { dialog: MaterialDialog? ->
+                                downloadProgress = -1
+                                aiShareViewModel.cancelDownloadRes()
+                                downloadingChooserDialog = null
+                                progressLoadingDialog?.let { dialog ->
+                                    if (dialog.isShowing) dialog.dismiss()
+                                    progressLoadingDialog = null
+                                }
+                                null
+                            })
                 }
             } else {
 
@@ -207,16 +217,16 @@ class CreateRoomFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
-        progressDialog?.let {
-            if (it.isShowing) {
-                it.dismiss()
-            }
-            progressDialog = null
+        progressLoadingDialog?.let { dialog ->
+            if (dialog.isShowing) dialog.dismiss()
+            progressLoadingDialog = null
         }
-        downloadingChooserDialog?.let {
-            if (it.isShowing) {
-                it.dismiss()
-            }
+        progressbarDialog?.let { dialog ->
+            if (dialog.isShowing) dialog.dismiss()
+            progressbarDialog = null
+        }
+        downloadingChooserDialog?.let { dialog ->
+            if (dialog.isShowing) dialog.dismiss()
             downloadingChooserDialog = null
         }
     }
