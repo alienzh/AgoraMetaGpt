@@ -107,7 +107,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         val lastChatMessageModel = mChatMessageDataList.getOrNull(mChatMessageDataList.size - 1)
         if (lastChatMessageModel?.sid == sid) {
             lastChatMessageModel.message = lastChatMessageModel.message.plus(answer)
-            lastChatMessageModel.costTime = System.currentTimeMillis() - onSpeechRecognitionTime
             Log.i(TAG, "onAiChatAnswer: $lastChatMessageModel")
             newLineMessageModel.postValue(Pair(lastChatMessageModel, false))
         } else {
