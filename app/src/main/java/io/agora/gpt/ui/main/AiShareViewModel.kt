@@ -63,10 +63,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 .activity(activity)
                 .userName(KeyCenter.getUserName())
                 .language(language)
-                .enableChatConversation(false)
+                .enableChatConversation(true)
                 .speechRecognitionFiltersLength(3)
                 .build()
         }
+        mChatMessageDataList.clear()
     }
 
     override fun onDownloadResProgress(progress: Int, index: Int, count: Int) {

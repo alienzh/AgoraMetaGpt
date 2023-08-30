@@ -12,7 +12,7 @@
     <string name="changing_ai_roles">选择这个角色</string>
     <string name="calling">呼叫 %1$s</string>
     <string name="download_title">下载提示</string>
-    <string name="download_content">首次进入MetaChat场景需下载%1$s数据包</string>
+    <string name="download_content">首次进入AI Chat场景需下载%1$s数据包</string>
     <string name="download_now">立即下载</string>
     <string name="download_next_time">下次再说</string>
     <string name="downloading">下载中</string>

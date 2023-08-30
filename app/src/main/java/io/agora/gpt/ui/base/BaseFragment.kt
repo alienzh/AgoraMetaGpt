@@ -44,6 +44,10 @@ open class BaseFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
         compositeDisposable.dispose()
     }
 }

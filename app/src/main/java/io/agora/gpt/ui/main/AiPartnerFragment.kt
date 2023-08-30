@@ -8,6 +8,7 @@ import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.jakewharton.rxbinding2.view.RxView
@@ -52,6 +53,11 @@ class AiPartnerFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        activity?.onBackPressedDispatcher?.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+
+            }
+        })
     }
 
     override fun initData() {
@@ -71,7 +77,8 @@ class AiPartnerFragment : BaseFragment() {
                 }
                 binding?.btnCalling?.text = resources.getString(R.string.calling, avatarName)
             } else if (AIEngineAction.RELEASED == it.vcAction && AIEngineCode.SUCCESS == it.vcEngineCode) {
-                findNavController().navigate(R.id.action_aiRoomFragment_to_crateRoomFragment)
+                findNavController().popBackStack(R.id.crateRoomFragment,false)
+//                findNavController().navigate(R.id.action_aiRoomFragment_to_crateRoomFragment)
             }
         }
         aiShareViewModel.newLineMessageModel.observe(viewLifecycleOwner) {
@@ -242,7 +249,7 @@ class AiPartnerFragment : BaseFragment() {
                 ivHangUp.visibility = View.INVISIBLE
             }
             val allAIRoles = aiShareViewModel.getAllAiRoles()
-
+            aiShareViewModel.stopVoiceChat()
             if (allAIRoles.isNotEmpty()) {
                 aiShareViewModel.setAiRole(allAIRoles[it])
                 val avatarName = when (aiShareViewModel.getAiRoleName()) {

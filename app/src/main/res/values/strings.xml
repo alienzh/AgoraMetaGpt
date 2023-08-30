@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">声动小智</string>
+    <string name="app_name">Agora AI Chat</string>
     <string name="role">Role</string>
     <string name="create_room">Create Room</string>
     <string name="choose_scene">Select Scene</string>

@@ -1,27 +1,22 @@
 package io.agora.gpt.ui.main
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import com.jakewharton.rxbinding2.view.RxView
-import io.agora.ai.sdk.AIEngine
 import io.agora.ai.sdk.AIEngineAction
-import io.agora.ai.sdk.AIEngineCallback
 import io.agora.ai.sdk.AIEngineCode
 import io.agora.ai.sdk.Constants
 import io.agora.gpt.R
@@ -63,6 +58,15 @@ class CreateRoomFragment : BaseFragment() {
         binding = CreateRoomFragmentBinding.inflate(inflater, container, attachToParent)
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        activity?.onBackPressedDispatcher?.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                activity?.finish()
+            }
+        })
+    }
+
     override fun initData() {
         super.initData()
 
@@ -91,6 +95,10 @@ class CreateRoomFragment : BaseFragment() {
                 progressBar.progress = it.progress
                 textView.text = String.format(Locale.getDefault(), "%d%%", it.progress)
                 countView.text = "${it.index}/${it.count}"
+                if (it.index == it.count && it.progress == 100) { // 下载完成
+                    dialog.dismiss()
+                    progressbarDialog = null
+                }
             }
 
         }
@@ -204,10 +212,6 @@ class CreateRoomFragment : BaseFragment() {
             compositeDisposable.add(disposable)
         }
 
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onDestroyView() {
