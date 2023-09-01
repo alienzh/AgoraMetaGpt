@@ -5,8 +5,8 @@
     android:id="@+id/video_container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/black"
     android:paddingStart="8dp"
+    tools:background="@color/black"
     android:paddingEnd="0dp">
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -14,8 +14,8 @@
         app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.Avatar"
         android:layout_width="89dp"
         android:layout_height="89dp"
-        android:padding="5dp"
-        android:background="@drawable/bg_button_role_select"
+        android:padding="3dp"
+        android:background="@drawable/bg_button_role_unselect"
         android:src="@drawable/ai_portrait_1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

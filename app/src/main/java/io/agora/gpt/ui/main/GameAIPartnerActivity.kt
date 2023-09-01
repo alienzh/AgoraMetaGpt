@@ -27,7 +27,7 @@ class GameAIPartnerActivity : BaseActivity() {
         window.decorView.keepScreenOn = true
         ViewCompat.setOnApplyWindowInsetsListener(binding.navMchatMain) { v: View?, insets: WindowInsetsCompat ->
             val inset = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.root.setPaddingRelative(inset.left, 0, inset.right, inset.bottom)
+            binding.root.setPaddingRelative(inset.left, 0, inset.right, 0)
             WindowInsetsCompat.CONSUMED
         }
     }

@@ -23,6 +23,7 @@ import io.agora.gpt.ui.main.ChatMessageModel
 import io.agora.gpt.ui.view.CenterSpaceImageSpan
 import io.agora.gpt.ui.view.IconTextSpan
 import io.agora.gpt.ui.view.IconTextSpanConfig
+import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.Utils
 
 class ChatMessageAdapter constructor(private val mContext: Context, val dataList: List<ChatMessageModel>) :

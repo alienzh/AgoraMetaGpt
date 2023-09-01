@@ -211,7 +211,7 @@ class AiPartnerFragment : BaseFragment() {
 
     private fun initUnityView() {
         mTextureView = TextureView(requireContext())
-        mTextureView?.outlineProvider = TextureVideoViewOutlineProvider(Utils.dip2px(requireContext(), 24f).toFloat());
+        mTextureView?.outlineProvider = TextureVideoViewOutlineProvider(Utils.dip2px(requireContext(), 64f).toFloat());
         mTextureView?.clipToOutline = true
         mTextureView?.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {

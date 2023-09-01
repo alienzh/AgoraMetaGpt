@@ -5,28 +5,34 @@
     android:id="@+id/superLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_room_detail">
+    android:background="@drawable/bg_room_detail1">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/horizontal25"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.25"/>
 
     <FrameLayout
         android:id="@+id/layoutUnityContainer"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginBottom="108dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="132dp"
+        android:layout_height="132dp"
+        android:padding="4dp"
+        android:background="@drawable/bg_button_ai_oval"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@id/horizontal25" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutUser"
         android:layout_width="150dp"
         android:layout_height="40dp"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginVertical="12dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/bg_button_black20_corners"
-        app:layout_constraintStart_toStartOf="@id/layoutUnityContainer"
-        app:layout_constraintTop_toTopOf="@id/layoutUnityContainer">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivUserAvatar"
@@ -62,14 +68,15 @@
         android:background="@drawable/bg_button_black20_corners"
         android:src="@drawable/ic_exit"
         app:layout_constraintBottom_toBottomOf="@id/layoutUser"
-        app:layout_constraintEnd_toEndOf="@id/layoutUnityContainer"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/layoutUser" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvSwitchRole"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="40dp"
         android:background="@drawable/bg_button_white_corners16"
         android:drawableTop="@drawable/ic_switch"
         android:paddingHorizontal="12dp"
@@ -77,8 +84,8 @@
         android:text="@string/role"
         android:textColor="@color/black"
         android:textSize="11sp"
-        app:layout_constraintBottom_toBottomOf="@id/layoutUnityContainer"
-        app:layout_constraintEnd_toEndOf="@id/layoutUnityContainer" />
+        app:layout_constraintBottom_toTopOf="@+id/btnCalling"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvVoiceChange"
@@ -93,7 +100,7 @@
         android:textColor="@color/black"
         android:textSize="11sp"
         app:layout_constraintBottom_toTopOf="@id/tvSwitchRole"
-        app:layout_constraintEnd_toEndOf="@id/layoutUnityContainer" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnCalling"
@@ -104,9 +111,9 @@
         android:background="@drawable/bg_enter_room"
         android:gravity="center"
         android:text="@string/calling"
+        android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="18sp"
-        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -151,15 +158,15 @@
         android:layout_width="0dp"
         android:layout_height="260dp"
         android:layout_marginStart="20dp"
-        android:layout_marginEnd="10dp"
         android:layout_marginTop="0dp"
-        android:layout_marginBottom="10dp"
-        tools:listitem="@layout/item_chat_message"
-        android:requiresFadingEdge="vertical"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="35dp"
         android:fadingEdgeLength="30dp"
+        android:requiresFadingEdge="vertical"
         android:scrollbars="none"
-        app:layout_constraintBottom_toBottomOf="@id/layoutUnityContainer"
+        app:layout_constraintBottom_toTopOf="@id/btnCalling"
+        app:layout_constraintEnd_toStartOf="@id/tvVoiceChange"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/tvVoiceChange" />
+        tools:listitem="@layout/item_chat_message" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

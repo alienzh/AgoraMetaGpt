@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="@color/black">
+    android:paddingTop="32dp"
+    android:background="@drawable/bg_room_detail1">
 
     <TextView
         android:id="@+id/tvTitle"
@@ -14,7 +14,6 @@
         android:text="@string/choose_ai"
         android:textColor="@color/white"
         android:textSize="16sp"
-        android:layout_marginTop="69dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -36,7 +35,7 @@
         android:layout_height="0dp"
         android:layout_marginHorizontal="15dp"
         android:layout_marginVertical="30dp"
-        android:background="@drawable/bg_button_541_corners40"
+        android:background="@drawable/bg_ai_female"
         app:layout_constraintBottom_toTopOf="@+id/recyclerRole"
         app:layout_constraintTop_toBottomOf="@+id/tvTitle">
 
@@ -54,7 +53,7 @@
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="match_parent"
             android:layout_height="69dp"
-            android:background="@drawable/bg_button_562_bottom_corners40"
+            android:background="@drawable/bg_button_black70_bottom_corners40"
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView

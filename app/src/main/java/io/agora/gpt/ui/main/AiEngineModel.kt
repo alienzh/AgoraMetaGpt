@@ -18,7 +18,7 @@ data class ActionResultModel constructor(
 data class ChatMessageModel constructor(
     val isAiMessage: Boolean,
     val sid: String,
-    val name: String,
+    var name: String,
     var message: String,
     var costTime: Long
 )

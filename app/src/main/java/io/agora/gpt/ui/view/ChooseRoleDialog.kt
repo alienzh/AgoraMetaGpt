@@ -3,6 +3,8 @@ package io.agora.gpt.ui.view
 import android.content.Context
 import android.view.View
 import android.view.WindowManager
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import io.agora.ai.sdk.AIRole
 import io.agora.gpt.R
 import io.agora.gpt.databinding.ChooseAiRoleDialogBinding
