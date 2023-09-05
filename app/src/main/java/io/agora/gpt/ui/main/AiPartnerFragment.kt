@@ -77,7 +77,7 @@ class AiPartnerFragment : BaseFragment() {
                 }
                 binding?.btnCalling?.text = resources.getString(R.string.calling, avatarName)
             } else if (AIEngineAction.RELEASED == it.vcAction && AIEngineCode.SUCCESS == it.vcEngineCode) {
-                findNavController().popBackStack(R.id.crateRoomFragment,false)
+                findNavController().popBackStack(R.id.crateRoomFragment, false)
 //                findNavController().navigate(R.id.action_aiRoomFragment_to_crateRoomFragment)
             }
         }
@@ -86,7 +86,7 @@ class AiPartnerFragment : BaseFragment() {
                 if (it.second) {
                     chatMessageAdapter.notifyItemInserted(aiShareViewModel.mChatMessageDataList.size - 1)
                 } else {
-                    chatMessageAdapter.notifyItemChanged(aiShareViewModel.mChatMessageDataList.size - 1)
+                    chatMessageAdapter.notifyItemChanged(it.third)
                 }
                 binding?.aiHistoryList?.scrollToPosition(chatMessageAdapter.dataList.size - 1)
             }
@@ -97,7 +97,8 @@ class AiPartnerFragment : BaseFragment() {
         super.initView()
         initUnityView()
         binding?.apply {
-            binding?.btnCalling?.text = resources.getString(R.string.calling, requireContext().getString(R.string.role_foodie))
+            binding?.btnCalling?.text =
+                resources.getString(R.string.calling, requireContext().getString(R.string.role_foodie))
             tvUserName.text = KeyCenter.getUserName()
             if (mHistoryListAdapter == null) {
                 mHistoryListAdapter = ChatMessageAdapter(requireContext(), aiShareViewModel.mChatMessageDataList)

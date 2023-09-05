@@ -20,5 +20,5 @@ data class ChatMessageModel constructor(
     val sid: String,
     var name: String,
     var message: String,
-    var costTime: Long
+    var costTime: Long = 0
 )

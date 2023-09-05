@@ -27,7 +27,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     val downloadProgress: MutableLiveData<DownloadProgressModel> = MutableLiveData()
     val actionResultModel: MutableLiveData<ActionResultModel> = MutableLiveData()
-    val newLineMessageModel: MutableLiveData<Pair<ChatMessageModel, Boolean>> = MutableLiveData()
+
+    val newLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = MutableLiveData()
 
     private var mute: Boolean = false
     private var voiceChange: Boolean = false
@@ -35,7 +36,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     val mChatMessageDataList = mutableListOf<ChatMessageModel>()
 
-    private var onSpeechRecognitionTime: Long = 0
+
+    private val mCostTimeMap = mutableMapOf<String, Long>()
+    private var lastSpeech2TextTime: Long = 0
 
     init {
         val currentLanguage = SPUtil.get(Constant.CURRENT_LANGUAGE, "zh") as String
@@ -86,9 +89,10 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     // 语音转文字的回调
-    override fun onSpeechRecognitionResults(result: String) {
-        onSpeechRecognitionTime = System.currentTimeMillis()
-        Log.i(TAG, "onSpeechRecognitionResults: $result")
+    override fun onSpeech2TextResult(sid: String, result: String) {
+        lastSpeech2TextTime = System.currentTimeMillis()
+        mCostTimeMap[sid] = System.currentTimeMillis()
+        Log.i(TAG, "onSpeech2TextResult: $result")
         val messageModel = ChatMessageModel(
             isAiMessage = false,
             sid = "",
@@ -96,30 +100,42 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             message = result,
             costTime = 0
         )
-        Log.i(TAG, "onSpeechRecognitionResults: $messageModel")
+        Log.i(TAG, "onSpeech2TextResult: $messageModel")
         mChatMessageDataList.add(messageModel)
-        newLineMessageModel.postValue(Pair(messageModel, true))
+        newLineMessageModel.postValue(Triple(messageModel, true, mChatMessageDataList.size - 1))
     }
 
     // gpt的回答，是流式的，同一个回答，是同一个sid
-    override fun onAiChatAnswer(sid: String, answer: String) {
-        Log.i(TAG, "onAiChatAnswer: $sid $answer")
-        val lastChatMessageModel = mChatMessageDataList.getOrNull(mChatMessageDataList.size - 1)
-        if (lastChatMessageModel?.sid == sid) {
+    override fun onLlmResult(sid: String, answer: String) {
+        Log.i(TAG, "onLlmResult: $sid $answer")
+        val lastIndex = mChatMessageDataList.indexOfLast { it.sid == sid }
+        if (lastIndex >= 0) {
+            val lastChatMessageModel: ChatMessageModel = mChatMessageDataList[lastIndex]
             lastChatMessageModel.message = lastChatMessageModel.message.plus(answer)
-            Log.i(TAG, "onAiChatAnswer: $lastChatMessageModel")
-            newLineMessageModel.postValue(Pair(lastChatMessageModel, false))
+            Log.i(TAG, "onLlmResult: $lastChatMessageModel")
+            newLineMessageModel.postValue(Triple(lastChatMessageModel, false, lastIndex))
         } else {
             val messageModel = ChatMessageModel(
                 isAiMessage = true,
                 sid = sid,
                 name = getAvatarName(),
                 message = answer,
-                costTime = System.currentTimeMillis() - onSpeechRecognitionTime
+                costTime = System.currentTimeMillis() - (mCostTimeMap[sid] ?: lastSpeech2TextTime)
             )
             Log.i(TAG, "onAiChatAnswer: $messageModel")
             mChatMessageDataList.add(messageModel)
-            newLineMessageModel.postValue(Pair(messageModel, true))
+            newLineMessageModel.postValue(Triple(messageModel, true, mChatMessageDataList.size - 1))
+        }
+    }
+
+    // tts
+    override fun onText2SpeechResult(sid: String, data: ByteArray?) {
+        Log.i(TAG, "onText2SpeechResult ${System.currentTimeMillis()}")
+        val lastIndex = mChatMessageDataList.indexOfLast { it.sid == sid }
+        if (lastIndex >= 0) {
+            val lastChatMessageModel: ChatMessageModel = mChatMessageDataList[lastIndex]
+            lastChatMessageModel.costTime = System.currentTimeMillis() - (mCostTimeMap[sid] ?: lastSpeech2TextTime)
+            newLineMessageModel.postValue(Triple(lastChatMessageModel, false, lastIndex))
         }
     }
 
@@ -132,9 +148,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         return avatarName
     }
 
-    override fun onStartPlayAiChatAnswer() {
-        Log.i(TAG, "onStartPlayAiChatAnswer ${System.currentTimeMillis()}")
-    }
 
     fun cancelDownloadRes() {
         aiEngine?.cancelDownloadRes()
