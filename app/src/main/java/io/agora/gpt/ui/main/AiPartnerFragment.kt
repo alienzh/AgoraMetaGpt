@@ -7,25 +7,23 @@ import android.view.LayoutInflater
 import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.jakewharton.rxbinding2.view.RxView
-import io.agora.ai.sdk.AIEngineAction
-import io.agora.ai.sdk.AIEngineCode
+import io.agora.aigc.sdk.constants.ServiceCode
+import io.agora.aigc.sdk.constants.ServiceEvent
 import io.agora.gpt.R
 import io.agora.gpt.databinding.FragmentAiPartnerBinding
 import io.agora.gpt.ui.adapter.ChatMessageAdapter
 import io.agora.gpt.ui.base.BaseFragment
 import io.agora.gpt.ui.view.ChooseRoleDialog
+import io.agora.gpt.ui.view.OnFastClickListener
 import io.agora.gpt.ui.view.WrapContentLinearLayoutManager
 import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.TextureVideoViewOutlineProvider
+import io.agora.gpt.utils.ToastUtils
 import io.agora.gpt.utils.Utils
-import io.reactivex.disposables.Disposable
-import java.util.concurrent.TimeUnit
 
 class AiPartnerFragment : BaseFragment() {
 
@@ -62,26 +60,23 @@ class AiPartnerFragment : BaseFragment() {
 
     override fun initData() {
         super.initData()
-        aiShareViewModel.actionResultModel.observe(viewLifecycleOwner) {
-            if (AIEngineAction.DOWNLOAD == it.vcAction) {
-                if (AIEngineCode.SUCCESS == it.vcEngineCode) {
-                    // 下载完成
-                } else if (AIEngineCode.DOWNLOAD_RES == it.vcEngineCode) {
-                    // 需要下载
-                }
-            } else if (AIEngineAction.PREPARE == it.vcAction && AIEngineCode.SUCCESS == it.vcEngineCode) {
-                val avatarName = when (aiShareViewModel.getAiRoleName()) {
-                    Constant.ROLE_FOODIE -> requireContext().getString(R.string.role_foodie)
-                    Constant.ROLE_LATTE_LOVE -> requireContext().getString(R.string.role_latte_love)
-                    else -> requireContext().getString(R.string.role_foodie)
-                }
-                binding?.btnCalling?.text = resources.getString(R.string.calling, avatarName)
-            } else if (AIEngineAction.RELEASED == it.vcAction && AIEngineCode.SUCCESS == it.vcEngineCode) {
-                findNavController().popBackStack(R.id.crateRoomFragment, false)
-//                findNavController().navigate(R.id.action_aiRoomFragment_to_crateRoomFragment)
+        aiShareViewModel.mPrepareResult.observe(viewLifecycleOwner) {
+            if (it) {
+//                val avatarName = when (aiShareViewModel.getAiRoleName()) {
+//                    Constant.ROLE_FOODIE -> requireContext().getString(R.string.role_foodie)
+//                    Constant.ROLE_LATTE_LOVE -> requireContext().getString(R.string.role_latte_love)
+//                    else -> requireContext().getString(R.string.role_foodie)
+//                }
+                binding?.btnCalling?.text = resources.getString(R.string.calling, aiShareViewModel.getAiRoleName())
             }
         }
-        aiShareViewModel.newLineMessageModel.observe(viewLifecycleOwner) {
+
+        aiShareViewModel.mEventResultModel.observe(viewLifecycleOwner) { eventResult ->
+            if (eventResult.event == ServiceEvent.DESTROY && eventResult.code == ServiceCode.SUCCESS) {
+                findNavController().popBackStack(R.id.crateRoomFragment, false)
+            }
+        }
+        aiShareViewModel.mNewLineMessageModel.observe(viewLifecycleOwner) {
             mHistoryListAdapter?.let { chatMessageAdapter ->
                 if (it.second) {
                     chatMessageAdapter.notifyItemInserted(aiShareViewModel.mChatMessageDataList.size - 1)
@@ -115,78 +110,72 @@ class AiPartnerFragment : BaseFragment() {
 
     override fun initClickEvent() {
         super.initClickEvent()
-        binding?.apply {
-            var disposable: Disposable = RxView.clicks(btnExit)
-                .throttleFirst(1, TimeUnit.SECONDS)
-                .subscribe {
+        binding?.btnExit?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                binding?.apply {
                     if (ivHangUp.visibility == View.VISIBLE) {
                         btnCalling.visibility = View.VISIBLE
                         ivVoice.visibility = View.INVISIBLE
                         ivHangUp.visibility = View.INVISIBLE
                         aiShareViewModel.stopVoiceChat()
                     }
-                    aiShareViewModel.releaseEngine()
                 }
-            compositeDisposable.add(disposable)
+                aiShareViewModel.releaseEngine()
+            }
+        })
 
-            // 切换角色
-            disposable = RxView.clicks(tvSwitchRole)
-                .throttleFirst(1, TimeUnit.SECONDS)
-                .subscribe {
-                    if (mIsSpeaking) {
-                        Toast.makeText(requireContext(), getString(R.string.switch_role_tips), Toast.LENGTH_LONG).show()
-                    } else {
-                        showChooseRoleDialog()
-                    }
+        binding?.tvSwitchRole?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                if (mIsSpeaking) {
+                    ToastUtils.showToast(R.string.switch_role_tips)
+                } else {
+                    showChooseRoleDialog()
                 }
-            compositeDisposable.add(disposable)
+            }
+        })
 
-            // 变声
-            disposable = RxView.clicks(tvVoiceChange)
-                .throttleFirst(1, TimeUnit.SECONDS)
-                .subscribe {
-                    aiShareViewModel.enableVoiceChange { isVoiceChange ->
-                        context?.let {
-                            if (isVoiceChange) {
-                                tvVoiceChange.setCompoundDrawablesRelative(
-                                    null,
-                                    it.getDrawable(R.drawable.icon_voice_change)?.apply {
-                                        setBounds(0, 0, intrinsicWidth, intrinsicHeight)
-                                    },
-                                    null,
-                                    null
-                                )
-                            } else {
-                                tvVoiceChange.setCompoundDrawablesRelative(
-                                    null,
-                                    it.getDrawable(R.drawable.icon_voice_default)?.apply {
-                                        setBounds(0, 0, intrinsicWidth, intrinsicHeight)
-                                    },
-                                    null,
-                                    null
-                                )
-                            }
+        binding?.tvVoiceChange?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                aiShareViewModel.enableVoiceChange { isVoiceChange ->
+                    binding?.apply {
+                        if (isVoiceChange) {
+                            binding?.tvVoiceChange?.setCompoundDrawablesRelative(
+                                null,
+                                root.context.getDrawable(R.drawable.icon_voice_change)?.apply {
+                                    setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+                                },
+                                null,
+                                null
+                            )
+                        } else {
+                            binding?.tvVoiceChange?.setCompoundDrawablesRelative(
+                                null,
+                                root.context.getDrawable(R.drawable.icon_voice_default)?.apply {
+                                    setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+                                },
+                                null,
+                                null
+                            )
                         }
                     }
                 }
-            compositeDisposable.add(disposable)
+            }
+        })
 
-            // 开启语聊
-            disposable = RxView.clicks(btnCalling)
-                .throttleFirst(1, TimeUnit.SECONDS)
-                .subscribe {
+        binding?.btnCalling?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                binding?.apply {
                     btnCalling.visibility = View.INVISIBLE
                     ivVoice.visibility = View.VISIBLE
                     ivHangUp.visibility = View.VISIBLE
                     aiShareViewModel.startVoiceChat()
                 }
-            compositeDisposable.add(disposable)
-
-            // 静音
-            disposable = RxView.clicks(ivVoice)
-                .throttleFirst(1, TimeUnit.SECONDS)
-                .subscribe {
-                    aiShareViewModel.mute { isMute ->
+            }
+        })
+        binding?.ivVoice?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                aiShareViewModel.mute { isMute ->
+                    binding?.apply {
                         if (isMute) {
                             ivVoice.setImageResource(R.drawable.ic_mute)
                         } else {
@@ -194,20 +183,19 @@ class AiPartnerFragment : BaseFragment() {
                         }
                     }
                 }
-            compositeDisposable.add(disposable)
+            }
+        })
 
-            // 关闭语聊
-            disposable = RxView.clicks(ivHangUp)
-                .throttleFirst(1, TimeUnit.SECONDS)
-                .subscribe {
+        binding?.ivHangUp?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                binding?.apply {
                     btnCalling.visibility = View.VISIBLE
                     ivVoice.visibility = View.INVISIBLE
                     ivHangUp.visibility = View.INVISIBLE
                     aiShareViewModel.stopVoiceChat()
                 }
-            compositeDisposable.add(disposable)
-        }
-
+            }
+        })
     }
 
     private fun initUnityView() {
@@ -217,9 +205,9 @@ class AiPartnerFragment : BaseFragment() {
         mTextureView?.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
                 aiShareViewModel.setTexture(requireActivity(), mTextureView!!)
-                val allAIRoles = aiShareViewModel.getAllAiRoles()
-                if (allAIRoles.isNotEmpty()) {
-                    aiShareViewModel.setAiRole(allAIRoles[0])
+                val usableAIRoles = aiShareViewModel.getUsableAiRoles()
+                if (usableAIRoles.isNotEmpty()) {
+                    aiShareViewModel.setAvatarModel(usableAIRoles[0])
                 }
                 aiShareViewModel.prepare()
             }
@@ -249,19 +237,19 @@ class AiPartnerFragment : BaseFragment() {
                 ivVoice.visibility = View.INVISIBLE
                 ivHangUp.visibility = View.INVISIBLE
             }
-            val allAIRoles = aiShareViewModel.getAllAiRoles()
+            val usableAIRoles = aiShareViewModel.getUsableAiRoles()
             aiShareViewModel.stopVoiceChat()
-            if (allAIRoles.isNotEmpty()) {
-                aiShareViewModel.setAiRole(allAIRoles[it])
-                val avatarName = when (aiShareViewModel.getAiRoleName()) {
-                    Constant.ROLE_FOODIE -> requireContext().getString(R.string.role_foodie)
-                    Constant.ROLE_LATTE_LOVE -> requireContext().getString(R.string.role_latte_love)
-                    else -> requireContext().getString(R.string.role_foodie)
-                }
-                binding?.btnCalling?.text = resources.getString(R.string.calling, avatarName)
+            if (usableAIRoles.isNotEmpty()) {
+                aiShareViewModel.setAvatarModel(usableAIRoles[it])
+//                val avatarName = when (aiShareViewModel.getAiRoleName()) {
+//                    Constant.ROLE_FOODIE -> requireContext().getString(R.string.role_foodie)
+//                    Constant.ROLE_LATTE_LOVE -> requireContext().getString(R.string.role_latte_love)
+//                    else -> requireContext().getString(R.string.role_foodie)
+//                }
+                binding?.btnCalling?.text = resources.getString(R.string.calling, aiShareViewModel.getAiRoleName())
             }
         }
-        chooseRoleDialog.setupAiRoles(selectIndex, aiShareViewModel.getAllAiRoles())
+        chooseRoleDialog.setupAiRoles(selectIndex, aiShareViewModel.getUsableAiRoles())
         chooseRoleDialog.show()
     }
 }

@@ -3,9 +3,7 @@ package io.agora.gpt.ui.view
 import android.content.Context
 import android.view.View
 import android.view.WindowManager
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import io.agora.ai.sdk.AIRole
+import io.agora.aigc.sdk.model.AIRole
 import io.agora.gpt.R
 import io.agora.gpt.databinding.ChooseAiRoleDialogBinding
 import io.agora.gpt.ui.adapter.RoleSelectAdapter
@@ -70,19 +68,19 @@ class ChooseRoleDialog constructor(context: Context) : BaseDialog(context) {
         var drawableId = AppUtils.getDrawableRes(context, "ai_avatar_" + (index + 1))
         if (drawableId == 0) drawableId = R.drawable.ai_avatar_1
         binding.ivRoleAvatar.setImageResource(drawableId)
-        binding.tvRoleIntroduce.text = when (selectRole.aiRoleId) {
+        binding.tvRoleIntroduce.text = when (selectRole.getRoleId()) {
             Constant.ROLE_FOODIE -> context.getString(R.string.role_foodie_tips)
             Constant.ROLE_LATTE_LOVE -> context.getString(R.string.role_latte_love_tips)
             else -> context.getString(R.string.role_foodie_tips)
         }
-        binding.tvRoleName.text = when (selectRole.aiRoleId) {
+        binding.tvRoleName.text = when (selectRole.getRoleId()) {
             Constant.ROLE_FOODIE -> context.getString(R.string.role_foodie)
             Constant.ROLE_LATTE_LOVE -> context.getString(R.string.role_latte_love)
             else -> context.getString(R.string.role_foodie)
         }
     }
 
-    fun setupAiRoles(selectIndex: Int, aiRoles: Array<AIRole>) {
+    fun setupAiRoles(selectIndex: Int, aiRoles: List<AIRole>) {
         mRoleAdapter = RoleSelectAdapter(context, selectIndex, aiRoles)
         mRoleAdapter.setOnSelectItemClickListener {
             val selectedIndex = mRoleAdapter.selectIndex

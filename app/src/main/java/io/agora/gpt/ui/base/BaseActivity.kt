@@ -11,12 +11,9 @@ import androidx.appcompat.app.AppCompatActivity
 import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.LanguageUtil
 import io.agora.gpt.utils.SPUtil
-import io.reactivex.disposables.CompositeDisposable
 
 open class BaseActivity : AppCompatActivity() {
-    protected val compositeDisposable: CompositeDisposable by lazy {
-        CompositeDisposable()
-    }
+
     protected var mIsFront = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +60,6 @@ open class BaseActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        compositeDisposable.dispose()
     }
 
     override fun onBackPressed() {

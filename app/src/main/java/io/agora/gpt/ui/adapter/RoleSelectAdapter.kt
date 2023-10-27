@@ -7,12 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import io.agora.ai.sdk.AIRole
-import io.agora.ai.sdk.Constants
+import io.agora.aigc.sdk.constants.Constants
+import io.agora.aigc.sdk.model.AIRole
 import io.agora.gpt.R
 import io.agora.gpt.utils.AppUtils
 
-class RoleSelectAdapter constructor(private val mContext: Context, var selectIndex: Int, val dataList: Array<AIRole>) :
+class RoleSelectAdapter constructor(private val mContext: Context, var selectIndex: Int, val dataList: List<AIRole>) :
     RecyclerView.Adapter<RoleSelectAdapter.MyViewHolder>() {
     private var onClickListener: View.OnClickListener? = null
     fun setOnSelectItemClickListener(onClickListener: View.OnClickListener?) {

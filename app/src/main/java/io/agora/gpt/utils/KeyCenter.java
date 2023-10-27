@@ -8,10 +8,12 @@ import io.agora.rtm.RtmTokenBuilder;
 
 public class KeyCenter {
     public static final int USER_MAX_UID = 10000;
+    public static final int DIGITAL_HUMAN_MAX_UID = 20000;
 
     public static final String APP_ID = BuildConfig.APP_ID;
 
     private static int USER_RTC_UID = -1;
+    private static int DIGITAL_HUMAN_RTC_UID = -1;
 
     private static String mRoomName;
 
@@ -37,6 +39,13 @@ public class KeyCenter {
             USER_RTC_UID = new Random().nextInt(USER_MAX_UID);
         }
         return USER_RTC_UID;
+    }
+
+    public static int getVirtualHumanUid() {
+        if (-1 == DIGITAL_HUMAN_RTC_UID) {
+            DIGITAL_HUMAN_RTC_UID = new Random().nextInt(USER_MAX_UID) + DIGITAL_HUMAN_MAX_UID;
+        }
+        return DIGITAL_HUMAN_RTC_UID;
     }
 
     public static String getRtcToken(String channelId, int uid) {

@@ -5,13 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import io.reactivex.disposables.CompositeDisposable
 
 open class BaseFragment : Fragment() {
-
-    val compositeDisposable: CompositeDisposable by lazy {
-        CompositeDisposable()
-    }
 
     @JvmField
     protected var mIsFront = false
@@ -48,6 +43,5 @@ open class BaseFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-        compositeDisposable.dispose()
     }
 }

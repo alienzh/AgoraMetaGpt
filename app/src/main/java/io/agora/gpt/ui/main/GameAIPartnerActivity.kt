@@ -1,7 +1,6 @@
 package io.agora.gpt.ui.main
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -15,10 +14,6 @@ import io.agora.gpt.ui.base.BaseActivity
 import io.agora.gpt.utils.Utils
 
 class GameAIPartnerActivity : BaseActivity() {
-
-    companion object {
-        private val TAG = "GameAIPartnerActivity"
-    }
 
     private lateinit var binding: MainActivityBinding
 
@@ -56,7 +51,7 @@ class GameAIPartnerActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        Log.i(TAG, "onResume")
+        Log.i("zhangw", "onResume")
         Utils.getScreenHeight(this)
         handlePermission()
     }
@@ -97,6 +92,6 @@ class GameAIPartnerActivity : BaseActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.i(TAG, "onDestroy")
+        Log.i("zhangw", "onDestroy")
     }
 }

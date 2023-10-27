@@ -10,7 +10,6 @@ import com.elvishew.xlog.printer.Printer
 import com.elvishew.xlog.printer.file.FilePrinter
 import com.elvishew.xlog.printer.file.backup.NeverBackupStrategy
 import com.elvishew.xlog.printer.file.naming.DateFileNameGenerator
-import com.tencent.mmkv.MMKV
 import io.agora.gpt.utils.Utils
 import java.io.IOException
 
@@ -26,7 +25,6 @@ class MainApplication : Application() {
     }
 
     private fun init() {
-        MMKV.initialize(mGlobalApplication)
         val config = LogConfiguration.Builder()
             .logLevel(if (BuildConfig.DEBUG) LogLevel.ALL else LogLevel.NONE)
             .tag("MainApplication")

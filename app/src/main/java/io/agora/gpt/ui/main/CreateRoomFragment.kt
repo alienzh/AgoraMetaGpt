@@ -15,10 +15,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
-import com.jakewharton.rxbinding2.view.RxView
-import io.agora.ai.sdk.AIEngineAction
-import io.agora.ai.sdk.AIEngineCode
-import io.agora.ai.sdk.Constants
+import io.agora.aigc.sdk.constants.Language
 import io.agora.gpt.R
 import io.agora.gpt.databinding.CreateRoomFragmentBinding
 import io.agora.gpt.ui.base.BaseFragment
@@ -26,14 +23,11 @@ import io.agora.gpt.ui.view.CustomDialog.Companion.getCustomView
 import io.agora.gpt.ui.view.CustomDialog.Companion.showDownloadingChooser
 import io.agora.gpt.ui.view.CustomDialog.Companion.showDownloadingProgress
 import io.agora.gpt.ui.view.CustomDialog.Companion.showLoadingProgress
+import io.agora.gpt.ui.view.OnFastClickListener
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.LanguageUtil
-import io.reactivex.disposables.Disposable
-import org.json.JSONException
-import org.json.JSONObject
 import java.util.Locale
 import java.util.Random
-import java.util.concurrent.TimeUnit
 
 class CreateRoomFragment : BaseFragment() {
 
@@ -73,7 +67,29 @@ class CreateRoomFragment : BaseFragment() {
         downloadProgress = -1
         nicknameArray = resources.getStringArray(R.array.user_nickname)
 
-        aiShareViewModel.downloadProgress.observe(viewLifecycleOwner) {
+        aiShareViewModel.mDownloadRes.observe(viewLifecycleOwner) {
+            mTotalSize = it.totalSize
+            downloadingChooserDialog?.let { dialog ->
+                if (dialog.isShowing) dialog.dismiss()
+                downloadingChooserDialog = null
+            }
+            downloadingChooserDialog = showDownloadingChooser(requireContext(), mTotalSize,
+                { dialog: MaterialDialog? ->
+                    aiShareViewModel.downloadRes()
+                    downloadingChooserDialog = null
+                },
+                { dialog: MaterialDialog? ->
+                    downloadProgress = -1
+                    aiShareViewModel.cancelDownloadRes()
+                    downloadingChooserDialog = null
+                    progressLoadingDialog?.let { dialog ->
+                        if (dialog.isShowing) dialog.dismiss()
+                        progressLoadingDialog = null
+                    }
+                })
+        }
+
+        aiShareViewModel.mDownloadProgress.observe(viewLifecycleOwner) {
             if (it.progress >= 0) downloadProgress = it.progress
             if (progressbarDialog == null) {
                 progressbarDialog = showDownloadingProgress(requireContext(), mTotalSize) {
@@ -83,7 +99,6 @@ class CreateRoomFragment : BaseFragment() {
                         if (dialog.isShowing) dialog.dismiss()
                         progressLoadingDialog = null
                     }
-                    null
                 }
             }
             progressbarDialog?.let { dialog ->
@@ -95,62 +110,19 @@ class CreateRoomFragment : BaseFragment() {
                 progressBar.progress = it.progress
                 textView.text = String.format(Locale.getDefault(), "%d%%", it.progress)
                 countView.text = "${it.index}/${it.count}"
-                if (it.index == it.count && it.progress == 100) { // 下载完成
-                    dialog.dismiss()
-                    progressbarDialog = null
-                }
             }
-
         }
-        aiShareViewModel.actionResultModel.observe(viewLifecycleOwner) {
-            if (AIEngineAction.DOWNLOAD == it.vcAction) {
-                if (AIEngineCode.SUCCESS == it.vcEngineCode) {
-                    progressbarDialog?.let { dialog ->
-                        if (dialog.isShowing) dialog.dismiss()
-                        progressbarDialog = null
-                    }
-                    progressLoadingDialog?.let { dialog ->
-                        if (dialog.isShowing) dialog.dismiss()
-                        progressLoadingDialog = null
-                    }
-                    findNavController().navigate(R.id.action_createRoomFragment_to_aiRoomFragment)
-                } else if (AIEngineCode.DOWNLOAD_RES == it.vcEngineCode) {
-                    try {
-                        it.extraInfo?.apply {
-                            val jsonObject = JSONObject(this)
-                            if (jsonObject.has("fileTotalSize")) {
-                                mTotalSize = jsonObject.getLong("fileTotalSize")
-                            }
-                        }
-                    } catch (e: JSONException) {
-                        e.printStackTrace()
-                        mTotalSize = 99999
-                    }
-                    downloadingChooserDialog?.let { dialog ->
-                        if (dialog.isShowing) dialog.dismiss()
-                        downloadingChooserDialog = null
-                    }
-                    downloadingChooserDialog =
-                        showDownloadingChooser(requireContext(), mTotalSize,
-                            { dialog: MaterialDialog? ->
-                                aiShareViewModel.downloadRes()
-                                downloadingChooserDialog = null
-                                null
-                            },
-                            { dialog: MaterialDialog? ->
-                                downloadProgress = -1
-                                aiShareViewModel.cancelDownloadRes()
-                                downloadingChooserDialog = null
-                                progressLoadingDialog?.let { dialog ->
-                                    if (dialog.isShowing) dialog.dismiss()
-                                    progressLoadingDialog = null
-                                }
-                                null
-                            })
-                }
-            } else {
 
+        aiShareViewModel.mDownloadResFinish.observe(viewLifecycleOwner) {
+            progressbarDialog?.let { dialog ->
+                if (dialog.isShowing) dialog.dismiss()
+                progressbarDialog = null
             }
+            progressLoadingDialog?.let { dialog ->
+                if (dialog.isShowing) dialog.dismiss()
+                progressLoadingDialog = null
+            }
+            findNavController().navigate(R.id.action_createRoomFragment_to_aiRoomFragment)
         }
     }
 
@@ -161,7 +133,7 @@ class CreateRoomFragment : BaseFragment() {
             etNickname.doAfterTextChanged {
                 KeyCenter.setUserName(it.toString())
             }
-            if (aiShareViewModel.currentLanguage() == Constants.LANG_ZH_CN) {
+            if (aiShareViewModel.currentLanguage() == Language.ZH_CN) {
                 btnSwitchLanguage.setImageResource(R.drawable.icon_zh_to_en)
             } else {
                 btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
@@ -172,46 +144,40 @@ class CreateRoomFragment : BaseFragment() {
     override fun initClickEvent() {
         super.initClickEvent()
         //防止多次频繁点击异常处理
-        binding?.apply {
-            var disposable: Disposable = RxView.clicks(btnEnterRoom)
-                .throttleFirst(1, TimeUnit.SECONDS)
-                .subscribe { o: Any? ->
-                    if (TextUtils.isEmpty(KeyCenter.getUserName())) {
-                        Toast.makeText(requireActivity(), R.string.enter_nickname, Toast.LENGTH_LONG).show()
+        binding?.btnEnterRoom?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                if (TextUtils.isEmpty(KeyCenter.getUserName())) {
+                    Toast.makeText(requireActivity(), R.string.enter_nickname, Toast.LENGTH_LONG).show()
+                } else {
+                    if (progressLoadingDialog == null) {
+                        progressLoadingDialog = showLoadingProgress(requireContext())
+                    }
+                    progressLoadingDialog?.show()
+                    aiShareViewModel.initAiEngine()
+                }
+            }
+        })
+        binding?.tvNicknameRandom?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                val nameIndex = random.nextInt(nicknameArray.size)
+                binding?.etNickname?.setText(nicknameArray[nameIndex])
+            }
+        })
+
+        binding?.btnSwitchLanguage?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                aiShareViewModel.switchLanguage { language ->
+                    if (language == Language.ZH_CN) {
+                        binding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_zh_to_en)
+                        LanguageUtil.changeLanguage(requireContext(), "zh", "CN")
                     } else {
-                        if (progressLoadingDialog == null) {
-                            progressLoadingDialog = showLoadingProgress(requireContext())
-                        }
-                        progressLoadingDialog?.show()
-                        aiShareViewModel.initAiEngine(requireActivity())
-                        aiShareViewModel.checkDownloadRes()
+                        binding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_en_to_zh)
+                        LanguageUtil.changeLanguage(requireContext(), "en", "US")
                     }
+                    activity?.recreate()
                 }
-            compositeDisposable.add(disposable)
-
-            disposable = RxView.clicks(tvNicknameRandom)
-                .throttleFirst(1, TimeUnit.SECONDS).subscribe { o: Any? ->
-                    val nameIndex = random.nextInt(nicknameArray.size)
-                    etNickname.setText(nicknameArray[nameIndex])
-                }
-            compositeDisposable.add(disposable)
-
-            disposable = RxView.clicks(btnSwitchLanguage)
-                .throttleFirst(1, TimeUnit.SECONDS).subscribe { o: Any? ->
-                    aiShareViewModel.switchLanguage { language ->
-                        if (language == Constants.LANG_ZH_CN) {
-                            btnSwitchLanguage.setImageResource(R.drawable.icon_zh_to_en)
-                            LanguageUtil.changeLanguage(requireContext(), "zh", "CN")
-                        } else {
-                            btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
-                            LanguageUtil.changeLanguage(requireContext(), "en", "US")
-                        }
-                        activity?.recreate()
-                    }
-                }
-            compositeDisposable.add(disposable)
-        }
-
+            }
+        })
     }
 
     override fun onDestroyView() {

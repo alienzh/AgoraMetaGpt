@@ -41,7 +41,7 @@ class ChatMessageAdapter constructor(private val mContext: Context, val dataList
     override fun onBindViewHolder(holder: MyViewHolder, @SuppressLint("RecyclerView") position: Int) {
         val chatMessageModel = dataList[position]
         val ssb = SpannableStringBuilder()
-        if (chatMessageModel.isAiMessage) {
+        if (chatMessageModel.isAiMessage && chatMessageModel.costTime > 0) {
             val costTime = "${chatMessageModel.costTime}ms"
             ssb.append(costTime)
             val name = "     ${chatMessageModel.name} : "
