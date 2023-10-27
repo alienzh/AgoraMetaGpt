@@ -15,14 +15,14 @@ import io.agora.gpt.utils.Utils
 
 class GameAIPartnerActivity : BaseActivity() {
 
-    private lateinit var binding: MainActivityBinding
+    private lateinit var mBinding: MainActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.decorView.keepScreenOn = true
-        ViewCompat.setOnApplyWindowInsetsListener(binding.navMchatMain) { v: View?, insets: WindowInsetsCompat ->
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.navMchatMain) { v: View?, insets: WindowInsetsCompat ->
             val inset = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.root.setPaddingRelative(inset.left, 0, inset.right, 0)
+            mBinding.root.setPaddingRelative(inset.left, 0, inset.right, 0)
             WindowInsetsCompat.CONSUMED
         }
     }
@@ -33,8 +33,8 @@ class GameAIPartnerActivity : BaseActivity() {
 
     override fun initContentView() {
         super.initContentView()
-        binding = MainActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        mBinding = MainActivityBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
     }
 
     override fun initData() {

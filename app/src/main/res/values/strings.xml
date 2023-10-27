@@ -11,6 +11,7 @@
     <string name="enter_room">Enter Room</string>
     <string name="changing_ai_roles">Choose this role</string>
     <string name="calling">Call %1$s</string>
+    <string name="calling_1">Call</string>
     <string name="download_title">Download tips</string>
     <string name="download_content">To enter AI companion for the first time, you need to download the %1$s packet</string>
     <string name="download_now">Download Now</string>
@@ -22,6 +23,9 @@
     <string name="choose_ai">Change Role</string>
     <string name="voice_default">Default</string>
     <string name="voice_change">AI Voice</string>
+    <string name="evaluate">Evaluate</string>
+    <string name="topic">Topic</string>
+    <string name="ok">OK</string>
     <string name="message_font_text"><![CDATA[<font color="#A6C4FF">%1$s：</font>]]>%2$s</string>
     <string
         name="message_font_text_ai"><![CDATA[<img src="icon_lightning.png"> <font color="#FFFFFF">%1$s</font> <font color="#A6C4FF">%2$s：</font>]]>%3$s</string>
@@ -29,6 +33,7 @@
     <string name="role_foodie_tips">Food blogger, love all kinds of food</string>
     <string name="role_latte_love">Latte Love</string>
     <string name="role_latte_love_tips">Barista, gentle and considerate</string>
+    <string name="send_command_error">Please start the call before sending it</string>
 
     <string-array name="user_nickname">
         <item>James</item>

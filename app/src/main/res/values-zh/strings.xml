@@ -11,6 +11,7 @@
     <string name="enter_room">进入房间</string>
     <string name="changing_ai_roles">选择这个角色</string>
     <string name="calling">呼叫 %1$s</string>
+    <string name="calling_1">呼叫</string>
     <string name="download_title">下载提示</string>
     <string name="download_content">首次进入AI Chat场景需下载%1$s数据包</string>
     <string name="download_now">立即下载</string>
@@ -22,6 +23,9 @@
     <string name="choose_ai">角色选择</string>
     <string name="voice_default">默认</string>
     <string name="voice_change">变声</string>
+    <string name="evaluate">Evaluate</string>
+    <string name="topic">Topic</string>
+    <string name="ok">好的</string>
     <string name="message_font_text"><![CDATA[<font color="#A6C4FF">%1$s：</font>]]>%2$s</string>
     <string
         name="message_font_text_ai"><![CDATA[<img src="icon_lightning.png"> <font color="#FFFFFF">%1$s</font> <font color="#A6C4FF">%2$s：</font>]]>%3$s</string>
@@ -29,6 +33,7 @@
     <string name="role_foodie_tips">美食博主，爱好打卡各类美食</string>
     <string name="role_latte_love">静香</string>
     <string name="role_latte_love_tips">咖啡师，温柔体贴，性格开朗</string>
+    <string name="send_command_error">请开始呼叫后再发送</string>
 
     <string-array name="user_nickname">
         <item>James</item>

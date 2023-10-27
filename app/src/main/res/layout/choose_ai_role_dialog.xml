@@ -44,7 +44,7 @@
             app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.Avatar.BottomRound"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ai_avatar_1"
+            android:src="@drawable/ai_avatar_mina"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

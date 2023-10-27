@@ -32,24 +32,24 @@ import java.util.Random
 class CreateRoomFragment : BaseFragment() {
 
 
-    private var binding: CreateRoomFragmentBinding? = null
-    private val random = Random()
-    private lateinit var nicknameArray: Array<String>
-    private var downloadProgress = 0
-    private var progressbarDialog: MaterialDialog? = null
-    private var downloadingChooserDialog: MaterialDialog? = null
-    private var progressLoadingDialog: AlertDialog? = null
+    private var mBinding: CreateRoomFragmentBinding? = null
+    private val mRandom = Random()
+    private lateinit var mNicknameArray: Array<String>
+    private var mDownloadProgress = 0
+    private var mProgressbarDialog: MaterialDialog? = null
+    private var mDownloadingChooserDialog: MaterialDialog? = null
+    private var mProgressLoadingDialog: AlertDialog? = null
     private var mTotalSize: Long = 0
 
-    private val aiShareViewModel: AiShareViewModel by activityViewModels()
+    private val mAiShareViewModel: AiShareViewModel by activityViewModels()
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
-        return binding!!.root
+        return mBinding!!.root
     }
 
     override fun initContentView(inflater: LayoutInflater, container: ViewGroup?, attachToParent: Boolean) {
         super.initContentView(inflater, container, attachToParent)
-        binding = CreateRoomFragmentBinding.inflate(inflater, container, attachToParent)
+        mBinding = CreateRoomFragmentBinding.inflate(inflater, container, attachToParent)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -64,44 +64,44 @@ class CreateRoomFragment : BaseFragment() {
     override fun initData() {
         super.initData()
 
-        downloadProgress = -1
-        nicknameArray = resources.getStringArray(R.array.user_nickname)
+        mDownloadProgress = -1
+        mNicknameArray = resources.getStringArray(R.array.user_nickname)
 
-        aiShareViewModel.mDownloadRes.observe(viewLifecycleOwner) {
+        mAiShareViewModel.mDownloadRes.observe(viewLifecycleOwner) {
             mTotalSize = it.totalSize
-            downloadingChooserDialog?.let { dialog ->
+            mDownloadingChooserDialog?.let { dialog ->
                 if (dialog.isShowing) dialog.dismiss()
-                downloadingChooserDialog = null
+                mDownloadingChooserDialog = null
             }
-            downloadingChooserDialog = showDownloadingChooser(requireContext(), mTotalSize,
+            mDownloadingChooserDialog = showDownloadingChooser(requireContext(), mTotalSize,
                 { dialog: MaterialDialog? ->
-                    aiShareViewModel.downloadRes()
-                    downloadingChooserDialog = null
+                    mAiShareViewModel.downloadRes()
+                    mDownloadingChooserDialog = null
                 },
                 { dialog: MaterialDialog? ->
-                    downloadProgress = -1
-                    aiShareViewModel.cancelDownloadRes()
-                    downloadingChooserDialog = null
-                    progressLoadingDialog?.let { dialog ->
+                    mDownloadProgress = -1
+                    mAiShareViewModel.cancelDownloadRes()
+                    mDownloadingChooserDialog = null
+                    mProgressLoadingDialog?.let { dialog ->
                         if (dialog.isShowing) dialog.dismiss()
-                        progressLoadingDialog = null
+                        mProgressLoadingDialog = null
                     }
                 })
         }
 
-        aiShareViewModel.mDownloadProgress.observe(viewLifecycleOwner) {
-            if (it.progress >= 0) downloadProgress = it.progress
-            if (progressbarDialog == null) {
-                progressbarDialog = showDownloadingProgress(requireContext(), mTotalSize) {
-                    downloadProgress = -1
-                    aiShareViewModel.cancelDownloadRes()
-                    progressLoadingDialog?.let { dialog ->
+        mAiShareViewModel.mDownloadProgress.observe(viewLifecycleOwner) {
+            if (it.progress >= 0) mDownloadProgress = it.progress
+            if (mProgressbarDialog == null) {
+                mProgressbarDialog = showDownloadingProgress(requireContext(), mTotalSize) {
+                    mDownloadProgress = -1
+                    mAiShareViewModel.cancelDownloadRes()
+                    mProgressLoadingDialog?.let { dialog ->
                         if (dialog.isShowing) dialog.dismiss()
-                        progressLoadingDialog = null
+                        mProgressLoadingDialog = null
                     }
                 }
             }
-            progressbarDialog?.let { dialog ->
+            mProgressbarDialog?.let { dialog ->
                 if (!dialog.isShowing) dialog.show()
                 val constraintLayout = getCustomView<ConstraintLayout>(dialog)
                 val progressBar = constraintLayout.findViewById<ProgressBar>(R.id.progressBar)
@@ -113,14 +113,14 @@ class CreateRoomFragment : BaseFragment() {
             }
         }
 
-        aiShareViewModel.mDownloadResFinish.observe(viewLifecycleOwner) {
-            progressbarDialog?.let { dialog ->
+        mAiShareViewModel.mDownloadResFinish.observe(viewLifecycleOwner) {
+            mProgressbarDialog?.let { dialog ->
                 if (dialog.isShowing) dialog.dismiss()
-                progressbarDialog = null
+                mProgressbarDialog = null
             }
-            progressLoadingDialog?.let { dialog ->
+            mProgressLoadingDialog?.let { dialog ->
                 if (dialog.isShowing) dialog.dismiss()
-                progressLoadingDialog = null
+                mProgressLoadingDialog = null
             }
             findNavController().navigate(R.id.action_createRoomFragment_to_aiRoomFragment)
         }
@@ -128,12 +128,12 @@ class CreateRoomFragment : BaseFragment() {
 
     override fun initView() {
         super.initView()
-        binding?.apply {
+        mBinding?.apply {
             btnAiPartner.isActivated = true
             etNickname.doAfterTextChanged {
-                KeyCenter.setUserName(it.toString())
+                KeyCenter.userName = it.toString()
             }
-            if (aiShareViewModel.currentLanguage() == Language.ZH_CN) {
+            if (mAiShareViewModel.currentLanguage() == Language.ZH_CN) {
                 btnSwitchLanguage.setImageResource(R.drawable.icon_zh_to_en)
             } else {
                 btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
@@ -144,34 +144,34 @@ class CreateRoomFragment : BaseFragment() {
     override fun initClickEvent() {
         super.initClickEvent()
         //防止多次频繁点击异常处理
-        binding?.btnEnterRoom?.setOnClickListener(object : OnFastClickListener() {
+        mBinding?.btnEnterRoom?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                if (TextUtils.isEmpty(KeyCenter.getUserName())) {
+                if (TextUtils.isEmpty(KeyCenter.userName)) {
                     Toast.makeText(requireActivity(), R.string.enter_nickname, Toast.LENGTH_LONG).show()
                 } else {
-                    if (progressLoadingDialog == null) {
-                        progressLoadingDialog = showLoadingProgress(requireContext())
+                    if (mProgressLoadingDialog == null) {
+                        mProgressLoadingDialog = showLoadingProgress(requireContext())
                     }
-                    progressLoadingDialog?.show()
-                    aiShareViewModel.initAiEngine()
+                    mProgressLoadingDialog?.show()
+                    mAiShareViewModel.initAiEngine()
                 }
             }
         })
-        binding?.tvNicknameRandom?.setOnClickListener(object : OnFastClickListener() {
+        mBinding?.tvNicknameRandom?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                val nameIndex = random.nextInt(nicknameArray.size)
-                binding?.etNickname?.setText(nicknameArray[nameIndex])
+                val nameIndex = mRandom.nextInt(mNicknameArray.size)
+                mBinding?.etNickname?.setText(mNicknameArray[nameIndex])
             }
         })
 
-        binding?.btnSwitchLanguage?.setOnClickListener(object : OnFastClickListener() {
+        mBinding?.btnSwitchLanguage?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                aiShareViewModel.switchLanguage { language ->
+                mAiShareViewModel.switchLanguage { language ->
                     if (language == Language.ZH_CN) {
-                        binding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_zh_to_en)
+                        mBinding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_zh_to_en)
                         LanguageUtil.changeLanguage(requireContext(), "zh", "CN")
                     } else {
-                        binding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_en_to_zh)
+                        mBinding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_en_to_zh)
                         LanguageUtil.changeLanguage(requireContext(), "en", "US")
                     }
                     activity?.recreate()
@@ -182,22 +182,22 @@ class CreateRoomFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding = null
+        mBinding = null
     }
 
     override fun onStart() {
         super.onStart()
-        progressLoadingDialog?.let { dialog ->
+        mProgressLoadingDialog?.let { dialog ->
             if (dialog.isShowing) dialog.dismiss()
-            progressLoadingDialog = null
+            mProgressLoadingDialog = null
         }
-        progressbarDialog?.let { dialog ->
+        mProgressbarDialog?.let { dialog ->
             if (dialog.isShowing) dialog.dismiss()
-            progressbarDialog = null
+            mProgressbarDialog = null
         }
-        downloadingChooserDialog?.let { dialog ->
+        mDownloadingChooserDialog?.let { dialog ->
             if (dialog.isShowing) dialog.dismiss()
-            downloadingChooserDialog = null
+            mDownloadingChooserDialog = null
         }
     }
 

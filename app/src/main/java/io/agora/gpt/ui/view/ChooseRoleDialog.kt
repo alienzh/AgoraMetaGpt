@@ -3,18 +3,20 @@ package io.agora.gpt.ui.view
 import android.content.Context
 import android.view.View
 import android.view.WindowManager
+import io.agora.aiengine.model.AvatarModel
+import io.agora.aigc.sdk.constants.Language
 import io.agora.aigc.sdk.model.AIRole
 import io.agora.gpt.R
 import io.agora.gpt.databinding.ChooseAiRoleDialogBinding
 import io.agora.gpt.ui.adapter.RoleSelectAdapter
 import io.agora.gpt.ui.base.BaseDialog
 import io.agora.gpt.utils.AppUtils
-import io.agora.gpt.utils.Constant
+import io.agora.gpt.utils.KeyCenter
 
 /**
  * @author create by zhangwei03
  */
-class ChooseRoleDialog constructor(context: Context) : BaseDialog(context) {
+class ChooseRoleDialog constructor(context: Context, private val language: Language) : BaseDialog(context) {
 
     private lateinit var binding: ChooseAiRoleDialogBinding
 
@@ -64,31 +66,37 @@ class ChooseRoleDialog constructor(context: Context) : BaseDialog(context) {
         }
     }
 
-    private fun setupCurrentRoleView(index: Int, selectRole: AIRole) {
-        var drawableId = AppUtils.getDrawableRes(context, "ai_avatar_" + (index + 1))
-        if (drawableId == 0) drawableId = R.drawable.ai_avatar_1
+    private fun setupCurrentRoleView(selectRole: AIRole) {
+        val roleAvatars = if (language == Language.EN_US) {
+            KeyCenter.mEnRoleAvatars
+        } else {
+            KeyCenter.mCnRoleAvatars
+        }
+
+        var avatarName = ""
+        for (i in roleAvatars.indices) {
+            val roleAvatar = roleAvatars[i]
+            if (selectRole.getRoleId() == roleAvatar.roleId) {
+                avatarName = roleAvatar.avatar
+                break
+            }
+        }
+        var drawableId = AppUtils.getDrawableRes(context, "ai_avatar_$avatarName")
+        if (drawableId == 0) drawableId = R.drawable.ai_avatar_mina
         binding.ivRoleAvatar.setImageResource(drawableId)
-        binding.tvRoleIntroduce.text = when (selectRole.getRoleId()) {
-            Constant.ROLE_FOODIE -> context.getString(R.string.role_foodie_tips)
-            Constant.ROLE_LATTE_LOVE -> context.getString(R.string.role_latte_love_tips)
-            else -> context.getString(R.string.role_foodie_tips)
-        }
-        binding.tvRoleName.text = when (selectRole.getRoleId()) {
-            Constant.ROLE_FOODIE -> context.getString(R.string.role_foodie)
-            Constant.ROLE_LATTE_LOVE -> context.getString(R.string.role_latte_love)
-            else -> context.getString(R.string.role_foodie)
-        }
+        binding.tvRoleIntroduce.text = selectRole.description
+        binding.tvRoleName.text = selectRole.roleName
     }
 
     fun setupAiRoles(selectIndex: Int, aiRoles: List<AIRole>) {
-        mRoleAdapter = RoleSelectAdapter(context, selectIndex, aiRoles)
+        mRoleAdapter = RoleSelectAdapter(context,language, selectIndex, aiRoles)
         mRoleAdapter.setOnSelectItemClickListener {
             val selectedIndex = mRoleAdapter.selectIndex
             val aiChatRole = aiRoles[selectedIndex]
-            setupCurrentRoleView(selectedIndex, aiChatRole)
+            setupCurrentRoleView(aiChatRole)
         }
         binding.recyclerRole.adapter = mRoleAdapter
         val aiChatRole = aiRoles[selectIndex]
-        setupCurrentRoleView(selectIndex, aiChatRole)
+        setupCurrentRoleView(aiChatRole)
     }
 }

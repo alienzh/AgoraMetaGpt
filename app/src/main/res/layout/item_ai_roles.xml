@@ -16,7 +16,7 @@
         android:layout_height="89dp"
         android:padding="3dp"
         android:background="@drawable/bg_button_role_unselect"
-        android:src="@drawable/ai_portrait_1"
+        android:src="@drawable/ai_portrait_mina"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

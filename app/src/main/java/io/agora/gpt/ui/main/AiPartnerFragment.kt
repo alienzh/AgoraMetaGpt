@@ -8,16 +8,20 @@ import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import io.agora.aigc.sdk.constants.ServiceCode
 import io.agora.aigc.sdk.constants.ServiceEvent
+import io.agora.aigc.sdk.model.ServiceVendor
+import io.agora.aigc.sdk.model.ServiceVendorGroup
 import io.agora.gpt.R
 import io.agora.gpt.databinding.FragmentAiPartnerBinding
 import io.agora.gpt.ui.adapter.ChatMessageAdapter
 import io.agora.gpt.ui.base.BaseFragment
 import io.agora.gpt.ui.view.ChooseRoleDialog
 import io.agora.gpt.ui.view.OnFastClickListener
+import io.agora.gpt.ui.view.TopicInputDialog
 import io.agora.gpt.ui.view.WrapContentLinearLayoutManager
 import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
@@ -27,26 +31,26 @@ import io.agora.gpt.utils.Utils
 
 class AiPartnerFragment : BaseFragment() {
 
-    private var binding: FragmentAiPartnerBinding? = null
+    private var mBinding: FragmentAiPartnerBinding? = null
 
     private var mTextureView: TextureView? = null
 
     private var mIsSpeaking = false
 
-    private var selectIndex: Int = 0
+    private var mSelectIndex: Int = 0
 
-    private val aiShareViewModel: AiShareViewModel by activityViewModels()
+    private val mAiShareViewModel: AiShareViewModel by activityViewModels()
 
     private var mHistoryListAdapter: ChatMessageAdapter? = null
 
     override fun initContentView(inflater: LayoutInflater, container: ViewGroup?, attachToParent: Boolean) {
         super.initContentView(inflater, container, attachToParent)
-        binding = FragmentAiPartnerBinding.inflate(inflater, container, attachToParent)
+        mBinding = FragmentAiPartnerBinding.inflate(inflater, container, attachToParent)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
-        return binding!!.root
+        return mBinding!!.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -60,30 +64,25 @@ class AiPartnerFragment : BaseFragment() {
 
     override fun initData() {
         super.initData()
-        aiShareViewModel.mPrepareResult.observe(viewLifecycleOwner) {
+        mAiShareViewModel.mPrepareResult.observe(viewLifecycleOwner) {
             if (it) {
-//                val avatarName = when (aiShareViewModel.getAiRoleName()) {
-//                    Constant.ROLE_FOODIE -> requireContext().getString(R.string.role_foodie)
-//                    Constant.ROLE_LATTE_LOVE -> requireContext().getString(R.string.role_latte_love)
-//                    else -> requireContext().getString(R.string.role_foodie)
-//                }
-                binding?.btnCalling?.text = resources.getString(R.string.calling, aiShareViewModel.getAiRoleName())
+
             }
         }
 
-        aiShareViewModel.mEventResultModel.observe(viewLifecycleOwner) { eventResult ->
+        mAiShareViewModel.mEventResultModel.observe(viewLifecycleOwner) { eventResult ->
             if (eventResult.event == ServiceEvent.DESTROY && eventResult.code == ServiceCode.SUCCESS) {
                 findNavController().popBackStack(R.id.crateRoomFragment, false)
             }
         }
-        aiShareViewModel.mNewLineMessageModel.observe(viewLifecycleOwner) {
+        mAiShareViewModel.mNewLineMessageModel.observe(viewLifecycleOwner) {
             mHistoryListAdapter?.let { chatMessageAdapter ->
                 if (it.second) {
-                    chatMessageAdapter.notifyItemInserted(aiShareViewModel.mChatMessageDataList.size - 1)
+                    chatMessageAdapter.notifyItemInserted(mAiShareViewModel.mChatMessageDataList.size - 1)
                 } else {
                     chatMessageAdapter.notifyItemChanged(it.third)
                 }
-                binding?.aiHistoryList?.scrollToPosition(chatMessageAdapter.dataList.size - 1)
+                mBinding?.aiHistoryList?.scrollToPosition(chatMessageAdapter.dataList.size - 1)
             }
         }
     }
@@ -91,18 +90,18 @@ class AiPartnerFragment : BaseFragment() {
     override fun initView() {
         super.initView()
         initUnityView()
-        binding?.apply {
-            binding?.btnCalling?.text =
-                resources.getString(R.string.calling, requireContext().getString(R.string.role_foodie))
-            tvUserName.text = KeyCenter.getUserName()
+
+        mAiShareViewModel.setServiceVendor()
+        mBinding?.apply {
+            val requireContext = context ?: return
+            tvUserName.text = KeyCenter.userName
             if (mHistoryListAdapter == null) {
-                mHistoryListAdapter = ChatMessageAdapter(requireContext(), aiShareViewModel.mChatMessageDataList)
-                aiHistoryList.layoutManager = WrapContentLinearLayoutManager(requireContext())
-//                aiHistoryList.addItemDecoration(ChatMessageAdapter.SpacesItemDecoration(10))
+                mHistoryListAdapter = ChatMessageAdapter(requireContext, mAiShareViewModel.mChatMessageDataList)
+                aiHistoryList.layoutManager = WrapContentLinearLayoutManager(requireContext)
                 aiHistoryList.adapter = mHistoryListAdapter
             } else {
                 Log.d("AiPartnerFragment", "clear history messages")
-                aiShareViewModel.mChatMessageDataList.clear()
+                mAiShareViewModel.mChatMessageDataList.clear()
                 mHistoryListAdapter?.notifyDataSetChanged()
             }
         }
@@ -110,21 +109,21 @@ class AiPartnerFragment : BaseFragment() {
 
     override fun initClickEvent() {
         super.initClickEvent()
-        binding?.btnExit?.setOnClickListener(object : OnFastClickListener() {
+        mBinding?.btnExit?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                binding?.apply {
+                mBinding?.apply {
                     if (ivHangUp.visibility == View.VISIBLE) {
                         btnCalling.visibility = View.VISIBLE
                         ivVoice.visibility = View.INVISIBLE
                         ivHangUp.visibility = View.INVISIBLE
-                        aiShareViewModel.stopVoiceChat()
+                        mAiShareViewModel.stopVoiceChat()
                     }
                 }
-                aiShareViewModel.releaseEngine()
+                mAiShareViewModel.releaseEngine()
             }
         })
 
-        binding?.tvSwitchRole?.setOnClickListener(object : OnFastClickListener() {
+        mBinding?.tvSwitchRole?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
                 if (mIsSpeaking) {
                     ToastUtils.showToast(R.string.switch_role_tips)
@@ -134,12 +133,12 @@ class AiPartnerFragment : BaseFragment() {
             }
         })
 
-        binding?.tvVoiceChange?.setOnClickListener(object : OnFastClickListener() {
+        mBinding?.tvVoiceChange?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                aiShareViewModel.enableVoiceChange { isVoiceChange ->
-                    binding?.apply {
+                mAiShareViewModel.enableVoiceChange { isVoiceChange ->
+                    mBinding?.apply {
                         if (isVoiceChange) {
-                            binding?.tvVoiceChange?.setCompoundDrawablesRelative(
+                            mBinding?.tvVoiceChange?.setCompoundDrawablesRelative(
                                 null,
                                 root.context.getDrawable(R.drawable.icon_voice_change)?.apply {
                                     setBounds(0, 0, intrinsicWidth, intrinsicHeight)
@@ -148,7 +147,7 @@ class AiPartnerFragment : BaseFragment() {
                                 null
                             )
                         } else {
-                            binding?.tvVoiceChange?.setCompoundDrawablesRelative(
+                            mBinding?.tvVoiceChange?.setCompoundDrawablesRelative(
                                 null,
                                 root.context.getDrawable(R.drawable.icon_voice_default)?.apply {
                                     setBounds(0, 0, intrinsicWidth, intrinsicHeight)
@@ -162,20 +161,32 @@ class AiPartnerFragment : BaseFragment() {
             }
         })
 
-        binding?.btnCalling?.setOnClickListener(object : OnFastClickListener() {
+        mBinding?.tvTopic?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                binding?.apply {
+                showTopicDialog()
+            }
+        })
+
+        mBinding?.tvEvaluate?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                mAiShareViewModel.pushText(Constant.COMMAND_EVALUATE)
+            }
+        })
+
+        mBinding?.btnCalling?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                mBinding?.apply {
                     btnCalling.visibility = View.INVISIBLE
                     ivVoice.visibility = View.VISIBLE
                     ivHangUp.visibility = View.VISIBLE
-                    aiShareViewModel.startVoiceChat()
+                    mAiShareViewModel.startVoiceChat()
                 }
             }
         })
-        binding?.ivVoice?.setOnClickListener(object : OnFastClickListener() {
+        mBinding?.ivVoice?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                aiShareViewModel.mute { isMute ->
-                    binding?.apply {
+                mAiShareViewModel.mute { isMute ->
+                    mBinding?.apply {
                         if (isMute) {
                             ivVoice.setImageResource(R.drawable.ic_mute)
                         } else {
@@ -186,30 +197,34 @@ class AiPartnerFragment : BaseFragment() {
             }
         })
 
-        binding?.ivHangUp?.setOnClickListener(object : OnFastClickListener() {
+        mBinding?.ivHangUp?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                binding?.apply {
+                mBinding?.apply {
                     btnCalling.visibility = View.VISIBLE
                     ivVoice.visibility = View.INVISIBLE
                     ivHangUp.visibility = View.INVISIBLE
-                    aiShareViewModel.stopVoiceChat()
+                    mAiShareViewModel.stopVoiceChat()
                 }
             }
         })
     }
 
     private fun initUnityView() {
-        mTextureView = TextureView(requireContext())
-        mTextureView?.outlineProvider = TextureVideoViewOutlineProvider(Utils.dip2px(requireContext(), 64f).toFloat());
+        val requireContext = context ?: return
+        mTextureView = TextureView(requireContext)
+        mTextureView?.outlineProvider = TextureVideoViewOutlineProvider(Utils.dip2px(requireContext, 64f).toFloat());
         mTextureView?.clipToOutline = true
         mTextureView?.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
-                aiShareViewModel.setTexture(requireActivity(), mTextureView!!)
-                val usableAIRoles = aiShareViewModel.getUsableAiRoles()
+                mAiShareViewModel.setTexture(requireActivity(), mTextureView!!)
+                val usableAIRoles = mAiShareViewModel.getUsableAiRoles()
                 if (usableAIRoles.isNotEmpty()) {
-                    aiShareViewModel.setAvatarModel(usableAIRoles[0])
+                    val aiRole = usableAIRoles[0]
+                    mAiShareViewModel.setAvatarModel(aiRole)
+                    mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
+                    mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
                 }
-                aiShareViewModel.prepare()
+                mAiShareViewModel.prepare()
             }
 
             override fun onSurfaceTextureSizeChanged(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
@@ -224,32 +239,41 @@ class AiPartnerFragment : BaseFragment() {
         }
         val layoutParams =
             ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        binding?.layoutUnityContainer?.removeAllViews()
-        binding?.layoutUnityContainer?.addView(mTextureView, 0, layoutParams)
+        mBinding?.layoutUnityContainer?.removeAllViews()
+        mBinding?.layoutUnityContainer?.addView(mTextureView, 0, layoutParams)
     }
 
     private fun showChooseRoleDialog() {
-        val chooseRoleDialog = ChooseRoleDialog(requireContext())
+        val requireContext = context ?: return
+        val chooseRoleDialog = ChooseRoleDialog(requireContext, mAiShareViewModel.currentLanguage())
         chooseRoleDialog.setSelectRoleCallback {
-            selectIndex = it
-            binding?.apply {
+            mSelectIndex = it
+            mBinding?.apply {
                 btnCalling.visibility = View.VISIBLE
                 ivVoice.visibility = View.INVISIBLE
                 ivHangUp.visibility = View.INVISIBLE
             }
-            val usableAIRoles = aiShareViewModel.getUsableAiRoles()
-            aiShareViewModel.stopVoiceChat()
+            val usableAIRoles = mAiShareViewModel.getUsableAiRoles()
+            mAiShareViewModel.stopVoiceChat()
             if (usableAIRoles.isNotEmpty()) {
-                aiShareViewModel.setAvatarModel(usableAIRoles[it])
-//                val avatarName = when (aiShareViewModel.getAiRoleName()) {
-//                    Constant.ROLE_FOODIE -> requireContext().getString(R.string.role_foodie)
-//                    Constant.ROLE_LATTE_LOVE -> requireContext().getString(R.string.role_latte_love)
-//                    else -> requireContext().getString(R.string.role_foodie)
-//                }
-                binding?.btnCalling?.text = resources.getString(R.string.calling, aiShareViewModel.getAiRoleName())
+                val aiRole = usableAIRoles[it]
+                mAiShareViewModel.setAvatarModel(aiRole)
+                mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
+                mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
             }
         }
-        chooseRoleDialog.setupAiRoles(selectIndex, aiShareViewModel.getUsableAiRoles())
+        chooseRoleDialog.setupAiRoles(mSelectIndex, mAiShareViewModel.getUsableAiRoles())
         chooseRoleDialog.show()
+    }
+
+    private fun showTopicDialog() {
+        val requireContext = context ?: return
+        val topicInputDialog = TopicInputDialog(requireContext)
+        topicInputDialog.setInputTextCallback {
+            if (it.isNotEmpty()) {
+                mAiShareViewModel.pushText(Constant.COMMAND_TOPIC, it)
+            }
+        }
+        topicInputDialog.show()
     }
 }

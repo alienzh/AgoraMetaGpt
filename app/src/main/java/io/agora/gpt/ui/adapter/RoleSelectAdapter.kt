@@ -8,11 +8,17 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import io.agora.aigc.sdk.constants.Constants
+import io.agora.aigc.sdk.constants.Language
 import io.agora.aigc.sdk.model.AIRole
 import io.agora.gpt.R
 import io.agora.gpt.utils.AppUtils
+import io.agora.gpt.utils.KeyCenter
 
-class RoleSelectAdapter constructor(private val mContext: Context, var selectIndex: Int, val dataList: List<AIRole>) :
+class RoleSelectAdapter constructor(
+    private val mContext: Context, private val language: Language, var selectIndex: Int,
+    val dataList:
+    List<AIRole>
+) :
     RecyclerView.Adapter<RoleSelectAdapter.MyViewHolder>() {
     private var onClickListener: View.OnClickListener? = null
     fun setOnSelectItemClickListener(onClickListener: View.OnClickListener?) {
@@ -33,8 +39,10 @@ class RoleSelectAdapter constructor(private val mContext: Context, var selectInd
             holder.ivGender.setBackgroundResource(R.drawable.ic_gender_female)
             holder.ivSelect.setBackgroundResource(R.drawable.bg_button_e25_corners_female)
         }
-        var drawableId = AppUtils.getDrawableRes(mContext, "ai_portrait_" + (position + 1))
-        if (drawableId == 0) drawableId = R.drawable.ai_portrait_1
+        var avatarName = getAvatarName(chatRoleModel)
+
+        var drawableId = AppUtils.getDrawableRes(mContext, "ai_portrait_$avatarName")
+        if (drawableId == 0) drawableId = R.drawable.ai_portrait_mina
         holder.ivRolePortrait.setImageResource(drawableId)
         if (selectIndex == position) {
             holder.ivRolePortrait.setBackgroundResource(R.drawable.bg_button_role_select)
@@ -56,8 +64,25 @@ class RoleSelectAdapter constructor(private val mContext: Context, var selectInd
         }
     }
 
+    private fun getAvatarName(aiRole: AIRole): String {
+        val roleAvatars = if (language == Language.EN_US) {
+            KeyCenter.mEnRoleAvatars
+        } else {
+            KeyCenter.mCnRoleAvatars
+        }
+        var avatarName = ""
+        for (i in roleAvatars.indices) {
+            val roleAvatar = roleAvatars[i]
+            if (aiRole.getRoleId() == roleAvatar.roleId) {
+                avatarName = roleAvatar.avatar
+                break
+            }
+        }
+        return avatarName
+    }
+
     override fun getItemCount(): Int {
-        return  dataList.size
+        return dataList.size
     }
 
 //    fun getSelectIndex(): Int {

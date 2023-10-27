@@ -12,14 +12,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.25"/>
+        app:layout_constraintGuide_percent="0.25" />
 
     <FrameLayout
         android:id="@+id/layoutUnityContainer"
         android:layout_width="132dp"
         android:layout_height="132dp"
-        android:padding="4dp"
         android:background="@drawable/bg_button_ai_oval"
+        android:padding="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/horizontal25" />
@@ -102,6 +102,36 @@
         app:layout_constraintBottom_toTopOf="@id/tvSwitchRole"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvEvaluate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/bg_button_white_corners16"
+        android:drawableTop="@drawable/ic_evaluate"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:text="@string/evaluate"
+        android:textColor="@color/black"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toTopOf="@id/tvVoiceChange"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTopic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/bg_button_white_corners16"
+        android:drawableTop="@drawable/ic_topic"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:text="@string/topic"
+        android:textColor="@color/black"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toTopOf="@id/tvEvaluate"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnCalling"
         android:layout_width="match_parent"
@@ -110,7 +140,7 @@
         android:layout_marginBottom="44dp"
         android:background="@drawable/bg_enter_room"
         android:gravity="center"
-        android:text="@string/calling"
+        android:text="@string/calling_1"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="18sp"
@@ -168,5 +198,13 @@
         app:layout_constraintEnd_toStartOf="@id/tvVoiceChange"
         app:layout_constraintStart_toStartOf="parent"
         tools:listitem="@layout/item_chat_message" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupOralEnglishTeacher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:constraint_referenced_ids="tvEvaluate,tvTopic" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

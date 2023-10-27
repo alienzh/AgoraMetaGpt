@@ -18,6 +18,8 @@ import io.agora.aigc.sdk.constants.ServiceCode
 import io.agora.aigc.sdk.constants.ServiceEvent
 import io.agora.aigc.sdk.model.AIRole
 import io.agora.aigc.sdk.model.Data
+import io.agora.aigc.sdk.model.ServiceVendor
+import io.agora.aigc.sdk.model.ServiceVendorGroup
 import io.agora.gpt.MainApplication
 import io.agora.gpt.R
 import io.agora.gpt.utils.Constant
@@ -46,7 +48,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     val mNewLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = MutableLiveData()
 
     private var mMute: Boolean = false
-    private var mLocalLanguage: Language = Language.ZH_CN
 
     val mChatMessageDataList = mutableListOf<ChatMessageModel>()
 
@@ -54,24 +55,10 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     private var mLastSpeech2TextTime: Long = 0
     private var mCurrentRoundId: String = ""
 
-    private val mEnRoleAvatars: List<AIRoleAvatarModel> by lazy {
-        mutableListOf(
-            AIRoleAvatarModel("windy-en-US", "mina"),
-            AIRoleAvatarModel("cindy-en-US", "mina"),
-            AIRoleAvatarModel("yunibobo-en-US", "kda")
-        )
-    }
-    private val mCnRoleAvatars: List<AIRoleAvatarModel> by lazy {
-        mutableListOf(
-            AIRoleAvatarModel("yunibobo-zh-CN", "mina"),
-            AIRoleAvatarModel("jingxiang-zh-CN", "kda")
-        )
-    }
-
 
     init {
         val currentLanguage = SPUtil.get(Constant.CURRENT_LANGUAGE, "zh") as String
-        mLocalLanguage = if (currentLanguage == "zh") {
+        mAiEngineConfig.mLanguage = if (currentLanguage == "zh") {
             Language.ZH_CN
         } else {
             Language.EN_US
@@ -79,20 +66,19 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     fun currentLanguage(): Language {
-        return mLocalLanguage
+        return mAiEngineConfig.mLanguage
     }
 
     fun initAiEngine() {
-        val userId = KeyCenter.getUserUid()
-        val roomName = KeyCenter.getRoomName()
-        val virtualHumanUid = KeyCenter.getVirtualHumanUid()
+        val userId = KeyCenter.userUid
+        val roomName = KeyCenter.roomName
+        val virtualHumanUid = KeyCenter.virtualHumanUid
         mAiEngineConfig.apply {
             mContext = MainApplication.mGlobalApplication.applicationContext
             mCallback = this@AiShareViewModel
-            mLanguage = mLocalLanguage
             mEnableLog = true
             mEnableSaveLogToFile = true
-            mUserName = KeyCenter.getUserName()
+            mUserName = KeyCenter.userName
             mUid = userId
             mRtcAppId = KeyCenter.APP_ID
             mRtcToken = KeyCenter.getRtcToken(roomName, userId)
@@ -111,6 +97,30 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mChatMessageDataList.clear()
     }
 
+    fun setServiceVendor(){
+        val serviceVendors: ServiceVendorGroup = mAiEngine?.serviceVendors ?:return
+        val serviceVendor = ServiceVendor()
+        for (sttVendor in serviceVendors.sttList) {
+            if (sttVendor.id.equals("xunfei", ignoreCase = true)) {
+                serviceVendor.sttVendor = sttVendor
+                break
+            }
+        }
+        for (llmVendor in serviceVendors.llmList) {
+            if (llmVendor.id.equals("minimax-abab5.5-chat", ignoreCase = true)) {
+                serviceVendor.llmVendor = llmVendor
+                break
+            }
+        }
+        for (ttsVendor in serviceVendors.ttsList) {
+            if (ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful", ignoreCase = true)) {
+                serviceVendor.ttsVendor = ttsVendor
+                break
+            }
+        }
+        mAiEngine?.setServiceVendor(serviceVendor)
+    }
+
     // stt-llm-tts 同一个 roundId
     // 语音转文字的回调
     override fun onSpeech2TextResult(sid: String, result: Data<String>, isRecognizedSpeech: Boolean): HandleResult {
@@ -123,7 +133,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 mLastSpeech2TextTime = System.currentTimeMillis()
                 mCostTimeMap[sid] = System.currentTimeMillis()
                 val messageModel = ChatMessageModel(
-                    isAiMessage = false, sid = "", name = KeyCenter.getUserName(), message = result.data, costTime = 0
+                    isAiMessage = false, sid = "", name = KeyCenter.userName ?: "", message = result.data, costTime = 0
                 )
                 mChatMessageDataList.add(messageModel)
                 mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
@@ -145,7 +155,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 val messageModel = ChatMessageModel(
                     isAiMessage = true,
                     sid = sid,
-                    name = getAvatarName(),
+                    name = getAiName(),
                     message = answer.data,
                     costTime = System.currentTimeMillis() - (mCostTimeMap[sid] ?: mLastSpeech2TextTime)
                 )
@@ -167,7 +177,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     override fun onText2SpeechResult(
         roundId: String, voice: Data<ByteArray>?, sampleRates: Int, channels: Int, bits: Int
     ): HandleResult {
-        Log.i(TAG, "onText2SpeechResult roundId:$roundId,sampleRates:$sampleRates,channels:$channels,bits:$bits")
+//        Log.i(TAG, "onText2SpeechResult roundId:$roundId,sampleRates:$sampleRates,channels:$channels,bits:$bits")
         mHandler.post {
             val lastIndex = mChatMessageDataList.indexOfLast { it.sid == roundId }
             if (lastIndex >= 0) {
@@ -218,7 +228,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 }
             } else if (event == ServiceEvent.DESTROY && code == ServiceCode.SUCCESS) {
                 mAiEngine = null
-                KeyCenter.setUserName("")
+                KeyCenter.userName = ""
             }
             mEventResultModel.value = EventResultModel(event, code)
         }
@@ -243,15 +253,13 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         Log.i(TAG, "onVirtualHumanStop code:$code,msg:$msg")
     }
 
-    private fun getAvatarName(): String {
-        val avatarName = when (getAiRoleName()) {
-            Constant.ROLE_FOODIE -> MainApplication.mGlobalApplication.getString(R.string.role_foodie)
-            Constant.ROLE_LATTE_LOVE -> MainApplication.mGlobalApplication.getString(R.string.role_latte_love)
-            else -> MainApplication.mGlobalApplication.getString(R.string.role_foodie)
-        }
-        return avatarName
+    fun getAiName(): String {
+        return mAiEngine?.currentRole?.roleName ?: MainApplication.mGlobalApplication.getString(R.string.role_foodie)
     }
 
+    fun isEnglishTeacher(aiRole: AIRole): Boolean {
+        return mAiEngineConfig.mLanguage == Language.EN_US && (aiRole.roleName == "Wendy" || aiRole.roleName == "Cindy")
+    }
 
     fun cancelDownloadRes() {
         mAiEngine?.cancelDownloadRes()
@@ -268,10 +276,10 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     // 获取可用的AIRole
     fun getUsableAiRoles(): List<AIRole> {
         val sdkAiRoles = mAiEngine?.roles ?: emptyArray()
-        val roleAvatars = if (mLocalLanguage == Language.EN_US) {
-            mEnRoleAvatars
+        val roleAvatars = if (mAiEngineConfig.mLanguage == Language.EN_US) {
+            KeyCenter.mEnRoleAvatars
         } else {
-            mCnRoleAvatars
+            KeyCenter.mCnRoleAvatars
         }
         val usableAiRoles = mutableListOf<AIRole>()
         val sdkAiRoleMap = sdkAiRoles.associateBy { it.roleId }
@@ -286,10 +294,10 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // 设置SDK使用的AIRol
     fun setAvatarModel(aiRole: AIRole) {
-        val roleAvatars = if (mLocalLanguage == Language.EN_US) {
-            mEnRoleAvatars
+        val roleAvatars = if (mAiEngineConfig.mLanguage == Language.EN_US) {
+            KeyCenter.mEnRoleAvatars
         } else {
-            mCnRoleAvatars
+            KeyCenter.mCnRoleAvatars
         }
         val avatarModel = AvatarModel().apply {
             for (i in roleAvatars.indices) {
@@ -306,11 +314,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             avatarModel.bgFilePath = "bg_ai_female.png"
         }
         mAiEngineConfig.mAvatarModel = avatarModel
+        mAiEngine?.setRole(aiRole.roleId)
         mAiEngine?.updateConfig(mAiEngineConfig)
-    }
-
-    fun getAiRoleName(): String {
-        return mAiEngine?.currentRole?.roleName ?: ""
     }
 
     // 设置 texture
@@ -347,12 +352,29 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // 设置AI语言环境,只记录语言
     fun switchLanguage(callback: (Language) -> Unit) {
-        mLocalLanguage = if (mLocalLanguage == Language.ZH_CN) {
+        mAiEngineConfig.mLanguage = if (mAiEngineConfig.mLanguage == Language.ZH_CN) {
             Language.EN_US
         } else {
             Language.ZH_CN
         }
-        callback.invoke(mLocalLanguage)
+        callback.invoke(mAiEngineConfig.mLanguage)
+    }
+
+    fun pushText(command: String, text: String? = null) {
+        when (command) {
+            Constant.COMMAND_TOPIC -> {
+                mAiEngine?.pushText("$command $text")
+            }
+
+            Constant.COMMAND_EVALUATE -> {
+                mAiEngine?.pushText("$command")
+            }
+
+            else -> {
+                Log.d(TAG, "not support command：$command")
+            }
+        }
+
     }
 
     fun releaseEngine() {
