@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.TextureView
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.agora.aiengine.AIEngine
@@ -53,8 +54,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     private val mCostTimeMap = mutableMapOf<String, Long>()
     private var mLastSpeech2TextTime: Long = 0
-    private var mCurrentRoundId: String = ""
-
+    private var mEnableEnglishTeacher = false
 
     init {
         val currentLanguage = SPUtil.get(Constant.CURRENT_LANGUAGE, "zh") as String
@@ -87,7 +87,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mVirtualHumanRtcToken = KeyCenter.getRtcToken(roomName, virtualHumanUid)
             mRoomName = roomName
             mEnableVoiceChange = false
-            mEnableChatConversation = true
             mSpeechRecognitionFiltersLength = 3
         }
         if (mAiEngine == null) {
@@ -97,8 +96,36 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mChatMessageDataList.clear()
     }
 
-    fun setServiceVendor(){
-        val serviceVendors: ServiceVendorGroup = mAiEngine?.serviceVendors ?:return
+    // ServiceVendorGroup{sttList=[STTVendor{id='xunfei', vendorName='xunfei', accountInJson='null'},
+    // STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
+    // llmList=[LLMVendor{id='minimax-abab5.5-chat', vendorName='minimax', model='abab5.5-chat', accountInJson='null'},
+    // LLMVendor{id='azureOpenai-gpt-4', vendorName='azureOpenai', model='gpt-4', accountInJson='null'},
+    // LLMVendor{id='bigModel-chatglm_pro', vendorName='bigModel', model='chatglm_pro', accountInJson='null'},
+    // LLMVendor{id='senseTime-nova-ptc-xl-v1', vendorName='senseTime', model='nova-ptc-xl-v1', accountInJson='null'}],
+    // ttsList=[TTSVendor{id='microsoft-en-US-Jenny-cheerful', vendorName='microsoft', language='en-US', voiceName='Jenny', voiceNameValue='en-US-JennyNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='microsoft-en-US-Jenny-gentle', vendorName='microsoft', language='en-US', voiceName='Jenny', voiceNameValue='en-US-JennyNeural', voiceNameStyle='gentle', accountInJson='null'},
+    // TTSVendor{id='microsoft-en-US-Davis-cheerful', vendorName='microsoft', language='en-US', voiceName='Davis', voiceNameValue='en-US-DavisNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='elevenLabs-Bella', vendorName='elevenLabs', language='', voiceName='Bella', voiceNameValue='EXAVITQu4vr4xnSDxMaL', voiceNameStyle='', accountInJson='null'}]}
+
+
+    //ServiceVendorGroup{sttList=[
+    // STTVendor{id='xunfei', vendorName='xunfei', accountInJson='null'},
+    // STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
+    // llmList=[
+    // LLMVendor{id='minimax-abab5.5-chat', vendorName='minimax', model='abab5.5-chat', accountInJson='null'},
+    // LLMVendor{id='azureOpenai-gpt-4', vendorName='azureOpenai', model='gpt-4', accountInJson='null'},
+    // LLMVendor{id='bigModel-chatglm_pro', vendorName='bigModel', model='chatglm_pro', accountInJson='null'},
+    // LLMVendor{id='senseTime-nova-ptc-xl-v1', vendorName='senseTime', model='nova-ptc-xl-v1', accountInJson='null'}],
+    // ttsList=[
+    // TTSVendor{id='microsoft-zh-CN-xiaoxiao-cheerful', vendorName='microsoft', language='zh-CN', voiceName='晓晓(普通话)', voiceNameValue='zh-CN-XiaoxiaoNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='microsoft-zh-CN-xiaoyi-gentle', vendorName='microsoft', language='zh-CN', voiceName='晓伊(普通话)', voiceNameValue='zh-CN-XiaoyiNeural', voiceNameStyle='gentle', accountInJson='null'},
+    // TTSVendor{id='microsoft-zh-CN-yunxi-cheerful', vendorName='microsoft', language='zh-CN', voiceName='云希(普通话)', voiceNameValue='zh-CN-YunxiNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='xunfei-zh-CN-xiaoyan', vendorName='xunfei', language='zh-CN', voiceName='晓燕(普通话)', voiceNameValue='xiaoyan', voiceNameStyle='', accountInJson='null'},
+    // TTSVendor{id='xunfei-zh-CN-xiaoyu', vendorName='xunfei', language='zh-CN', voiceName='xiaoyu', voiceNameValue='xiaoyu', voiceNameStyle='', accountInJson='null'},
+    // TTSVendor{id='elevenLabs-Bella', vendorName='elevenLabs', language='', voiceName='Bella', voiceNameValue='EXAVITQu4vr4xnSDxMaL', voiceNameStyle='', accountInJson='null'}]}
+    fun setServiceVendor() {
+        val serviceVendors: ServiceVendorGroup = mAiEngine?.serviceVendors ?: return
+        Log.d(TAG, "serviceVendors $serviceVendors")
         val serviceVendor = ServiceVendor()
         for (sttVendor in serviceVendors.sttList) {
             if (sttVendor.id.equals("xunfei", ignoreCase = true)) {
@@ -107,16 +134,32 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             }
         }
         for (llmVendor in serviceVendors.llmList) {
-            if (llmVendor.id.equals("minimax-abab5.5-chat", ignoreCase = true)) {
-                serviceVendor.llmVendor = llmVendor
-                break
+            if (currentLanguage() == Language.EN_US) {
+                if (llmVendor.id.equals("azureOpenai-gpt-4", ignoreCase = true)) {
+                    serviceVendor.llmVendor = llmVendor
+                    break
+                }
+            } else {
+                if (llmVendor.id.equals("minimax-abab5.5-chat", ignoreCase = true)) {
+                    serviceVendor.llmVendor = llmVendor
+                    break
+                }
             }
+
         }
         for (ttsVendor in serviceVendors.ttsList) {
-            if (ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful", ignoreCase = true)) {
-                serviceVendor.ttsVendor = ttsVendor
-                break
+            if (currentLanguage() == Language.EN_US) {
+                if (ttsVendor.id.equals("microsoft-en-US-Jenny-cheerful", ignoreCase = true)) {
+                    serviceVendor.ttsVendor = ttsVendor
+                    break
+                }
+            } else {
+                if (ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful", ignoreCase = true)) {
+                    serviceVendor.ttsVendor = ttsVendor
+                    break
+                }
             }
+
         }
         mAiEngine?.setServiceVendor(serviceVendor)
     }
@@ -126,9 +169,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     override fun onSpeech2TextResult(sid: String, result: Data<String>, isRecognizedSpeech: Boolean): HandleResult {
         Log.i(TAG, "onSpeech2TextResult sid:$sid,result:$result,isRecognizedSpeech:$isRecognizedSpeech")
         mHandler.post {
-            if (mCurrentRoundId != sid) {
-                mCurrentRoundId = sid
-            }
             if (isRecognizedSpeech) {
                 mLastSpeech2TextTime = System.currentTimeMillis()
                 mCostTimeMap[sid] = System.currentTimeMillis()
@@ -149,7 +189,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             val lastIndex = mChatMessageDataList.indexOfLast { it.sid == sid }
             if (lastIndex >= 0) {
                 val lastChatMessageModel: ChatMessageModel = mChatMessageDataList[lastIndex]
-                lastChatMessageModel.message = lastChatMessageModel.message.plus(answer)
+                lastChatMessageModel.message = lastChatMessageModel.message.plus(answer.data)
                 mNewLineMessageModel.value = Triple(lastChatMessageModel, false, lastIndex)
             } else {
                 val messageModel = ChatMessageModel(
@@ -162,7 +202,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 //                mCostTimeMap[sid]?.let { startTime ->
 //                    messageModel.costTime = System.currentTimeMillis() - startTime
 //                }
-                if (sid != mCurrentRoundId) {
+                if (!mCostTimeMap.containsKey(sid)) {
                     // 新的 roundId，不用计算耗时，AI 自动问询的消息
                     messageModel.costTime = 0
                 }
@@ -178,15 +218,15 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         roundId: String, voice: Data<ByteArray>?, sampleRates: Int, channels: Int, bits: Int
     ): HandleResult {
 //        Log.i(TAG, "onText2SpeechResult roundId:$roundId,sampleRates:$sampleRates,channels:$channels,bits:$bits")
-        mHandler.post {
-            val lastIndex = mChatMessageDataList.indexOfLast { it.sid == roundId }
-            if (lastIndex >= 0) {
-                val lastChatMessageModel: ChatMessageModel = mChatMessageDataList[lastIndex]
-                lastChatMessageModel.costTime =
-                    System.currentTimeMillis() - (mCostTimeMap[roundId] ?: mLastSpeech2TextTime)
-                mNewLineMessageModel.value = Triple(lastChatMessageModel, false, lastIndex)
-            }
-        }
+//        mHandler.post {
+//            val lastIndex = mChatMessageDataList.indexOfLast { it.sid == roundId }
+//            if (lastIndex >= 0) {
+//                val lastChatMessageModel: ChatMessageModel = mChatMessageDataList[lastIndex]
+//                lastChatMessageModel.costTime =
+//                    System.currentTimeMillis() - (mCostTimeMap[roundId] ?: mLastSpeech2TextTime)
+//                mNewLineMessageModel.value = Triple(lastChatMessageModel, false, lastIndex)
+//            }
+//        }
         return HandleResult.CONTINUE
     }
 
@@ -258,8 +298,12 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     fun isEnglishTeacher(aiRole: AIRole): Boolean {
-        return mAiEngineConfig.mLanguage == Language.EN_US && (aiRole.roleName == "Wendy" || aiRole.roleName == "Cindy")
+        mEnableEnglishTeacher =
+            mAiEngineConfig.mLanguage == Language.EN_US && (aiRole.roleName == "Wendy" || aiRole.roleName == "Cindy")
+        return mEnableEnglishTeacher
     }
+
+    fun enableEnglishTeacher(): Boolean = mEnableEnglishTeacher
 
     fun cancelDownloadRes() {
         mAiEngine?.cancelDownloadRes()
@@ -314,8 +358,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             avatarModel.bgFilePath = "bg_ai_female.png"
         }
         mAiEngineConfig.mAvatarModel = avatarModel
-        mAiEngine?.setRole(aiRole.roleId)
         mAiEngine?.updateConfig(mAiEngineConfig)
+        mAiEngine?.setRole(aiRole.roleId)
+        Log.d(TAG, "setRole:$aiRole,avatarModel:$avatarModel")
     }
 
     // 设置 texture
@@ -328,6 +373,13 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     // 开启语聊
     fun startVoiceChat() {
         mAiEngine?.startVoiceChat()
+        if (mEnableEnglishTeacher) {
+            mAiEngineConfig.mEnableChatConversation = true
+            pushText(Constant.COMMAND_INIT_CHAT_MESSAGE)
+        } else {
+            mAiEngineConfig.mEnableChatConversation = false
+        }
+        mAiEngine?.updateConfig(mAiEngineConfig)
     }
 
     // 结束语聊
@@ -361,23 +413,37 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     fun pushText(command: String, text: String? = null) {
+
+        var content = ""
         when (command) {
             Constant.COMMAND_TOPIC -> {
-                mAiEngine?.pushText("$command $text")
+                content = "/$command $text"
             }
 
             Constant.COMMAND_EVALUATE -> {
-                mAiEngine?.pushText("$command")
+                content = "/$command"
+            }
+
+            Constant.COMMAND_INIT_CHAT_MESSAGE -> {
+                content = "/$command"
             }
 
             else -> {
                 Log.d(TAG, "not support command：$command")
             }
         }
-
+        if (content.isNotEmpty()) {
+            mAiEngine?.pushText(content)
+            Log.d(TAG, "pushText:$content")
+        }
     }
 
     fun releaseEngine() {
+        mMute = false
+        mChatMessageDataList.clear()
+        mCostTimeMap.clear()
+        mLastSpeech2TextTime = 0
+        mEnableEnglishTeacher = false
         AIEngine.destroy()
         mAiEngine = null
     }

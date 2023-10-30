@@ -163,13 +163,21 @@ class AiPartnerFragment : BaseFragment() {
 
         mBinding?.tvTopic?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                showTopicDialog()
+                if (mAiShareViewModel.enableEnglishTeacher()) {
+                    showTopicDialog()
+                } else {
+                    ToastUtils.showToast(R.string.send_command_error)
+                }
             }
         })
 
         mBinding?.tvEvaluate?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                mAiShareViewModel.pushText(Constant.COMMAND_EVALUATE)
+                if (mAiShareViewModel.enableEnglishTeacher()) {
+                    mAiShareViewModel.pushText(Constant.COMMAND_EVALUATE)
+                } else {
+                    ToastUtils.showToast(R.string.send_command_error)
+                }
             }
         })
 
