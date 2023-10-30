@@ -55,6 +55,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     private val mCostTimeMap = mutableMapOf<String, Long>()
     private var mLastSpeech2TextTime: Long = 0
     private var mEnableEnglishTeacher = false
+    private var mIsStartVoice: Boolean = false
 
     init {
         val currentLanguage = SPUtil.get(Constant.CURRENT_LANGUAGE, "zh") as String
@@ -161,19 +162,30 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             }
 
         }
+        Log.d(TAG, "setServiceVendor $serviceVendor")
         mAiEngine?.setServiceVendor(serviceVendor)
     }
 
     // stt-llm-tts 同一个 roundId
     // 语音转文字的回调
-    override fun onSpeech2TextResult(sid: String, result: Data<String>, isRecognizedSpeech: Boolean): HandleResult {
+    override fun onSpeech2TextResult(sid: String?, result: Data<String>, isRecognizedSpeech: Boolean): HandleResult {
         Log.i(TAG, "onSpeech2TextResult sid:$sid,result:$result,isRecognizedSpeech:$isRecognizedSpeech")
+        var tempSid = sid
+        if (tempSid.isNullOrEmpty()) {
+            tempSid = KeyCenter.getRandomString(20)
+            Log.i(TAG, "onSpeech2TextResult tempSid:$tempSid,result:$result,isRecognizedSpeech:$isRecognizedSpeech")
+        }
+
         mHandler.post {
-            if (isRecognizedSpeech) {
+            if (isRecognizedSpeech && tempSid != null) {
                 mLastSpeech2TextTime = System.currentTimeMillis()
-                mCostTimeMap[sid] = System.currentTimeMillis()
+                mCostTimeMap[tempSid] = System.currentTimeMillis()
                 val messageModel = ChatMessageModel(
-                    isAiMessage = false, sid = "", name = KeyCenter.userName ?: "", message = result.data, costTime = 0
+                    isAiMessage = false,
+                    sid = tempSid,
+                    name = KeyCenter.userName ?: "",
+                    message = result.data,
+                    costTime = 0
                 )
                 mChatMessageDataList.add(messageModel)
                 mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
@@ -183,10 +195,15 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     // gpt的回答，是流式的，同一个回答，是同一个sid
-    override fun onLLMResult(sid: String, answer: Data<String>): HandleResult {
+    override fun onLLMResult(sid: String?, answer: Data<String>): HandleResult {
         Log.i(TAG, "onLLMResult sid:$sid answer:$answer")
+        var tempSid = sid
+        if (tempSid.isNullOrEmpty()) {
+            tempSid = KeyCenter.getRandomString(20)
+            Log.i(TAG, "onLLMResult tempSid:$tempSid answer:$answer")
+        }
         mHandler.post {
-            val lastIndex = mChatMessageDataList.indexOfLast { it.sid == sid }
+            val lastIndex = mChatMessageDataList.indexOfLast { it.sid == tempSid }
             if (lastIndex >= 0) {
                 val lastChatMessageModel: ChatMessageModel = mChatMessageDataList[lastIndex]
                 lastChatMessageModel.message = lastChatMessageModel.message.plus(answer.data)
@@ -194,7 +211,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             } else {
                 val messageModel = ChatMessageModel(
                     isAiMessage = true,
-                    sid = sid,
+                    sid = tempSid!!,
                     name = getAiName(),
                     message = answer.data,
                     costTime = System.currentTimeMillis() - (mCostTimeMap[sid] ?: mLastSpeech2TextTime)
@@ -215,8 +232,13 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // tts
     override fun onText2SpeechResult(
-        roundId: String, voice: Data<ByteArray>?, sampleRates: Int, channels: Int, bits: Int
+        roundId: String?, voice: Data<ByteArray>?, sampleRates: Int, channels: Int, bits: Int
     ): HandleResult {
+        var tempSid = roundId
+        if (tempSid.isNullOrEmpty()) {
+            tempSid = KeyCenter.getRandomString(20)
+            Log.i(TAG, "onText2SpeechResult tempSid:$tempSid,sampleRates:$sampleRates,channels:$channels,bits:$bits")
+        }
 //        Log.i(TAG, "onText2SpeechResult roundId:$roundId,sampleRates:$sampleRates,channels:$channels,bits:$bits")
 //        mHandler.post {
 //            val lastIndex = mChatMessageDataList.indexOfLast { it.sid == roundId }
@@ -239,22 +261,27 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     override fun onDownloadResFinish() {
         Log.i(TAG, "onDownloadResFinish")
-        mDownloadResFinish.postValue(true)
+        mHandler.post {
+            mDownloadResFinish.value = true
+        }
     }
 
     override fun onCheckDownloadResResult(totalSize: Long, fileCount: Int) {
         Log.i(TAG, "onCheckDownloadResResult totalSize:$totalSize,fileCount:$fileCount")
-        if (totalSize == 0L) { // totalSize:0 目前就表示不用下载的
-            mDownloadResFinish.postValue(true)
-        } else {
-            mDownloadRes.postValue(DownloadResModel(totalSize, fileCount))
+        mHandler.post {
+            if (totalSize == 0L) { // totalSize:0 目前就表示不用下载的
+                mDownloadResFinish.value = true
+            } else {
+                mDownloadRes.value = DownloadResModel(totalSize, fileCount)
+            }
         }
-
     }
 
     override fun onDownloadResProgress(progress: Int, index: Int, count: Int) {
         Log.i(TAG, "onDownloadResProgress progress:$progress,index:$index,count:$count")
-        mDownloadProgress.postValue(DownloadProgressModel(progress, index, count))
+        mHandler.post {
+            mDownloadProgress.value = DownloadProgressModel(progress, index, count)
+        }
     }
 
     override fun onEventResult(event: ServiceEvent, code: ServiceCode, msg: String?) {
@@ -267,8 +294,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                     ToastUtils.showToast("AIGC INITIALIZE error:$code,msg:$msg")
                 }
             } else if (event == ServiceEvent.DESTROY && code == ServiceCode.SUCCESS) {
-                mAiEngine = null
-                KeyCenter.userName = ""
             }
             mEventResultModel.value = EventResultModel(event, code)
         }
@@ -303,7 +328,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         return mEnableEnglishTeacher
     }
 
-    fun enableEnglishTeacher(): Boolean = mEnableEnglishTeacher
+    fun enableEnglishTeacher(): Boolean {
+        return mEnableEnglishTeacher && mIsStartVoice
+    }
 
     fun cancelDownloadRes() {
         mAiEngine?.cancelDownloadRes()
@@ -372,6 +399,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // 开启语聊
     fun startVoiceChat() {
+        mIsStartVoice = true
         mAiEngine?.startVoiceChat()
         if (mEnableEnglishTeacher) {
             mAiEngineConfig.mEnableChatConversation = true
@@ -384,6 +412,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // 结束语聊
     fun stopVoiceChat() {
+        mIsStartVoice = false
         mAiEngine?.stopVoiceChat()
     }
 
@@ -433,17 +462,20 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             }
         }
         if (content.isNotEmpty()) {
-            mAiEngine?.pushText(content)
             Log.d(TAG, "pushText:$content")
+            mAiEngine?.pushText(content)
         }
     }
 
     fun releaseEngine() {
+        KeyCenter.userName = ""
         mMute = false
         mChatMessageDataList.clear()
         mCostTimeMap.clear()
         mLastSpeech2TextTime = 0
         mEnableEnglishTeacher = false
+        mIsStartVoice = false
+        mAiEngine?.stopVoiceChat()
         AIEngine.destroy()
         mAiEngine = null
     }

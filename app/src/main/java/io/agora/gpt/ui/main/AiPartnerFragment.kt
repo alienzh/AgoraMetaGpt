@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import io.agora.aigc.sdk.constants.ServiceCode
 import io.agora.aigc.sdk.constants.ServiceEvent
@@ -64,18 +65,20 @@ class AiPartnerFragment : BaseFragment() {
 
     override fun initData() {
         super.initData()
-        mAiShareViewModel.mPrepareResult.observe(viewLifecycleOwner) {
-            if (it) {
+        mAiShareViewModel.mPrepareResult.observe(this,object :Observer<Boolean>{
+            override fun onChanged(t: Boolean?) {
 
             }
-        }
 
-        mAiShareViewModel.mEventResultModel.observe(viewLifecycleOwner) { eventResult ->
+        })
+
+        mAiShareViewModel.mEventResultModel.observe(this) { eventResult ->
             if (eventResult.event == ServiceEvent.DESTROY && eventResult.code == ServiceCode.SUCCESS) {
                 findNavController().popBackStack(R.id.crateRoomFragment, false)
             }
         }
-        mAiShareViewModel.mNewLineMessageModel.observe(viewLifecycleOwner) {
+
+        mAiShareViewModel.mNewLineMessageModel.observe(this) {
             mHistoryListAdapter?.let { chatMessageAdapter ->
                 if (it.second) {
                     chatMessageAdapter.notifyItemInserted(mAiShareViewModel.mChatMessageDataList.size - 1)
@@ -91,7 +94,7 @@ class AiPartnerFragment : BaseFragment() {
         super.initView()
         initUnityView()
 
-        mAiShareViewModel.setServiceVendor()
+//        mAiShareViewModel.setServiceVendor()
         mBinding?.apply {
             val requireContext = context ?: return
             tvUserName.text = KeyCenter.userName
@@ -229,6 +232,7 @@ class AiPartnerFragment : BaseFragment() {
                 if (usableAIRoles.isNotEmpty()) {
                     val aiRole = usableAIRoles[0]
                     mAiShareViewModel.setAvatarModel(aiRole)
+                    mAiShareViewModel.setServiceVendor()
                     mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
                     mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
                 }
@@ -266,6 +270,7 @@ class AiPartnerFragment : BaseFragment() {
             if (usableAIRoles.isNotEmpty()) {
                 val aiRole = usableAIRoles[it]
                 mAiShareViewModel.setAvatarModel(aiRole)
+                mAiShareViewModel.setServiceVendor()
                 mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
                 mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
             }

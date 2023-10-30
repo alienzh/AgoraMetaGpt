@@ -67,7 +67,7 @@ class CreateRoomFragment : BaseFragment() {
         mDownloadProgress = -1
         mNicknameArray = resources.getStringArray(R.array.user_nickname)
 
-        mAiShareViewModel.mDownloadRes.observe(viewLifecycleOwner) {
+        mAiShareViewModel.mDownloadRes.observe(this) {
             mTotalSize = it.totalSize
             mDownloadingChooserDialog?.let { dialog ->
                 if (dialog.isShowing) dialog.dismiss()
@@ -89,7 +89,7 @@ class CreateRoomFragment : BaseFragment() {
                 })
         }
 
-        mAiShareViewModel.mDownloadProgress.observe(viewLifecycleOwner) {
+        mAiShareViewModel.mDownloadProgress.observe(this) {
             if (it.progress >= 0) mDownloadProgress = it.progress
             if (mProgressbarDialog == null) {
                 mProgressbarDialog = showDownloadingProgress(requireContext(), mTotalSize) {
@@ -113,7 +113,7 @@ class CreateRoomFragment : BaseFragment() {
             }
         }
 
-        mAiShareViewModel.mDownloadResFinish.observe(viewLifecycleOwner) {
+        mAiShareViewModel.mDownloadResFinish.observe(this) {
             mProgressbarDialog?.let { dialog ->
                 if (dialog.isShowing) dialog.dismiss()
                 mProgressbarDialog = null
@@ -122,7 +122,9 @@ class CreateRoomFragment : BaseFragment() {
                 if (dialog.isShowing) dialog.dismiss()
                 mProgressLoadingDialog = null
             }
-            findNavController().navigate(R.id.action_createRoomFragment_to_aiRoomFragment)
+            if (findNavController().currentDestination?.id == R.id.crateRoomFragment) {
+                findNavController().navigate(R.id.action_createRoomFragment_to_aiRoomFragment)
+            }
         }
     }
 
