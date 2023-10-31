@@ -7,7 +7,10 @@ import android.view.LayoutInflater
 import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
+import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -29,6 +32,7 @@ import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.TextureVideoViewOutlineProvider
 import io.agora.gpt.utils.ToastUtils
 import io.agora.gpt.utils.Utils
+import io.agora.gpt.utils.dp
 
 class AiPartnerFragment : BaseFragment() {
 
@@ -65,7 +69,7 @@ class AiPartnerFragment : BaseFragment() {
 
     override fun initData() {
         super.initData()
-        mAiShareViewModel.mPrepareResult.observe(this,object :Observer<Boolean>{
+        mAiShareViewModel.mPrepareResult.observe(this, object : Observer<Boolean> {
             override fun onChanged(t: Boolean?) {
 
             }
@@ -218,12 +222,20 @@ class AiPartnerFragment : BaseFragment() {
                 }
             }
         })
+
+//        mBinding?.tvEnableVirtual?.setOnClickListener(object : OnFastClickListener() {
+//            override fun onClickJacking(view: View) {
+//                mAiShareViewModel.enableVirtualHuman {
+//                    updateTextureSize(it)
+//                }
+//            }
+//        })
     }
 
     private fun initUnityView() {
         val requireContext = context ?: return
         mTextureView = TextureView(requireContext)
-        mTextureView?.outlineProvider = TextureVideoViewOutlineProvider(Utils.dip2px(requireContext, 64f).toFloat());
+        mTextureView?.outlineProvider = TextureVideoViewOutlineProvider(64.dp);
         mTextureView?.clipToOutline = true
         mTextureView?.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
@@ -288,5 +300,24 @@ class AiPartnerFragment : BaseFragment() {
             }
         }
         topicInputDialog.show()
+    }
+
+    private fun updateTextureSize(full: Boolean) {
+        val requireContext = context ?: return
+        mBinding?.layoutUnityContainer?.let { unityContainer ->
+            if (full) {
+                val containerParams = ConstraintLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT)
+                mTextureView?.outlineProvider =
+                    TextureVideoViewOutlineProvider(Utils.dip2px(requireContext, 0f).toFloat());
+                mTextureView?.clipToOutline = false
+                unityContainer.layoutParams = containerParams
+            } else {
+                val containerParams = ConstraintLayout.LayoutParams(132.dp.toInt(),132.dp.toInt())
+                mTextureView?.outlineProvider =
+                    TextureVideoViewOutlineProvider(64.dp);
+                mTextureView?.clipToOutline = true
+            }
+        }
+
     }
 }

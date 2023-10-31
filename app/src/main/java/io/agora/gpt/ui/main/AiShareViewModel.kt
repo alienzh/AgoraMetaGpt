@@ -56,6 +56,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     private var mLastSpeech2TextTime: Long = 0
     private var mEnableEnglishTeacher = false
     private var mIsStartVoice: Boolean = false
+    private var mEnableVirtualHuman: Boolean = false
 
     init {
         val currentLanguage = SPUtil.get(Constant.CURRENT_LANGUAGE, "zh") as String
@@ -312,10 +313,27 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     override fun onVirtualHumanStart(code: Int, msg: String?) {
         Log.i(TAG, "onVirtualHumanStart code:$code,msg:$msg")
+        mHandler.post {
+            if (code == 0) {
+                mEnableVirtualHuman = true
+                enableVirtualHumanCallback?.invoke(true)
+            } else {
+
+            }
+        }
+
     }
 
     override fun onVirtualHumanStop(code: Int, msg: String?) {
         Log.i(TAG, "onVirtualHumanStop code:$code,msg:$msg")
+        mHandler.post {
+            if (code == 0) {
+                mEnableVirtualHuman = false
+                enableVirtualHumanCallback?.invoke(false)
+            } else {
+
+            }
+        }
     }
 
     fun getAiName(): String {
@@ -385,6 +403,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             avatarModel.bgFilePath = "bg_ai_female.png"
         }
         mAiEngineConfig.mAvatarModel = avatarModel
+        mAiEngineConfig.mEnableChatConversation = isEnglishTeacher(aiRole)
         mAiEngine?.updateConfig(mAiEngineConfig)
         mAiEngine?.setRole(aiRole.roleId)
         Log.d(TAG, "setRole:$aiRole,avatarModel:$avatarModel")
@@ -407,13 +426,14 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         } else {
             mAiEngineConfig.mEnableChatConversation = false
         }
-        mAiEngine?.updateConfig(mAiEngineConfig)
+//        mAiEngine?.updateConfig(mAiEngineConfig)
     }
 
     // 结束语聊
     fun stopVoiceChat() {
         mIsStartVoice = false
         mAiEngine?.stopVoiceChat()
+        mayDisableVirtualHuman()
     }
 
     // 开启/关闭 变声
@@ -467,6 +487,23 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
     }
 
+    private var enableVirtualHumanCallback: ((Boolean) -> Unit)? = null
+
+    fun enableVirtualHuman(callback: (Boolean) -> Unit) {
+        enableVirtualHumanCallback = callback
+        if (mEnableVirtualHuman) {
+            mAiEngine?.enableVirtualHuman(false)
+        } else {
+            mAiEngine?.enableVirtualHuman(true)
+        }
+    }
+
+    private fun mayDisableVirtualHuman() {
+        if (mEnableVirtualHuman) {
+            mAiEngine?.enableVirtualHuman(false)
+        }
+    }
+
     fun releaseEngine() {
         KeyCenter.userName = ""
         mMute = false
@@ -474,8 +511,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mCostTimeMap.clear()
         mLastSpeech2TextTime = 0
         mEnableEnglishTeacher = false
-        mIsStartVoice = false
-        mAiEngine?.stopVoiceChat()
+        stopVoiceChat()
         AIEngine.destroy()
         mAiEngine = null
     }

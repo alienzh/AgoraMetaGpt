@@ -25,6 +25,7 @@
     <string name="voice_change">变声</string>
     <string name="evaluate">Evaluate</string>
     <string name="topic">Topic</string>
+    <string name="virtual_human">Virtual</string>
     <string name="ok">好的</string>
     <string name="message_font_text"><![CDATA[<font color="#A6C4FF">%1$s：</font>]]>%2$s</string>
     <string

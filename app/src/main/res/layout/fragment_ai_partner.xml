@@ -132,6 +132,21 @@
         app:layout_constraintBottom_toTopOf="@id/tvEvaluate"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!--<androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvEnableVirtual"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="@drawable/bg_button_white_corners16"
+        android:drawableTop="@drawable/ic_topic"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:text="@string/virtual_human"
+        android:textColor="@color/black"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toTopOf="@id/tvTopic"
+        app:layout_constraintEnd_toEndOf="parent" />-->
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnCalling"
         android:layout_width="match_parent"
