@@ -12,11 +12,7 @@
         tools:layout="@layout/create_room_fragment">
         <action
             android:id="@+id/action_createRoomFragment_to_aiRoomFragment"
-            app:destination="@id/aiRoomFragment"
-            app:enterAnim="@anim/fragment_slide_in_right"
-            app:exitAnim="@anim/fragment_slide_out_left"
-            app:popEnterAnim="@anim/fragment_slide_in_left"
-            app:popExitAnim="@anim/fragment_slide_out_right" />
+            app:destination="@id/aiRoomFragment" />
     </fragment>
 
     <fragment
