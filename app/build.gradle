@@ -12,11 +12,11 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "io.agora.metagpt"
+        applicationId "com.honso.ai.voicechat"
         minSdk 23
         targetSdk 30
-        versionCode 1012
-        versionName "1012.1031.1"
+        versionCode 1014
+        versionName "1014.1108.1"
 
         flavorDimensions "versionCode"
 
