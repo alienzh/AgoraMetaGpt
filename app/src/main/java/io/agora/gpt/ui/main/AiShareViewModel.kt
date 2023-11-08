@@ -1,6 +1,7 @@
 package io.agora.gpt.ui.main
 
 import android.app.Activity
+import android.nfc.Tag
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -26,6 +27,7 @@ import io.agora.gpt.R
 import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.SPUtil
+import io.agora.gpt.utils.SingleLiveEvent
 import io.agora.gpt.utils.ToastUtils
 
 class AiShareViewModel : ViewModel(), AIEngineCallback {
@@ -40,13 +42,22 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     private val mAiEngineConfig: AIEngineConfig = AIEngineConfig()
 
-    val mEventResultModel: MutableLiveData<EventResultModel> = MutableLiveData()
-    val mDownloadProgress: MutableLiveData<DownloadProgressModel> = MutableLiveData()
-    val mPrepareResult: MutableLiveData<Boolean> = MutableLiveData()
-    val mDownloadRes: MutableLiveData<DownloadResModel> = MutableLiveData()
-    val mDownloadResFinish: MutableLiveData<Boolean> = MutableLiveData()
+    private val _mEventResultModel: MutableLiveData<EventResultModel> = SingleLiveEvent()
+    val mEventResultModel: LiveData<EventResultModel> = _mEventResultModel
+    private val _mDownloadProgress: MutableLiveData<DownloadProgressModel> = SingleLiveEvent()
+    val mDownloadProgress: LiveData<DownloadProgressModel> = _mDownloadProgress
+    val _mPrepareResult: MutableLiveData<Boolean> = SingleLiveEvent()
+    val mPrepareResult: LiveData<Boolean> = _mPrepareResult
+    val _mDownloadRes: MutableLiveData<DownloadResModel> = SingleLiveEvent()
+    val mDownloadRes: LiveData<DownloadResModel> = _mDownloadRes
+    val _mDownloadResFinish: MutableLiveData<Boolean> = SingleLiveEvent()
+    val mDownloadResFinish: LiveData<Boolean> = _mDownloadResFinish
 
-    val mNewLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = MutableLiveData()
+    val _mNewLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = SingleLiveEvent()
+    val mNewLineMessageModel: LiveData<Triple<ChatMessageModel, Boolean, Int>> = _mNewLineMessageModel
+
+    val _mAIEngineInit: MutableLiveData<Boolean> = SingleLiveEvent()
+    val mAIEngineInit: MutableLiveData<Boolean> = _mAIEngineInit
 
     private var mMute: Boolean = false
 
@@ -65,6 +76,12 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         } else {
             Language.EN_US
         }
+    }
+
+    private var mCurrentAiRole: AIRole? = null
+
+    fun getCurAiRole(): AIRole {
+        return mCurrentAiRole ?: getUsableAiRoles()[0]
     }
 
     fun currentLanguage(): Language {
@@ -96,6 +113,12 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
         mAiEngine?.initialize(mAiEngineConfig)
         mChatMessageDataList.clear()
+    }
+
+    fun isAIGCEngineInit(): Boolean = mAIEngineInit.value == true
+
+    fun checkDownloadRes() {
+        mAiEngine?.checkDownloadRes()
     }
 
     // ServiceVendorGroup{sttList=[STTVendor{id='xunfei', vendorName='xunfei', accountInJson='null'},
@@ -189,7 +212,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                     costTime = 0
                 )
                 mChatMessageDataList.add(messageModel)
-                mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
+                _mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
             }
         }
         return HandleResult.CONTINUE
@@ -208,7 +231,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             if (lastIndex >= 0) {
                 val lastChatMessageModel: ChatMessageModel = mChatMessageDataList[lastIndex]
                 lastChatMessageModel.message = lastChatMessageModel.message.plus(answer.data)
-                mNewLineMessageModel.value = Triple(lastChatMessageModel, false, lastIndex)
+                _mNewLineMessageModel.value = Triple(lastChatMessageModel, false, lastIndex)
             } else {
                 val messageModel = ChatMessageModel(
                     isAiMessage = true,
@@ -225,7 +248,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                     messageModel.costTime = 0
                 }
                 mChatMessageDataList.add(messageModel)
-                mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
+                _mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
             }
         }
         return HandleResult.CONTINUE
@@ -263,7 +286,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     override fun onDownloadResFinish() {
         Log.i(TAG, "onDownloadResFinish")
         mHandler.post {
-            mDownloadResFinish.value = true
+            _mDownloadResFinish.value = true
         }
     }
 
@@ -271,9 +294,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         Log.i(TAG, "onCheckDownloadResResult totalSize:$totalSize,fileCount:$fileCount")
         mHandler.post {
             if (totalSize == 0L) { // totalSize:0 目前就表示不用下载的
-                mDownloadResFinish.value = true
+                _mDownloadResFinish.value = true
             } else {
-                mDownloadRes.value = DownloadResModel(totalSize, fileCount)
+                _mDownloadRes.value = DownloadResModel(totalSize, fileCount)
             }
         }
     }
@@ -281,7 +304,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     override fun onDownloadResProgress(progress: Int, index: Int, count: Int) {
         Log.i(TAG, "onDownloadResProgress progress:$progress,index:$index,count:$count")
         mHandler.post {
-            mDownloadProgress.value = DownloadProgressModel(progress, index, count)
+            _mDownloadProgress.value = DownloadProgressModel(progress, index, count)
         }
     }
 
@@ -290,20 +313,21 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mHandler.post {
             if (event == ServiceEvent.INITIALIZE) {
                 if (code == ServiceCode.SUCCESS) {
-                    mAiEngine?.checkDownloadRes()
+                    mAIEngineInit.postValue(true)
+                    Log.d(TAG, "AIGC INITIALIZE SUCCESS")
                 } else {
                     ToastUtils.showToast("AIGC INITIALIZE error:$code,msg:$msg")
                 }
             } else if (event == ServiceEvent.DESTROY && code == ServiceCode.SUCCESS) {
             }
-            mEventResultModel.value = EventResultModel(event, code)
+            _mEventResultModel.postValue(EventResultModel(event, code))
         }
     }
 
     override fun onPrepareResult(code: Int, msg: String?) {
         Log.i(TAG, "onPrepareResult code:$code,msg:$msg")
         mHandler.post {
-            mPrepareResult.value = code == ServiceCode.SUCCESS.code
+            _mPrepareResult.value = code == ServiceCode.SUCCESS.code
         }
     }
 
@@ -337,7 +361,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     fun getAiName(): String {
-        return mAiEngine?.currentRole?.roleName ?: MainApplication.mGlobalApplication.getString(R.string.role_foodie)
+        return mAiEngine?.currentRole?.roleName
+            ?: MainApplication.mGlobalApplication.getString(R.string.default_ai_name)
     }
 
     fun isEnglishTeacher(aiRole: AIRole): Boolean {

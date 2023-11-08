@@ -1,26 +1,40 @@
 package io.agora.gpt.ui.view
 
 import android.content.Context
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
-import io.agora.gpt.databinding.TopicInputDialogBinding
+import io.agora.aigc.sdk.model.AIRole
+import io.agora.gpt.databinding.DialogChooseRoleBinding
 import io.agora.gpt.ui.base.BaseDialog
 
-class TopicInputDialog constructor(context: Context) : BaseDialog(context) {
+class ChooseDialog constructor(context: Context) : BaseDialog(context) {
 
-    private lateinit var binding: TopicInputDialogBinding
+    private lateinit var binding: DialogChooseRoleBinding
 
 
-    private var inputTextCallback: ((text: String) -> Unit)? = null
+    private var confirmCallback: ((aiRole: AIRole) -> Unit)? = null
 
-    fun setInputTextCallback(callback: ((text: String) -> Unit)) {
-        this.inputTextCallback = callback
+    fun setConfirmCallback(callback: ((aiRole: AIRole) -> Unit)) {
+        this.confirmCallback = callback
     }
 
+    private var mRole:AIRole?=null
+
     override fun initContentView() {
-        binding = TopicInputDialogBinding.inflate(layoutInflater)
+        binding = DialogChooseRoleBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        binding.pickScrollview.setOnSelectListener {
+            mRole = it
+            Log.d("zhangw", "pick select $it")
+        }
+    }
+
+    fun setDatas(aiRoles:List<AIRole>){
+        mRole = aiRoles[0]
+        binding.pickScrollview.setData(aiRoles)
+        binding.pickScrollview.setSelected(0)
     }
 
     override fun setContentView(view: View) {
@@ -50,13 +64,11 @@ class TopicInputDialog constructor(context: Context) : BaseDialog(context) {
 
     override fun initView() {
         binding.btnOk.setOnClickListener {
-            inputTextCallback?.invoke(binding.etTopic.text.toString())
+            mRole?.let { aiRole ->
+                confirmCallback?.invoke(aiRole)
+            }
             dismiss()
         }
-        binding.root.postDelayed({
-            showKeyboard(binding.etTopic)
-        }, 200)
-
     }
 
     override fun setGravity() {

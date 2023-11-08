@@ -24,18 +24,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageButton
-        android:id="@+id/btnSwitchLanguage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:background="@android:color/transparent"
-        android:padding="5dp"
-        android:src="@drawable/icon_zh_to_en"
-        app:layout_constraintBottom_toBottomOf="@id/tvTitle"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tvTitle" />
-
     <TextView
         android:id="@+id/tvChooseScene"
         android:layout_width="wrap_content"
@@ -64,19 +52,6 @@
             android:background="@drawable/bg_button_selector"
             android:gravity="center"
             android:text="@string/game_ai_partner"
-            android:textAllCaps="false"
-            android:textColor="#040925"
-            android:textSize="18sp" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnStayTuned"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="16dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_button_selector"
-            android:gravity="center"
-            android:text="@string/stay_tuned"
             android:textAllCaps="false"
             android:textColor="#040925"
             android:textSize="18sp" />
@@ -121,15 +96,54 @@
         android:hint="@string/enter_nickname"
         android:maxLength="12"
         android:maxLines="1"
-        android:singleLine="true"
         android:paddingStart="18dp"
         android:paddingEnd="36dp"
+        android:singleLine="true"
         android:textColor="#040925"
         android:textColorHint="#756C92"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvNickname" />
+
+    <TextView
+        android:id="@+id/tvChooseRole"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="30dp"
+        android:text="@string/choose_role"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etNickname" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvChooseRoleContent"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_button_selector"
+        android:gravity="start|center_vertical"
+        android:paddingStart="18dp"
+        android:paddingEnd="36dp"
+        android:text="@string/game_ai_partner"
+        android:textAllCaps="false"
+        android:textColor="#040925"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/tvChooseRole" />
+
+    <ImageButton
+        android:id="@+id/btnChooseRole"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/icon_arrow_down"
+        android:background="@android:color/transparent"
+        app:layout_constraintEnd_toEndOf="@+id/tvChooseRoleContent"
+        app:layout_constraintTop_toTopOf="@+id/tvChooseRoleContent"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintBottom_toBottomOf="@+id/tvChooseRoleContent" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnEnterRoom"

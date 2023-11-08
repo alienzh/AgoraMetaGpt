@@ -16,9 +16,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.afollestad.materialdialogs.MaterialDialog
 import io.agora.aigc.sdk.constants.Language
+import io.agora.aigc.sdk.constants.ServiceCode
+import io.agora.aigc.sdk.constants.ServiceEvent
 import io.agora.gpt.R
 import io.agora.gpt.databinding.CreateRoomFragmentBinding
 import io.agora.gpt.ui.base.BaseFragment
+import io.agora.gpt.ui.view.ChooseDialog
 import io.agora.gpt.ui.view.CustomDialog.Companion.getCustomView
 import io.agora.gpt.ui.view.CustomDialog.Companion.showDownloadingChooser
 import io.agora.gpt.ui.view.CustomDialog.Companion.showDownloadingProgress
@@ -26,11 +29,11 @@ import io.agora.gpt.ui.view.CustomDialog.Companion.showLoadingProgress
 import io.agora.gpt.ui.view.OnFastClickListener
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.LanguageUtil
+import io.agora.gpt.utils.ToastUtils
 import java.util.Locale
 import java.util.Random
 
 class CreateRoomFragment : BaseFragment() {
-
 
     private var mBinding: CreateRoomFragmentBinding? = null
     private val mRandom = Random()
@@ -126,6 +129,17 @@ class CreateRoomFragment : BaseFragment() {
                 findNavController().navigate(R.id.action_createRoomFragment_to_aiRoomFragment)
             }
         }
+        mAiShareViewModel.mAIEngineInit.observe(this) {
+            if (it) {
+                val aiRoles = mAiShareViewModel.getUsableAiRoles()
+                if (aiRoles.isEmpty()) {
+                    ToastUtils.showToast("No roles are available!")
+                } else {
+                    mBinding?.tvChooseRoleContent?.text = aiRoles[0].getRoleName()
+                }
+            }
+        }
+        mAiShareViewModel.initAiEngine()
     }
 
     override fun initView() {
@@ -135,27 +149,30 @@ class CreateRoomFragment : BaseFragment() {
             etNickname.doAfterTextChanged {
                 KeyCenter.userName = it.toString()
             }
-            if (mAiShareViewModel.currentLanguage() == Language.ZH_CN) {
-                btnSwitchLanguage.setImageResource(R.drawable.icon_zh_to_en)
-            } else {
-                btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
-            }
+//            if (mAiShareViewModel.currentLanguage() == Language.ZH_CN) {
+//                btnSwitchLanguage.setImageResource(R.drawable.icon_zh_to_en)
+//            } else {
+//                btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
+//            }
         }
     }
 
     override fun initClickEvent() {
         super.initClickEvent()
-        //防止多次频繁点击异常处理
         mBinding?.btnEnterRoom?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
                 if (TextUtils.isEmpty(KeyCenter.userName)) {
                     Toast.makeText(requireActivity(), R.string.enter_nickname, Toast.LENGTH_LONG).show()
                 } else {
-                    if (mProgressLoadingDialog == null) {
-                        mProgressLoadingDialog = showLoadingProgress(requireContext())
+                    if (mAiShareViewModel.isAIGCEngineInit()) {
+                        if (mProgressLoadingDialog == null) {
+                            mProgressLoadingDialog = showLoadingProgress(requireContext())
+                        }
+                        mProgressLoadingDialog?.show()
+                        mAiShareViewModel.checkDownloadRes()
+                    } else {
+                        ToastUtils.showToast("Wait for AIGC engine initialization to complete!")
                     }
-                    mProgressLoadingDialog?.show()
-                    mAiShareViewModel.initAiEngine()
                 }
             }
         })
@@ -166,20 +183,33 @@ class CreateRoomFragment : BaseFragment() {
             }
         })
 
-        mBinding?.btnSwitchLanguage?.setOnClickListener(object : OnFastClickListener() {
+        mBinding?.btnChooseRole?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                mAiShareViewModel.switchLanguage { language ->
-                    if (language == Language.ZH_CN) {
-                        mBinding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_zh_to_en)
-                        LanguageUtil.changeLanguage(requireContext(), "zh", "CN")
-                    } else {
-                        mBinding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_en_to_zh)
-                        LanguageUtil.changeLanguage(requireContext(), "en", "US")
-                    }
-                    activity?.recreate()
+                val aiRoles = mAiShareViewModel.getUsableAiRoles()
+                val chooseDialog = ChooseDialog(requireContext())
+                chooseDialog.setDatas(aiRoles)
+                chooseDialog.setConfirmCallback {
+                    mBinding?.tvChooseRoleContent?.text = it.roleName
                 }
+                chooseDialog.show()
+                ToastUtils.showToast("click choose role")
             }
         })
+
+//        mBinding?.btnSwitchLanguage?.setOnClickListener(object : OnFastClickListener() {
+//            override fun onClickJacking(view: View) {
+//                mAiShareViewModel.switchLanguage { language ->
+//                    if (language == Language.ZH_CN) {
+//                        mBinding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_zh_to_en)
+//                        LanguageUtil.changeLanguage(requireContext(), "zh", "CN")
+//                    } else {
+//                        mBinding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_en_to_zh)
+//                        LanguageUtil.changeLanguage(requireContext(), "en", "US")
+//                    }
+//                    activity?.recreate()
+//                }
+//            }
+//        })
     }
 
     override fun onDestroyView() {
