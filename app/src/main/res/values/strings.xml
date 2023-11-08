@@ -1,12 +1,12 @@
 <resources>
     <string name="app_name">Naomi AI</string>
     <string name="create_room">Create Room</string>
-    <string name="choose_scene">Select Scene</string>
+    <string name="select_scene">Select Scene</string>
     <string name="game_ai_partner">AI Agent</string>
     <string name="nickname">Nickname</string>
     <string name="random">Random</string>
     <string name="enter_nickname">Please enter a nickname</string>
-    <string name="choose_role">Choose Role</string>
+    <string name="choose_scene">Choose Scene</string>
     <string name="enter_room">Enter Room</string>
     <string name="calling">Call %1$s</string>
     <string name="calling_1">Call</string>
@@ -19,9 +19,19 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="message_font_text"><![CDATA[<font color="#A6C4FF">%1$s：</font>]]>%2$s</string>
-    <string
-        name="message_font_text_ai"><![CDATA[<img src="icon_lightning.png"> <font color="#FFFFFF">%1$s</font> <font color="#A6C4FF">%2$s：</font>]]>%3$s</string>
+    <string name="message_font_text_ai"><![CDATA[<img src="icon_lightning.png"> <font color="#FFFFFF">%1$s</font> <font color="#A6C4FF">%2$s：</font>]]>%3$s</string>
     <string name="default_ai_name">Hanako</string>
+
+    <string-array name="choose_language">
+        <item>Japanese</item>
+        <item>English</item>
+        <item>Chinese</item>
+    </string-array>
+
+    <string-array name="avatars">
+        <item>mina</item>
+        <item>kda</item>
+    </string-array>
 
     <string-array name="user_nickname">
         <item>James</item>

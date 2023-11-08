@@ -1,6 +1,8 @@
 package io.agora.gpt.utils
 
 import io.agora.gpt.BuildConfig
+import io.agora.gpt.MainApplication
+import io.agora.gpt.R
 import io.agora.gpt.ui.main.AIRoleAvatarModel
 import io.agora.media.RtcTokenBuilder
 import io.agora.rtm.RtmTokenBuilder
@@ -8,19 +10,20 @@ import java.util.Random
 
 object KeyCenter {
 
-    val mEnRoleAvatars: List<AIRoleAvatarModel> by lazy {
-        mutableListOf(
-            AIRoleAvatarModel("Wendy-en-US", "mina"),
-            AIRoleAvatarModel("Cindy-en-US", "mina"),
-            AIRoleAvatarModel("yunibobo-en-US", "kda")
-        )
-    }
-    val mCnRoleAvatars: List<AIRoleAvatarModel> by lazy {
-        mutableListOf(
-            AIRoleAvatarModel("yunibobo-zh-CN", "mina"),
-            AIRoleAvatarModel("jingxiang-zh-CN", "kda")
-        )
-    }
+//    val mEnRoleAvatars: List<AIRoleAvatarModel> by lazy {
+//        mutableListOf(
+//            AIRoleAvatarModel("Wendy-en-US", "mina"),
+//            AIRoleAvatarModel("Cindy-en-US", "mina"),
+//            AIRoleAvatarModel("yunibobo-en-US", "kda")
+//        )
+//    }
+//    val mCnRoleAvatars: List<AIRoleAvatarModel> by lazy {
+//        mutableListOf(
+//            AIRoleAvatarModel("yunibobo-zh-CN", "mina"),
+//            AIRoleAvatarModel("jingxiang-zh-CN", "kda")
+//        )
+//    }
+
 
     private const val USER_MAX_UID = 10000
     private const val DIGITAL_HUMAN_MAX_UID = 20000
@@ -28,6 +31,7 @@ object KeyCenter {
     private var USER_RTC_UID = -1
     private var DIGITAL_HUMAN_RTC_UID = -1
     private var mRoomName: String? = null
+    private var internalAvatars: Array<String>? = null
     var userName: String? = null
     val roomName: String?
         get() {
@@ -50,6 +54,15 @@ object KeyCenter {
             }
             return DIGITAL_HUMAN_RTC_UID
         }
+
+    val avatars: Array<String>
+        get() {
+            if (internalAvatars == null) {
+                internalAvatars = MainApplication.mGlobalApplication.resources.getStringArray(R.array.avatars)
+            }
+            return internalAvatars!!
+        }
+
 
     fun getRtcToken(channelId: String?, uid: Int): String {
         return RtcTokenBuilder().buildTokenWithUid(

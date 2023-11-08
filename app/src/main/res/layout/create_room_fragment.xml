@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
@@ -25,12 +26,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tvChooseScene"
+        android:id="@+id/tvSelectScene"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="148dp"
-        android:text="@string/choose_scene"
+        android:text="@string/select_scene"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -42,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:paddingHorizontal="20dp"
-        app:layout_constraintTop_toBottomOf="@id/tvChooseScene">
+        app:layout_constraintTop_toBottomOf="@id/tvSelectScene">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnAiPartner"
@@ -107,12 +108,12 @@
         app:layout_constraintTop_toBottomOf="@id/tvNickname" />
 
     <TextView
-        android:id="@+id/tvChooseRole"
+        android:id="@+id/tvChooseScene"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="30dp"
-        android:text="@string/choose_role"
+        android:text="@string/choose_scene"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -124,15 +125,15 @@
         android:layout_height="48dp"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="8dp"
-        android:background="@drawable/bg_button_selector"
+        android:background="@drawable/bg_button_default"
         android:gravity="start|center_vertical"
         android:paddingStart="18dp"
         android:paddingEnd="36dp"
-        android:text="@string/game_ai_partner"
+        tools:text="SONY"
         android:textAllCaps="false"
         android:textColor="#040925"
         android:textSize="18sp"
-        app:layout_constraintTop_toBottomOf="@+id/tvChooseRole" />
+        app:layout_constraintTop_toBottomOf="@+id/tvChooseScene" />
 
     <ImageButton
         android:id="@+id/btnChooseRole"
@@ -144,6 +145,45 @@
         app:layout_constraintTop_toTopOf="@+id/tvChooseRoleContent"
         android:layout_marginEnd="12dp"
         app:layout_constraintBottom_toBottomOf="@+id/tvChooseRoleContent" />
+
+    <TextView
+        android:id="@+id/tvChooseLanguage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="30dp"
+        android:text="@string/choose_scene"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvChooseRoleContent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvChooseLanguageContent"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_button_default"
+        android:gravity="start|center_vertical"
+        android:paddingStart="18dp"
+        android:paddingEnd="36dp"
+        android:textAllCaps="false"
+        android:textColor="#040925"
+        android:textSize="18sp"
+        tools:text="Japanese"
+        app:layout_constraintTop_toBottomOf="@+id/tvChooseLanguage" />
+
+    <ImageButton
+        android:id="@+id/btnChooseLanguage"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/icon_arrow_down"
+        android:background="@android:color/transparent"
+        app:layout_constraintEnd_toEndOf="@+id/tvChooseLanguageContent"
+        app:layout_constraintTop_toTopOf="@+id/tvChooseLanguageContent"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintBottom_toBottomOf="@+id/tvChooseLanguageContent" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnEnterRoom"

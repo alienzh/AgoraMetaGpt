@@ -45,10 +45,6 @@ class GameAIPartnerActivity : BaseActivity() {
         super.initView()
     }
 
-    override fun initClickEvent() {
-        super.initClickEvent()
-    }
-
     override fun onResume() {
         super.onResume()
         Log.i("zhangw", "onResume")

@@ -65,20 +65,7 @@ class RoleSelectAdapter constructor(
     }
 
     private fun getAvatarName(aiRole: AIRole): String {
-        val roleAvatars = if (language == Language.EN_US) {
-            KeyCenter.mEnRoleAvatars
-        } else {
-            KeyCenter.mCnRoleAvatars
-        }
-        var avatarName = ""
-        for (i in roleAvatars.indices) {
-            val roleAvatar = roleAvatars[i]
-            if (aiRole.getRoleId() == roleAvatar.roleId) {
-                avatarName = roleAvatar.avatar
-                break
-            }
-        }
-        return avatarName
+        return aiRole.roleName
     }
 
     override fun getItemCount(): Int {

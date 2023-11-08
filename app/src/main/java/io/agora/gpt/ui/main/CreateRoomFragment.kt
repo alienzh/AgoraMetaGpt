@@ -38,6 +38,8 @@ class CreateRoomFragment : BaseFragment() {
     private var mBinding: CreateRoomFragmentBinding? = null
     private val mRandom = Random()
     private lateinit var mNicknameArray: Array<String>
+    private lateinit var mLanguageArray: Array<String>
+
     private var mDownloadProgress = 0
     private var mProgressbarDialog: MaterialDialog? = null
     private var mDownloadingChooserDialog: MaterialDialog? = null
@@ -69,6 +71,7 @@ class CreateRoomFragment : BaseFragment() {
 
         mDownloadProgress = -1
         mNicknameArray = resources.getStringArray(R.array.user_nickname)
+        mLanguageArray = resources.getStringArray(R.array.choose_language)
 
         mAiShareViewModel.mDownloadRes.observe(this) {
             mTotalSize = it.totalSize
@@ -149,16 +152,9 @@ class CreateRoomFragment : BaseFragment() {
             etNickname.doAfterTextChanged {
                 KeyCenter.userName = it.toString()
             }
-//            if (mAiShareViewModel.currentLanguage() == Language.ZH_CN) {
-//                btnSwitchLanguage.setImageResource(R.drawable.icon_zh_to_en)
-//            } else {
-//                btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
-//            }
+            tvChooseLanguageContent.text = mLanguageArray[0]
         }
-    }
 
-    override fun initClickEvent() {
-        super.initClickEvent()
         mBinding?.btnEnterRoom?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
                 if (TextUtils.isEmpty(KeyCenter.userName)) {
@@ -187,29 +183,36 @@ class CreateRoomFragment : BaseFragment() {
             override fun onClickJacking(view: View) {
                 val aiRoles = mAiShareViewModel.getUsableAiRoles()
                 val chooseDialog = ChooseDialog(requireContext())
-                chooseDialog.setDatas(aiRoles)
-                chooseDialog.setConfirmCallback {
-                    mBinding?.tvChooseRoleContent?.text = it.roleName
+                chooseDialog.setDatas(aiRoles.map { it.roleName })
+                chooseDialog.setConfirmCallback { selected ->
+                    mBinding?.tvChooseRoleContent?.text = selected
+                    aiRoles.find { it.roleName == selected }?.let { aiRole ->
+                        mAiShareViewModel.setAvatarModel(aiRole)
+                    }
                 }
                 chooseDialog.show()
-                ToastUtils.showToast("click choose role")
+                ToastUtils.showToast("click choose a scene")
             }
         })
+        mBinding?.btnChooseLanguage?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                val languages = mLanguageArray.asList()
+                val chooseDialog = ChooseDialog(requireContext())
+                chooseDialog.setDatas(languages)
+                chooseDialog.setConfirmCallback { selected ->
+                    mBinding?.tvChooseLanguageContent?.text = selected
+                    val language = when (selected) {
+                        "Chinese" -> Language.ZH_CN
+                        "English" -> Language.EN_US
+                        else -> Language.JA_JP
+                    }
+                    mAiShareViewModel.switchLanguage(language) {
+                    }
+                }
+                chooseDialog.show()
 
-//        mBinding?.btnSwitchLanguage?.setOnClickListener(object : OnFastClickListener() {
-//            override fun onClickJacking(view: View) {
-//                mAiShareViewModel.switchLanguage { language ->
-//                    if (language == Language.ZH_CN) {
-//                        mBinding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_zh_to_en)
-//                        LanguageUtil.changeLanguage(requireContext(), "zh", "CN")
-//                    } else {
-//                        mBinding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_en_to_zh)
-//                        LanguageUtil.changeLanguage(requireContext(), "en", "US")
-//                    }
-//                    activity?.recreate()
-//                }
-//            }
-//        })
+            }
+        })
     }
 
     override fun onDestroyView() {

@@ -100,10 +100,7 @@ class AiPartnerFragment : BaseFragment() {
                 mHistoryListAdapter?.notifyDataSetChanged()
             }
         }
-    }
 
-    override fun initClickEvent() {
-        super.initClickEvent()
         mBinding?.btnExit?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
                 mBinding?.apply {

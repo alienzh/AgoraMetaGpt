@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.agora.aigc.sdk.model.AIRole;
-
 /**
  * 滚动选择器
  */
@@ -31,7 +29,7 @@ public class PickerScrollView extends View {
      */
     public static final float SPEED = 2;
 
-    private List<AIRole> mDataList = new ArrayList<>();
+    private List<String> mDataList = new ArrayList<>();
     /**
      * 选中的位置，这个位置是mDataList的中心位置，一直不变
      */
@@ -98,7 +96,7 @@ public class PickerScrollView extends View {
             mSelectListener.onSelect(mDataList.get(mCurrentSelected));
     }
 
-    public void setData(List<AIRole> datas) {
+    public void setData(List<String> datas) {
         mDataList.addAll(datas);
         mCurrentSelected = datas.size() / 2;
         invalidate();
@@ -139,13 +137,13 @@ public class PickerScrollView extends View {
     }
 
     private void moveHeadToTail() {
-        AIRole datasBean = mDataList.get(0);
+        String datasBean = mDataList.get(0);
         mDataList.remove(0);
         mDataList.add(datasBean);
     }
 
     private void moveTailToHead() {
-        AIRole datasBean = mDataList.get(mDataList.size() - 1);
+        String datasBean = mDataList.get(mDataList.size() - 1);
         mDataList.remove(mDataList.size() - 1);
         mDataList.add(0, datasBean);
     }
@@ -193,7 +191,7 @@ public class PickerScrollView extends View {
         float baseline = (float) (y - (fmi.bottom / 2.0 + fmi.top / 2.0));
 
         int indexs = mCurrentSelected;
-        String textData = mDataList.get(indexs).roleName;
+        String textData = mDataList.get(indexs);
         canvas.drawText(textData, x, baseline, mPaint);
 
         // 绘制上方data
@@ -224,7 +222,7 @@ public class PickerScrollView extends View {
         float baseline = (float) (y - (fmi.bottom / 2.0 + fmi.top / 2.0));
 
         int indexs = mCurrentSelected + type * position;
-        String textData = mDataList.get(indexs).roleName;
+        String textData = mDataList.get(indexs);
         canvas.drawText(textData, (float) (mViewWidth / 2.0), baseline, mPaint);
     }
 
@@ -311,6 +309,6 @@ public class PickerScrollView extends View {
     }
 
     public interface onSelectListener {
-        void onSelect(AIRole pickers);
+        void onSelect(String pickers);
     }
 }

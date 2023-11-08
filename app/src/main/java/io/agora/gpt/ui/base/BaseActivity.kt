@@ -19,12 +19,10 @@ open class BaseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setTransparent(window)
         adaptAndroidP(window)
-        setLanguage()
+//        setLanguage()
         initContentView()
         initData()
         initView()
-        initListener()
-        initClickEvent()
     }
 
     private fun setLanguage() {
@@ -40,14 +38,12 @@ open class BaseActivity : AppCompatActivity() {
         initView()
     }
 
-    protected open fun initClickEvent() {}
     protected open fun initContentView() {}
     protected open fun initView() {}
     protected open fun initData() {
         mIsFront = false
     }
 
-    protected fun initListener() {}
     override fun onResume() {
         super.onResume()
         mIsFront = true

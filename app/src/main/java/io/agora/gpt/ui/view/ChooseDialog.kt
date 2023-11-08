@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
-import io.agora.aigc.sdk.model.AIRole
 import io.agora.gpt.databinding.DialogChooseRoleBinding
 import io.agora.gpt.ui.base.BaseDialog
 
@@ -14,26 +13,26 @@ class ChooseDialog constructor(context: Context) : BaseDialog(context) {
     private lateinit var binding: DialogChooseRoleBinding
 
 
-    private var confirmCallback: ((aiRole: AIRole) -> Unit)? = null
+    private var confirmCallback: ((t: String) -> Unit)? = null
 
-    fun setConfirmCallback(callback: ((aiRole: AIRole) -> Unit)) {
+    fun setConfirmCallback(callback: ((t: String) -> Unit)) {
         this.confirmCallback = callback
     }
 
-    private var mRole:AIRole?=null
+    private var mCurrentData: String? = null
 
     override fun initContentView() {
         binding = DialogChooseRoleBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.pickScrollview.setOnSelectListener {
-            mRole = it
+            mCurrentData = it
             Log.d("zhangw", "pick select $it")
         }
     }
 
-    fun setDatas(aiRoles:List<AIRole>){
-        mRole = aiRoles[0]
-        binding.pickScrollview.setData(aiRoles)
+    fun setDatas(datas: List<String>) {
+        mCurrentData = datas[0]
+        binding.pickScrollview.setData(datas)
         binding.pickScrollview.setSelected(0)
     }
 
@@ -64,8 +63,8 @@ class ChooseDialog constructor(context: Context) : BaseDialog(context) {
 
     override fun initView() {
         binding.btnOk.setOnClickListener {
-            mRole?.let { aiRole ->
-                confirmCallback?.invoke(aiRole)
+            mCurrentData?.let { data ->
+                confirmCallback?.invoke(data)
             }
             dismiss()
         }
