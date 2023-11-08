@@ -26,6 +26,7 @@ import io.agora.gpt.R
 import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.SPUtil
+import io.agora.gpt.utils.SingleLiveEvent
 import io.agora.gpt.utils.ToastUtils
 
 class AiShareViewModel : ViewModel(), AIEngineCallback {
@@ -40,13 +41,13 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     private val mAiEngineConfig: AIEngineConfig = AIEngineConfig()
 
-    val mEventResultModel: MutableLiveData<EventResultModel> = MutableLiveData()
-    val mDownloadProgress: MutableLiveData<DownloadProgressModel> = MutableLiveData()
-    val mPrepareResult: MutableLiveData<Boolean> = MutableLiveData()
-    val mDownloadRes: MutableLiveData<DownloadResModel> = MutableLiveData()
-    val mDownloadResFinish: MutableLiveData<Boolean> = MutableLiveData()
+    val mEventResultModel: MutableLiveData<EventResultModel> = SingleLiveEvent()
+    val mDownloadProgress: MutableLiveData<DownloadProgressModel> = SingleLiveEvent()
+    val mPrepareResult: MutableLiveData<Boolean> = SingleLiveEvent()
+    val mDownloadRes: MutableLiveData<DownloadResModel> = SingleLiveEvent()
+    val mDownloadResFinish: MutableLiveData<Boolean> = SingleLiveEvent()
 
-    val mNewLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = MutableLiveData()
+    val mNewLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = SingleLiveEvent()
 
     private var mMute: Boolean = false
 
