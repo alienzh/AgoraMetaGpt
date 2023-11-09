@@ -67,20 +67,8 @@ class ChooseRoleDialog constructor(context: Context, private val language: Langu
     }
 
     private fun setupCurrentRoleView(selectRole: AIRole) {
-        val roleAvatars = if (language == Language.EN_US) {
-            KeyCenter.mEnRoleAvatars
-        } else {
-            KeyCenter.mCnRoleAvatars
-        }
+        val avatarName = KeyCenter.getAvatarName(selectRole)
 
-        var avatarName = ""
-        for (i in roleAvatars.indices) {
-            val roleAvatar = roleAvatars[i]
-            if (selectRole.getRoleId() == roleAvatar.roleId) {
-                avatarName = roleAvatar.avatar
-                break
-            }
-        }
         var drawableId = AppUtils.getDrawableRes(context, "ai_avatar_$avatarName")
         if (drawableId == 0) drawableId = R.drawable.ai_avatar_mina
         binding.ivRoleAvatar.setImageResource(drawableId)
@@ -89,7 +77,7 @@ class ChooseRoleDialog constructor(context: Context, private val language: Langu
     }
 
     fun setupAiRoles(selectIndex: Int, aiRoles: List<AIRole>) {
-        mRoleAdapter = RoleSelectAdapter(context,language, selectIndex, aiRoles)
+        mRoleAdapter = RoleSelectAdapter(context, selectIndex, aiRoles)
         mRoleAdapter.setOnSelectItemClickListener {
             val selectedIndex = mRoleAdapter.selectIndex
             val aiChatRole = aiRoles[selectedIndex]

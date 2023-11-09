@@ -26,8 +26,3 @@ data class ChatMessageModel constructor(
     var message: String,
     var costTime: Long = 0
 )
-
-data class AIRoleAvatarModel constructor(
-    val roleId:String,
-    val avatar:String,
-)

@@ -12,12 +12,13 @@ import io.agora.aigc.sdk.constants.Language
 import io.agora.aigc.sdk.model.AIRole
 import io.agora.gpt.R
 import io.agora.gpt.utils.AppUtils
+import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
 
 class RoleSelectAdapter constructor(
-    private val mContext: Context, private val language: Language, var selectIndex: Int,
-    val dataList:
-    List<AIRole>
+    private val mContext: Context,
+    var selectIndex: Int,
+    val dataList: List<AIRole>
 ) :
     RecyclerView.Adapter<RoleSelectAdapter.MyViewHolder>() {
     private var onClickListener: View.OnClickListener? = null
@@ -39,7 +40,7 @@ class RoleSelectAdapter constructor(
             holder.ivGender.setBackgroundResource(R.drawable.ic_gender_female)
             holder.ivSelect.setBackgroundResource(R.drawable.bg_button_e25_corners_female)
         }
-        var avatarName = getAvatarName(chatRoleModel)
+        var avatarName = KeyCenter.getAvatarName(chatRoleModel)
 
         var drawableId = AppUtils.getDrawableRes(mContext, "ai_portrait_$avatarName")
         if (drawableId == 0) drawableId = R.drawable.ai_portrait_mina
@@ -64,32 +65,9 @@ class RoleSelectAdapter constructor(
         }
     }
 
-    private fun getAvatarName(aiRole: AIRole): String {
-        val roleAvatars = if (language == Language.EN_US) {
-            KeyCenter.mEnRoleAvatars
-        } else {
-            KeyCenter.mCnRoleAvatars
-        }
-        var avatarName = ""
-        for (i in roleAvatars.indices) {
-            val roleAvatar = roleAvatars[i]
-            if (aiRole.getRoleId() == roleAvatar.roleId) {
-                avatarName = roleAvatar.avatar
-                break
-            }
-        }
-        return avatarName
-    }
-
     override fun getItemCount(): Int {
         return dataList.size
     }
-
-//    fun getSelectIndex(): Int {
-//        return if (selectIndex >= 0 && selectIndex < dataList.size) {
-//            selectIndex
-//        } else 0
-//    }
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val ivRolePortrait: ImageView

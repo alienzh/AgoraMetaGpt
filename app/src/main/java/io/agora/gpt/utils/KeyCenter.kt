@@ -1,25 +1,24 @@
 package io.agora.gpt.utils
 
+import io.agora.aigc.sdk.model.AIRole
 import io.agora.gpt.BuildConfig
-import io.agora.gpt.ui.main.AIRoleAvatarModel
 import io.agora.media.RtcTokenBuilder
 import io.agora.rtm.RtmTokenBuilder
 import java.util.Random
 
 object KeyCenter {
 
-    val mEnRoleAvatars: List<AIRoleAvatarModel> by lazy {
-        mutableListOf(
-            AIRoleAvatarModel("Wendy-en-US", "mina"),
-            AIRoleAvatarModel("Cindy-en-US", "mina"),
-            AIRoleAvatarModel("yunibobo-en-US", "kda")
-        )
-    }
-    val mCnRoleAvatars: List<AIRoleAvatarModel> by lazy {
-        mutableListOf(
-            AIRoleAvatarModel("yunibobo-zh-CN", "mina"),
-            AIRoleAvatarModel("jingxiang-zh-CN", "kda")
-        )
+    fun getAvatarName(aiRole: AIRole): String {
+        var avatarName = Constant.Avatar_Mina
+        when (aiRole.roleId) {
+            Constant.EN_Role_ID_WENDY -> avatarName = Constant.Avatar_Mina
+            Constant.EN_Role_ID_Cindy -> avatarName = Constant.Avatar_Mina
+            Constant.EN_Role_ID_yunibobo -> avatarName = Constant.Avatar_Kda
+            Constant.CN_Role_ID_yunibobo -> avatarName = Constant.Avatar_Mina
+            Constant.CN_Role_ID_jingxiang -> avatarName = Constant.Avatar_Kda
+
+        }
+        return avatarName
     }
 
     private const val USER_MAX_UID = 10000

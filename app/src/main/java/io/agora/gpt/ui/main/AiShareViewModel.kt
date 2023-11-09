@@ -157,23 +157,25 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 } else if (aiRole.roleId.equals("Cindy-en-US", true)
-                    && ttsVendor.id.equals("microsoft-en-US-Jenny-gentle", ignoreCase = true)
+                    && ttsVendor.id.equals("microsoft-en-US-Jenny-cheerful", ignoreCase = true)
                 ) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 } else if (aiRole.roleId.equals("yunibobo-en-US", true) &&
-                    ttsVendor.id.equals("microsoft-en-US-Davis-cheerful", true)
+                    ttsVendor.id.equals("microsoft-en-US-Jenny-gentle", true)
                 ) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 }
             } else {
                 if (aiRole.roleId.equals("yunibobo-zh-CN", true) &&
-                    ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful", true)) {
+                    ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful", true)
+                ) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
-                }else if (aiRole.roleId.equals("jingxiang-zh-CN", true) &&
-                    ttsVendor.id.equals("microsoft-zh-CN-xiaoyi-gentle", true)) {
+                } else if (aiRole.roleId.equals("jingxiang-zh-CN", true) &&
+                    ttsVendor.id.equals("microsoft-zh-CN-xiaoyi-gentle", true)
+                ) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 }
@@ -379,16 +381,18 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     // 获取可用的AIRole
     fun getUsableAiRoles(): List<AIRole> {
         val sdkAiRoles = mAiEngine?.roles ?: emptyArray()
-        val roleAvatars = if (mAiEngineConfig.mLanguage == Language.EN_US) {
-            KeyCenter.mEnRoleAvatars
-        } else {
-            KeyCenter.mCnRoleAvatars
-        }
-        val usableAiRoles = mutableListOf<AIRole>()
         val sdkAiRoleMap = sdkAiRoles.associateBy { it.roleId }
-        for (i in roleAvatars.indices) {
-            val roleAvatar = roleAvatars[i]
-            sdkAiRoleMap[roleAvatar.roleId]?.let { aiRole ->
+
+        val localRoleIds = if (mAiEngineConfig.mLanguage == Language.EN_US) {
+            mutableListOf(Constant.EN_Role_ID_WENDY, Constant.EN_Role_ID_Cindy, Constant.EN_Role_ID_yunibobo)
+        } else {
+            mutableListOf(Constant.CN_Role_ID_yunibobo, Constant.CN_Role_ID_jingxiang)
+        }
+
+        val usableAiRoles = mutableListOf<AIRole>()
+        for (i in localRoleIds.indices) {
+            val roleId = localRoleIds[i]
+            sdkAiRoleMap[roleId]?.let { aiRole ->
                 usableAiRoles.add(aiRole)
             }
         }
@@ -397,19 +401,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // 设置SDK使用的AIRol
     fun setAvatarModel(aiRole: AIRole) {
-        val roleAvatars = if (mAiEngineConfig.mLanguage == Language.EN_US) {
-            KeyCenter.mEnRoleAvatars
-        } else {
-            KeyCenter.mCnRoleAvatars
-        }
+        val avatarName = KeyCenter.getAvatarName(aiRole)
         val avatarModel = AvatarModel().apply {
-            for (i in roleAvatars.indices) {
-                val roleAvatar = roleAvatars[i]
-                if (aiRole.getRoleId() == roleAvatar.roleId) {
-                    name = roleAvatar.avatar
-                    break
-                }
-            }
+            name = avatarName
         }
         if (aiRole.gender == Constants.GENDER_MALE) {
             avatarModel.bgFilePath = "bg_ai_male.png"

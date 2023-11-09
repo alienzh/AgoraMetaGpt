@@ -8,4 +8,14 @@ object Constant {
     const val COMMAND_TOPIC = "topic"
     const val COMMAND_EVALUATE = "evaluate"
     const val COMMAND_INIT_CHAT_MESSAGE = "init_chat_message"
+
+    const val Avatar_Mina = "mina"
+    const val Avatar_Kda = "kda"
+
+    const val EN_Role_ID_WENDY = "Wendy-en-US"
+    const val EN_Role_ID_Cindy = "Cindy-en-US"
+    const val EN_Role_ID_yunibobo = "yunibobo-en-US"
+
+    const val CN_Role_ID_yunibobo = "yunibobo-zh-CN"
+    const val CN_Role_ID_jingxiang = "jingxiang-zh-CN"
 }
