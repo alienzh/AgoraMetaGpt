@@ -125,7 +125,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     // TTSVendor{id='xunfei-zh-CN-xiaoyan', vendorName='xunfei', language='zh-CN', voiceName='晓燕(普通话)', voiceNameValue='xiaoyan', voiceNameStyle='', accountInJson='null'},
     // TTSVendor{id='xunfei-zh-CN-xiaoyu', vendorName='xunfei', language='zh-CN', voiceName='xiaoyu', voiceNameValue='xiaoyu', voiceNameStyle='', accountInJson='null'},
     // TTSVendor{id='elevenLabs-Bella', vendorName='elevenLabs', language='', voiceName='Bella', voiceNameValue='EXAVITQu4vr4xnSDxMaL', voiceNameStyle='', accountInJson='null'}]}
-    fun setServiceVendor() {
+    fun setServiceVendor(aiRole: AIRole) {
         val serviceVendors: ServiceVendorGroup = mAiEngine?.serviceVendors ?: return
         Log.d(TAG, "serviceVendors $serviceVendors")
         val serviceVendor = ServiceVendor()
@@ -151,12 +151,29 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
         for (ttsVendor in serviceVendors.ttsList) {
             if (currentLanguage() == Language.EN_US) {
-                if (ttsVendor.id.equals("microsoft-en-US-Jenny-cheerful", ignoreCase = true)) {
+                if (aiRole.roleId.equals("Wendy-en-US", true) &&
+                    ttsVendor.id.equals("microsoft-en-US-Jenny-cheerful", true)
+                ) {
+                    serviceVendor.ttsVendor = ttsVendor
+                    break
+                } else if (aiRole.roleId.equals("Cindy-en-US", true)
+                    && ttsVendor.id.equals("microsoft-en-US-Jenny-gentle", ignoreCase = true)
+                ) {
+                    serviceVendor.ttsVendor = ttsVendor
+                    break
+                } else if (aiRole.roleId.equals("yunibobo-en-US", true) &&
+                    ttsVendor.id.equals("microsoft-en-US-Davis-cheerful", true)
+                ) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 }
             } else {
-                if (ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful", ignoreCase = true)) {
+                if (aiRole.roleId.equals("yunibobo-zh-CN", true) &&
+                    ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful", true)) {
+                    serviceVendor.ttsVendor = ttsVendor
+                    break
+                }else if (aiRole.roleId.equals("jingxiang-zh-CN", true) &&
+                    ttsVendor.id.equals("microsoft-zh-CN-xiaoyi-gentle", true)) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 }

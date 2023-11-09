@@ -260,7 +260,7 @@ class AiPartnerFragment : BaseFragment() {
                 if (usableAIRoles.isNotEmpty()) {
                     val aiRole = usableAIRoles[0]
                     mAiShareViewModel.setAvatarModel(aiRole)
-                    mAiShareViewModel.setServiceVendor()
+                    mAiShareViewModel.setServiceVendor(aiRole)
                     mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
                     mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
                 }
@@ -298,7 +298,7 @@ class AiPartnerFragment : BaseFragment() {
             if (usableAIRoles.isNotEmpty()) {
                 val aiRole = usableAIRoles[it]
                 mAiShareViewModel.setAvatarModel(aiRole)
-                mAiShareViewModel.setServiceVendor()
+                mAiShareViewModel.setServiceVendor(aiRole)
                 mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
                 mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
             }
@@ -322,13 +322,14 @@ class AiPartnerFragment : BaseFragment() {
         val requireContext = context ?: return
         mBinding?.layoutUnityContainer?.let { unityContainer ->
             if (full) {
-                val containerParams = ConstraintLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT)
+                val containerParams =
+                    ConstraintLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
                 mTextureView?.outlineProvider =
                     TextureVideoViewOutlineProvider(Utils.dip2px(requireContext, 0f).toFloat());
                 mTextureView?.clipToOutline = false
                 unityContainer.layoutParams = containerParams
             } else {
-                val containerParams = ConstraintLayout.LayoutParams(132.dp.toInt(),132.dp.toInt())
+                val containerParams = ConstraintLayout.LayoutParams(132.dp.toInt(), 132.dp.toInt())
                 mTextureView?.outlineProvider =
                     TextureVideoViewOutlineProvider(64.dp);
                 mTextureView?.clipToOutline = true
