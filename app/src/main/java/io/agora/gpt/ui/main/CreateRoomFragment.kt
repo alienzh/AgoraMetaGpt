@@ -138,7 +138,7 @@ class CreateRoomFragment : BaseFragment() {
                 if (aiRoles.isEmpty()) {
                     ToastUtils.showToast("No roles are available!")
                 } else {
-                    mBinding?.tvChooseRoleContent?.text = aiRoles[0].getRoleName()
+                    mBinding?.tvChooseRoleContent?.text = aiRoles[0].profession
                 }
             }
         }
@@ -183,7 +183,7 @@ class CreateRoomFragment : BaseFragment() {
             override fun onClickJacking(view: View) {
                 val aiRoles = mAiShareViewModel.getUsableAiRoles()
                 val chooseDialog = ChooseDialog(requireContext())
-                chooseDialog.setDatas(aiRoles.map { it.roleName })
+                chooseDialog.setDatas(aiRoles.map { it.profession })
                 chooseDialog.setConfirmCallback { selected ->
                     mBinding?.tvChooseRoleContent?.text = selected
                     aiRoles.find { it.roleName == selected }?.let { aiRole ->

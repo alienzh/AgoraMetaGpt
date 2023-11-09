@@ -15,8 +15,8 @@ android {
         applicationId "com.honso.ai.voicechat"
         minSdk 23
         targetSdk 30
-        versionCode 1014
-        versionName "1014.1108.1"
+        versionCode 1000
+        versionName "1014"
 
         flavorDimensions "versionCode"
 
@@ -56,7 +56,7 @@ android {
     }
     applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "Agora-MetaGpt-${versionName}-${variant.buildType.name}-${releaseTime()}.apk"
+            outputFileName = "Agora-NaomiAI-${versionName}-${variant.buildType.name}-${releaseTime()}.apk"
         }
     }
 

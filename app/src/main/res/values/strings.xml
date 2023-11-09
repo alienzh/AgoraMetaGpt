@@ -21,6 +21,7 @@
     <string name="message_font_text"><![CDATA[<font color="#A6C4FF">%1$s：</font>]]>%2$s</string>
     <string name="message_font_text_ai"><![CDATA[<img src="icon_lightning.png"> <font color="#FFFFFF">%1$s</font> <font color="#A6C4FF">%2$s：</font>]]>%3$s</string>
     <string name="default_ai_name">Hanako</string>
+    <string name="choose_language">Choose Language</string>
 
     <string-array name="choose_language">
         <item>Japanese</item>
