@@ -107,6 +107,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mVirtualHumanRtcToken = KeyCenter.getRtcToken(roomName, virtualHumanUid)
             mRoomName = roomName
             mEnableVoiceChange = false
+            mEnableChatConversation = true
             mSpeechRecognitionFiltersLength = 3
         }
         if (mAiEngine == null) {
