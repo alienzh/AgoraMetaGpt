@@ -15,8 +15,8 @@ android {
         applicationId "io.agora.metagpt"
         minSdk 23
         targetSdk 30
-        versionCode 1012
-        versionName "1012.1031.1"
+        versionCode 1000
+        versionName "1013"
 
         flavorDimensions "versionCode"
 

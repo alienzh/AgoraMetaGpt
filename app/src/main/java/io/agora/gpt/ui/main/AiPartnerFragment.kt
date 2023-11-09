@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
@@ -24,6 +25,7 @@ import io.agora.gpt.databinding.FragmentAiPartnerBinding
 import io.agora.gpt.ui.adapter.ChatMessageAdapter
 import io.agora.gpt.ui.base.BaseFragment
 import io.agora.gpt.ui.view.ChooseRoleDialog
+import io.agora.gpt.ui.view.CustomDialog
 import io.agora.gpt.ui.view.OnFastClickListener
 import io.agora.gpt.ui.view.TopicInputDialog
 import io.agora.gpt.ui.view.WrapContentLinearLayoutManager
@@ -47,6 +49,8 @@ class AiPartnerFragment : BaseFragment() {
     private val mAiShareViewModel: AiShareViewModel by activityViewModels()
 
     private var mHistoryListAdapter: ChatMessageAdapter? = null
+
+    private var mProgressLoadingDialog: AlertDialog? = null
 
     override fun initContentView(inflater: LayoutInflater, container: ViewGroup?, attachToParent: Boolean) {
         super.initContentView(inflater, container, attachToParent)
@@ -94,6 +98,14 @@ class AiPartnerFragment : BaseFragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mProgressLoadingDialog?.let { dialog ->
+            if (dialog.isShowing) dialog.dismiss()
+            mProgressLoadingDialog = null
+        }
+    }
+
     override fun initView() {
         super.initView()
         initUnityView()
@@ -126,6 +138,10 @@ class AiPartnerFragment : BaseFragment() {
                         mAiShareViewModel.stopVoiceChat()
                     }
                 }
+                if (mProgressLoadingDialog == null) {
+                    mProgressLoadingDialog = CustomDialog.showLoadingProgress(requireContext())
+                }
+                mProgressLoadingDialog?.show()
                 mAiShareViewModel.releaseEngine()
             }
         })
