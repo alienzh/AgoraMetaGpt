@@ -5,7 +5,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.TextureView
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.agora.aiengine.AIEngine
@@ -53,7 +52,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     val mChatMessageDataList = mutableListOf<ChatMessageModel>()
 
-    private val mCostTimeMap = mutableMapOf<String, Long>()
+    private val mSttEndTimeMap = mutableMapOf<String, Long>()
     private var mLastSpeech2TextTime: Long = 0
     private var mEnableEnglishTeacher = false
     private var mIsStartVoice: Boolean = false
@@ -181,7 +180,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mHandler.post {
             if (isRecognizedSpeech && tempSid != null) {
                 mLastSpeech2TextTime = System.currentTimeMillis()
-                mCostTimeMap[tempSid] = System.currentTimeMillis()
+                mSttEndTimeMap[tempSid] = System.currentTimeMillis()
                 val messageModel = ChatMessageModel(
                     isAiMessage = false,
                     sid = tempSid,
@@ -205,25 +204,22 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             Log.i(TAG, "onLLMResult tempSid:$tempSid answer:$answer")
         }
         mHandler.post {
-            val lastIndex = mChatMessageDataList.indexOfLast { it.sid == tempSid }
-            if (lastIndex >= 0) {
-                val lastChatMessageModel: ChatMessageModel = mChatMessageDataList[lastIndex]
-                lastChatMessageModel.message = lastChatMessageModel.message.plus(answer.data)
-                mNewLineMessageModel.value = Triple(lastChatMessageModel, false, lastIndex)
+            val oldChatMessageModel = mChatMessageDataList.find { it.sid == tempSid && it.isAiMessage }
+            if (oldChatMessageModel != null) {
+                val index = mChatMessageDataList.indexOf(oldChatMessageModel)
+                oldChatMessageModel.message = oldChatMessageModel.message.plus(answer.data)
+                mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
             } else {
                 val messageModel = ChatMessageModel(
                     isAiMessage = true,
                     sid = tempSid!!,
                     name = getAiName(),
                     message = answer.data,
-                    costTime = System.currentTimeMillis() - (mCostTimeMap[sid] ?: mLastSpeech2TextTime)
+//                    costTime = System.currentTimeMillis() - (mSttEndTimeMap[sid] ?: mLastSpeech2TextTime)
                 )
-//                mCostTimeMap[sid]?.let { startTime ->
-//                    messageModel.costTime = System.currentTimeMillis() - startTime
-//                }
-                if (!mCostTimeMap.containsKey(sid)) {
-                    // 新的 roundId，不用计算耗时，AI 自动问询的消息
-                    messageModel.costTime = 0
+                // stt 识别完没有 sid ，一个新的sid，默认就是 ai 问询语句
+                if (!mSttEndTimeMap.containsKey(tempSid)) {
+                    mSttEndTimeMap[tempSid] = System.currentTimeMillis()
                 }
                 mChatMessageDataList.add(messageModel)
                 mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
@@ -236,21 +232,21 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     override fun onText2SpeechResult(
         roundId: String?, voice: Data<ByteArray>?, sampleRates: Int, channels: Int, bits: Int
     ): HandleResult {
+
         var tempSid = roundId
         if (tempSid.isNullOrEmpty()) {
             tempSid = KeyCenter.getRandomString(20)
             Log.i(TAG, "onText2SpeechResult tempSid:$tempSid,sampleRates:$sampleRates,channels:$channels,bits:$bits")
         }
-//        Log.i(TAG, "onText2SpeechResult roundId:$roundId,sampleRates:$sampleRates,channels:$channels,bits:$bits")
-//        mHandler.post {
-//            val lastIndex = mChatMessageDataList.indexOfLast { it.sid == roundId }
-//            if (lastIndex >= 0) {
-//                val lastChatMessageModel: ChatMessageModel = mChatMessageDataList[lastIndex]
-//                lastChatMessageModel.costTime =
-//                    System.currentTimeMillis() - (mCostTimeMap[roundId] ?: mLastSpeech2TextTime)
-//                mNewLineMessageModel.value = Triple(lastChatMessageModel, false, lastIndex)
-//            }
-//        }
+        mHandler.post {
+            val oldChatMessageModel = mChatMessageDataList.find { it.sid == tempSid && it.isAiMessage }
+            if (oldChatMessageModel != null && oldChatMessageModel.costTime == 0L) {
+                val index = mChatMessageDataList.indexOf(oldChatMessageModel)
+                oldChatMessageModel.costTime =
+                    System.currentTimeMillis() - (mSttEndTimeMap[tempSid] ?: mLastSpeech2TextTime)
+                mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
+            }
+        }
         return HandleResult.CONTINUE
     }
 
@@ -509,7 +505,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         KeyCenter.userName = ""
         mMute = false
         mChatMessageDataList.clear()
-        mCostTimeMap.clear()
+        mSttEndTimeMap.clear()
         mLastSpeech2TextTime = 0
         mEnableEnglishTeacher = false
         stopVoiceChat()
