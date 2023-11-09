@@ -89,7 +89,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mVirtualHumanRtcToken = KeyCenter.getRtcToken(roomName, virtualHumanUid)
             mRoomName = roomName
             mEnableVoiceChange = false
-            mSpeechRecognitionFiltersLength = 3
+            mSpeechRecognitionFiltersLength = 0
         }
         if (mAiEngine == null) {
             mAiEngine = AIEngine.create()
