@@ -90,6 +90,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mRoomName = roomName
             mEnableVoiceChange = false
             mSpeechRecognitionFiltersLength = 0
+            mEnableChatConversation = true
         }
         if (mAiEngine == null) {
             mAiEngine = AIEngine.create()
@@ -197,9 +198,16 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
 
         mHandler.post {
-            if (isRecognizedSpeech && tempSid != null) {
+            if (isRecognizedSpeech) {
                 mLastSpeech2TextTime = System.currentTimeMillis()
                 mSttEndTimeMap[tempSid] = System.currentTimeMillis()
+            }
+            val oldChatMessageModel = mChatMessageDataList.find { it.sid == tempSid && !it.isAiMessage }
+            if (oldChatMessageModel != null) {
+                val index = mChatMessageDataList.indexOf(oldChatMessageModel)
+                oldChatMessageModel.message = result.data
+                mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
+            }else{
                 val messageModel = ChatMessageModel(
                     isAiMessage = false,
                     sid = tempSid,
@@ -210,6 +218,20 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 mChatMessageDataList.add(messageModel)
                 mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
             }
+            // 用户说话只需要最后完整的就行
+//            if (isRecognizedSpeech) {
+//                mLastSpeech2TextTime = System.currentTimeMillis()
+//                mSttEndTimeMap[tempSid] = System.currentTimeMillis()
+//                val messageModel = ChatMessageModel(
+//                    isAiMessage = false,
+//                    sid = tempSid,
+//                    name = KeyCenter.userName ?: "",
+//                    message = result.data,
+//                    costTime = 0
+//                )
+//                mChatMessageDataList.add(messageModel)
+//                mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
+//            }
         }
         return HandleResult.CONTINUE
     }
@@ -411,7 +433,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             avatarModel.bgFilePath = "bg_ai_female.png"
         }
         mAiEngineConfig.mAvatarModel = avatarModel
-        mAiEngineConfig.mEnableChatConversation = isEnglishTeacher(aiRole)
         mAiEngine?.updateConfig(mAiEngineConfig)
         mAiEngine?.setRole(aiRole.roleId)
         Log.d(TAG, "setRole:$aiRole,avatarModel:$avatarModel")
@@ -429,12 +450,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mIsStartVoice = true
         mAiEngine?.startVoiceChat()
         if (mEnableEnglishTeacher) {
-            mAiEngineConfig.mEnableChatConversation = true
             pushText(Constant.COMMAND_INIT_CHAT_MESSAGE)
-        } else {
-            mAiEngineConfig.mEnableChatConversation = false
         }
-//        mAiEngine?.updateConfig(mAiEngineConfig)
     }
 
     // 结束语聊
