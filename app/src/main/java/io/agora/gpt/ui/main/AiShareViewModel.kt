@@ -152,29 +152,29 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
         for (ttsVendor in serviceVendors.ttsList) {
             if (currentLanguage() == Language.EN_US) {
-                if (aiRole.roleId.equals("Wendy-en-US", true) &&
+                if (aiRole.roleId.equals(Constant.EN_Role_ID_WENDY, true) &&
                     ttsVendor.id.equals("microsoft-en-US-Jenny-cheerful", true)
                 ) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
-                } else if (aiRole.roleId.equals("Cindy-en-US", true)
+                } else if (aiRole.roleId.equals(Constant.EN_Role_ID_Cindy, true)
                     && ttsVendor.id.equals("microsoft-en-US-Jenny-cheerful", ignoreCase = true)
                 ) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
-                } else if (aiRole.roleId.equals("yunibobo-en-US", true) &&
+                } else if (aiRole.roleId.equals(Constant.EN_Role_ID_yunibobo, true) &&
                     ttsVendor.id.equals("microsoft-en-US-Jenny-gentle", true)
                 ) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 }
             } else {
-                if (aiRole.roleId.equals("yunibobo-zh-CN", true) &&
+                if (aiRole.roleId.equals(Constant.CN_Role_ID_yunibobo, true) &&
                     ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful", true)
                 ) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
-                } else if (aiRole.roleId.equals("jingxiang-zh-CN", true) &&
+                } else if (aiRole.roleId.equals(Constant.CN_Role_ID_jingxiang, true) &&
                     ttsVendor.id.equals("microsoft-zh-CN-xiaoyi-gentle", true)
                 ) {
                     serviceVendor.ttsVendor = ttsVendor
@@ -403,6 +403,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     // 获取可用的AIRole
     fun getUsableAiRoles(): List<AIRole> {
         val sdkAiRoles = mAiEngine?.roles ?: emptyArray()
+        Log.d(TAG,"sdkAiRoles：$sdkAiRoles")
         val sdkAiRoleMap = sdkAiRoles.associateBy { it.roleId }
 
         val localRoleIds = if (mAiEngineConfig.mLanguage == Language.EN_US) {
