@@ -108,7 +108,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mRoomName = roomName
             mEnableVoiceChange = false
             mEnableChatConversation = true
-            mSpeechRecognitionFiltersLength = 3
+            mSpeechRecognitionFiltersLength = 0
         }
         if (mAiEngine == null) {
             mAiEngine = AIEngine.create()
@@ -158,12 +158,17 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             tempSid = KeyCenter.getRandomString(20)
             Log.i(TAG, "onSpeech2TextResult tempSid:$tempSid,result:$result,isRecognizedSpeech:$isRecognizedSpeech")
         }
-
         mHandler.post {
-            // 用户说话只需要最后完整的就行
-            if (isRecognizedSpeech && tempSid != null) {
+            if (isRecognizedSpeech) {
                 mLastSpeech2TextTime = System.currentTimeMillis()
                 mSttEndTimeMap[tempSid] = System.currentTimeMillis()
+            }
+            val oldChatMessageModel = mChatMessageDataList.find { it.sid == tempSid && !it.isAiMessage }
+            if (oldChatMessageModel != null) {
+                val index = mChatMessageDataList.indexOf(oldChatMessageModel)
+                oldChatMessageModel.message = result.data
+                _mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
+            }else{
                 val messageModel = ChatMessageModel(
                     isAiMessage = false,
                     sid = tempSid,
@@ -174,6 +179,20 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 mChatMessageDataList.add(messageModel)
                 _mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
             }
+            // 用户说话只需要最后完整的就行
+//            if (isRecognizedSpeech) {
+//                mLastSpeech2TextTime = System.currentTimeMillis()
+//                mSttEndTimeMap[tempSid] = System.currentTimeMillis()
+//                val messageModel = ChatMessageModel(
+//                    isAiMessage = false,
+//                    sid = tempSid,
+//                    name = KeyCenter.userName ?: "",
+//                    message = result.data,
+//                    costTime = 0
+//                )
+//                mChatMessageDataList.add(messageModel)
+//                _mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
+//            }
         }
         return HandleResult.CONTINUE
     }
