@@ -137,7 +137,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             }
         }
         for (llmVendor in serviceVendors.llmList) {
-            if (llmVendor.id.equals("azureOpenai-gpt-35-turbo-16k", ignoreCase = true)) {
+            if (llmVendor.id.equals("claude-anthropic.claude-v2-100k", ignoreCase = true)) {
                 serviceVendor.llmVendor = llmVendor
                 break
             }
