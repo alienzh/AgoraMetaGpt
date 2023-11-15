@@ -56,7 +56,7 @@ android {
     }
     applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "Agora-NaomiAI-${versionName}-${variant.buildType.name}-${releaseTime()}.apk"
+            outputFileName = "Agora-AIGC-Special-Edition-${versionName}-${variant.buildType.name}-${releaseTime()}.apk"
         }
     }
 
