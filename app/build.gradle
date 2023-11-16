@@ -16,7 +16,7 @@ android {
         minSdk 23
         targetSdk 30
         versionCode 1000
-        versionName "1017"
+        versionName "1018"
 
         flavorDimensions "versionCode"
 
