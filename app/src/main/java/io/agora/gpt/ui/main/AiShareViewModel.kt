@@ -91,6 +91,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mEnableVoiceChange = false
             mSpeechRecognitionFiltersLength = 0
             mEnableChatConversation = true
+            enableChatIdleTip = true
         }
         if (mAiEngine == null) {
             mAiEngine = AIEngine.create()
