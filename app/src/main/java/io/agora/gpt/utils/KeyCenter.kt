@@ -26,23 +26,25 @@ object KeyCenter {
     const val APP_ID = BuildConfig.APP_ID
     private var USER_RTC_UID = -1
     private var DIGITAL_HUMAN_RTC_UID = -1
-    private var mRoomName: String? = null
-    var userName: String? = null
-    val roomName: String?
+    private var innerRoomName: String? = null
+    var mUserName: String? = null
+    var mCurrentScene: String = Constant.Scene_AI_Partner
+
+    val mRoomName: String?
         get() {
-            if (mRoomName == null || mRoomName == "") {
-                mRoomName = getRandomString(12)
+            if (innerRoomName == null || innerRoomName == "") {
+                innerRoomName = getRandomString(12)
             }
-            return mRoomName
+            return innerRoomName
         }
-    val userUid: Int
+    val mUserUid: Int
         get() {
             if (-1 == USER_RTC_UID) {
                 USER_RTC_UID = Random().nextInt(USER_MAX_UID)
             }
             return USER_RTC_UID
         }
-    val virtualHumanUid: Int
+    val mVirtualHumanUid: Int
         get() {
             if (-1 == DIGITAL_HUMAN_RTC_UID) {
                 DIGITAL_HUMAN_RTC_UID = Random().nextInt(USER_MAX_UID) + DIGITAL_HUMAN_MAX_UID

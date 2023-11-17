@@ -8,7 +8,6 @@ import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
-import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -18,8 +17,6 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import io.agora.aigc.sdk.constants.ServiceCode
 import io.agora.aigc.sdk.constants.ServiceEvent
-import io.agora.aigc.sdk.model.ServiceVendor
-import io.agora.aigc.sdk.model.ServiceVendorGroup
 import io.agora.gpt.R
 import io.agora.gpt.databinding.FragmentAiPartnerBinding
 import io.agora.gpt.ui.adapter.ChatMessageAdapter
@@ -113,7 +110,7 @@ class AiPartnerFragment : BaseFragment() {
 //        mAiShareViewModel.setServiceVendor()
         mBinding?.apply {
             val requireContext = context ?: return
-            tvUserName.text = KeyCenter.userName
+            tvUserName.text = KeyCenter.mUserName
             if (mHistoryListAdapter == null) {
                 mHistoryListAdapter = ChatMessageAdapter(requireContext, mAiShareViewModel.mChatMessageDataList)
                 aiHistoryList.layoutManager = WrapContentLinearLayoutManager(requireContext)
@@ -124,10 +121,6 @@ class AiPartnerFragment : BaseFragment() {
                 mHistoryListAdapter?.notifyDataSetChanged()
             }
         }
-    }
-
-    override fun initClickEvent() {
-        super.initClickEvent()
         mBinding?.btnExit?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
                 mBinding?.apply {

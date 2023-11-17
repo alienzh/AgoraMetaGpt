@@ -72,15 +72,15 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     fun initAiEngine() {
-        val userId = KeyCenter.userUid
-        val roomName = KeyCenter.roomName
-        val virtualHumanUid = KeyCenter.virtualHumanUid
+        val userId = KeyCenter.mUserUid
+        val roomName = KeyCenter.mRoomName
+        val virtualHumanUid = KeyCenter.mVirtualHumanUid
         mAiEngineConfig.apply {
             mContext = MainApplication.mGlobalApplication.applicationContext
             mCallback = this@AiShareViewModel
             mEnableLog = true
             mEnableSaveLogToFile = true
-            mUserName = KeyCenter.userName
+            mUserName = KeyCenter.mUserName
             mUid = userId
             mRtcAppId = KeyCenter.APP_ID
             mRtcToken = KeyCenter.getRtcToken(roomName, userId)
@@ -211,7 +211,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 val messageModel = ChatMessageModel(
                     isAiMessage = false,
                     sid = tempSid,
-                    name = KeyCenter.userName ?: "",
+                    name = KeyCenter.mUserName ?: "",
                     message = result.data,
                     costTime = 0
                 )
@@ -531,7 +531,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     fun releaseEngine() {
-        KeyCenter.userName = ""
+        KeyCenter.mUserName = ""
         mMute = false
         mChatMessageDataList.clear()
         mSttEndTimeMap.clear()

@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -24,6 +25,7 @@ import io.agora.gpt.ui.view.CustomDialog.Companion.showDownloadingChooser
 import io.agora.gpt.ui.view.CustomDialog.Companion.showDownloadingProgress
 import io.agora.gpt.ui.view.CustomDialog.Companion.showLoadingProgress
 import io.agora.gpt.ui.view.OnFastClickListener
+import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.LanguageUtil
 import java.util.Locale
@@ -128,27 +130,58 @@ class CreateRoomFragment : BaseFragment() {
         }
     }
 
+    private fun setupScene(currentScene: String) {
+        mBinding?.apply {
+            btnAiPartner.isActivated = false
+            btnAiGame.isActivated = false
+            when (currentScene) {
+                Constant.Scene_AI_Game -> {
+                    btnAiGame.isActivated = true
+                    groupGame.isVisible = true
+                }
+                else -> {
+                    btnAiPartner.isActivated = true
+                    groupGame.isVisible = false
+                }
+            }
+        }
+
+    }
+
     override fun initView() {
         super.initView()
         mBinding?.apply {
-            btnAiPartner.isActivated = true
             etNickname.doAfterTextChanged {
-                KeyCenter.userName = it.toString()
+                KeyCenter.mUserName = it.toString()
             }
             if (mAiShareViewModel.currentLanguage() == Language.ZH_CN) {
                 btnSwitchLanguage.setImageResource(R.drawable.icon_zh_to_en)
+                groupGame.isVisible = true
+                btnAiGame.isVisible = true
             } else {
                 btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
+                groupGame.isVisible = false
+                btnAiGame.isVisible = false
+                // 英文只有 AI 伴侣
+                KeyCenter.mCurrentScene = Constant.Scene_AI_Partner
             }
+            setupScene(KeyCenter.mCurrentScene)
         }
-    }
-
-    override fun initClickEvent() {
-        super.initClickEvent()
-        //防止多次频繁点击异常处理
+        mBinding?.btnAiPartner?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                KeyCenter.mCurrentScene = Constant.Scene_AI_Partner
+                setupScene(KeyCenter.mCurrentScene)
+            }
+        })
+        mBinding?.btnAiGame?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                KeyCenter.mCurrentScene = Constant.Scene_AI_Game
+                setupScene(KeyCenter.mCurrentScene)
+            }
+        })
         mBinding?.btnEnterRoom?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                if (TextUtils.isEmpty(KeyCenter.userName)) {
+                if (TextUtils.isEmpty(KeyCenter.mUserName)) {
                     Toast.makeText(requireActivity(), R.string.enter_nickname, Toast.LENGTH_LONG).show()
                 } else {
                     if (mProgressLoadingDialog == null) {
@@ -170,21 +203,14 @@ class CreateRoomFragment : BaseFragment() {
             override fun onClickJacking(view: View) {
                 mAiShareViewModel.switchLanguage { language ->
                     if (language == Language.ZH_CN) {
-                        mBinding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_zh_to_en)
                         LanguageUtil.changeLanguage(requireContext(), "zh", "CN")
                     } else {
-                        mBinding?.btnSwitchLanguage?.setImageResource(R.drawable.icon_en_to_zh)
                         LanguageUtil.changeLanguage(requireContext(), "en", "US")
                     }
                     activity?.recreate()
                 }
             }
         })
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mBinding = null
     }
 
     override fun onStart() {
@@ -203,11 +229,8 @@ class CreateRoomFragment : BaseFragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mBinding = null
     }
 }

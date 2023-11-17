@@ -4,10 +4,11 @@
     <string name="create_room">创建房间</string>
     <string name="choose_scene">场景选择</string>
     <string name="game_ai_partner">AI伴侣</string>
-    <string name="stay_tuned">敬请期待</string>
+    <string name="scene_ai_game">AI游戏</string>
     <string name="nickname">昵称</string>
     <string name="random">随机</string>
     <string name="enter_nickname">请输入昵称</string>
+    <string name="choose_game">游戏选择</string>
     <string name="enter_room">进入房间</string>
     <string name="changing_ai_roles">选择这个角色</string>
     <string name="calling">呼叫 %1$s</string>

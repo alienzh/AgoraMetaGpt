@@ -14,8 +14,6 @@ open class BaseFragment : Fragment() {
         initContentView(inflater, container, false)
         initData()
         initView()
-        initClickEvent()
-        initListener()
         return null
     }
 
@@ -26,7 +24,6 @@ open class BaseFragment : Fragment() {
         mIsFront = false
     }
 
-    protected fun initListener() {}
     override fun onResume() {
         super.onResume()
         mIsFront = true
