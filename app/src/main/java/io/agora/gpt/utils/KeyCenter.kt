@@ -28,7 +28,6 @@ object KeyCenter {
     private var DIGITAL_HUMAN_RTC_UID = -1
     private var innerRoomName: String? = null
     var mUserName: String? = null
-    var mCurrentScene: String = Constant.Scene_AI_Partner
 
     val mRoomName: String?
         get() {

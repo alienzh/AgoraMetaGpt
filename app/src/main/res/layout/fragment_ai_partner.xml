@@ -162,7 +162,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="gone" />
+        tools:visibility="invisible" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideVertical50"
@@ -183,7 +183,20 @@
         app:contentPadding="8dp"
         app:layout_constraintBottom_toBottomOf="@id/btnCalling"
         app:layout_constraintEnd_toEndOf="@id/guideVertical50"
-        app:layout_constraintTop_toTopOf="@id/btnCalling" />
+        app:layout_constraintTop_toTopOf="@id/btnCalling"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivLongPressTips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:src="@drawable/ic_long_press_speak"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@id/ivVoice"
+        app:layout_constraintEnd_toEndOf="@id/ivVoice"
+        app:layout_constraintStart_toStartOf="@id/ivVoice"
+        tools:visibility="visible" />
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivHangUp"
@@ -197,7 +210,8 @@
         app:contentPadding="6dp"
         app:layout_constraintBottom_toBottomOf="@id/btnCalling"
         app:layout_constraintStart_toStartOf="@id/guideVertical50"
-        app:layout_constraintTop_toTopOf="@id/btnCalling" />
+        app:layout_constraintTop_toTopOf="@id/btnCalling"
+        tools:visibility="visible" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/aiHistoryList"
@@ -284,7 +298,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="ivSttBg1,ivSttBgGradient,btnSendText,btnCancelText,tvSttContent"
-        tools:visibility="visible" />
+        app:constraint_referenced_ids="ivSttBg1,ivSttBgGradient,btnSendText,btnCancelText,tvSttContent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

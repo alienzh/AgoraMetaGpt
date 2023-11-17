@@ -48,7 +48,14 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     val mNewLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = SingleLiveEvent()
 
+    // 禁音按钮
     private var mMute: Boolean = false
+
+    // 长按说话按钮
+    private var mLongStting: Boolean = false
+
+    // 第一次进入房间
+    private var mFirstEnterRoom: Boolean = true
 
     val mChatMessageDataList = mutableListOf<ChatMessageModel>()
 
@@ -57,6 +64,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     private var mEnableEnglishTeacher = false
     private var mIsStartVoice: Boolean = false
     private var mEnableVirtualHuman: Boolean = false
+    var mCurrentScene: String = Constant.Scene_AI_Partner
 
     init {
         val currentLanguage = SPUtil.get(Constant.CURRENT_LANGUAGE, "zh") as String
@@ -65,6 +73,16 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         } else {
             Language.EN_US
         }
+    }
+
+    fun isAiGame(): Boolean {
+        return mCurrentScene == Constant.Scene_AI_Game
+    }
+
+    fun isFirstEnterRoom(): Boolean = mFirstEnterRoom
+
+    fun setFirstEnterRoom(isFirstEnterRoom:Boolean){
+        this.mFirstEnterRoom = isFirstEnterRoom
     }
 
     fun currentLanguage(): Language {
@@ -207,7 +225,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 val index = mChatMessageDataList.indexOf(oldChatMessageModel)
                 oldChatMessageModel.message = result.data
                 mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
-            }else{
+            } else {
                 val messageModel = ChatMessageModel(
                     isAiMessage = false,
                     sid = tempSid,
@@ -403,7 +421,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     // 获取可用的AIRole
     fun getUsableAiRoles(): List<AIRole> {
         val sdkAiRoles = mAiEngine?.roles ?: emptyArray()
-        Log.d(TAG,"sdkAiRoles：$sdkAiRoles")
+        Log.d(TAG, "sdkAiRoles：$sdkAiRoles")
         val sdkAiRoleMap = sdkAiRoles.associateBy { it.roleId }
 
         val localRoleIds = if (mAiEngineConfig.mLanguage == Language.EN_US) {
@@ -477,6 +495,12 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         callback.invoke(mMute)
     }
 
+    fun longClickVoice(callback: () -> Unit) {
+        mLongStting = true
+        // TODO:
+        callback.invoke()
+    }
+
     // 设置AI语言环境,只记录语言
     fun switchLanguage(callback: (Language) -> Unit) {
         mAiEngineConfig.mLanguage = if (mAiEngineConfig.mLanguage == Language.ZH_CN) {
@@ -533,6 +557,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     fun releaseEngine() {
         KeyCenter.mUserName = ""
         mMute = false
+        mLongStting = false
+        mFirstEnterRoom = true
         mChatMessageDataList.clear()
         mSttEndTimeMap.clear()
         mLastSpeech2TextTime = 0

@@ -38,6 +38,7 @@
     <string name="send_command_error">Please start the call before sending it</string>
     <string name="send_text">Send</string>
     <string name="send_cancel">Cancel</string>
+    <string name="the_recording_was_not_identified">未识别到语音，请重新录音</string>
 
     <string-array name="user_nickname">
         <item>James</item>

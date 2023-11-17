@@ -2,6 +2,8 @@ package io.agora.gpt.ui.main
 
 import android.graphics.SurfaceTexture
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.TextureView
@@ -48,6 +50,10 @@ class AiPartnerFragment : BaseFragment() {
     private var mHistoryListAdapter: ChatMessageAdapter? = null
 
     private var mProgressLoadingDialog: AlertDialog? = null
+
+    private val mMainHandler by lazy {
+        Handler(Looper.getMainLooper())
+    }
 
     override fun initContentView(inflater: LayoutInflater, container: ViewGroup?, attachToParent: Boolean) {
         super.initContentView(inflater, container, attachToParent)
@@ -103,6 +109,12 @@ class AiPartnerFragment : BaseFragment() {
         }
     }
 
+    private val mHideLongPressTipsTask: Runnable by lazy {
+        Runnable {
+            mBinding?.ivLongPressTips?.isVisible = false
+        }
+    }
+
     override fun initView() {
         super.initView()
         initUnityView()
@@ -136,6 +148,7 @@ class AiPartnerFragment : BaseFragment() {
                 }
                 mProgressLoadingDialog?.show()
                 mAiShareViewModel.releaseEngine()
+                mMainHandler.removeCallbacksAndMessages(null)
             }
         })
 
@@ -204,20 +217,40 @@ class AiPartnerFragment : BaseFragment() {
                     ivVoice.visibility = View.VISIBLE
                     ivHangUp.visibility = View.VISIBLE
                     mAiShareViewModel.startVoiceChat()
+                    if (mAiShareViewModel.isAiGame() && mAiShareViewModel.isFirstEnterRoom()) {
+                        mBinding?.ivLongPressTips?.isVisible = true
+                        mAiShareViewModel.setFirstEnterRoom(false)
+                        mMainHandler.postDelayed(mHideLongPressTipsTask, 5000)
+                    } else {
+                        mBinding?.ivLongPressTips?.isVisible = false
+                    }
                 }
             }
         })
         mBinding?.ivVoice?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                mAiShareViewModel.mute { isMute ->
-                    mBinding?.apply {
-                        if (isMute) {
-                            ivVoice.setImageResource(R.drawable.ic_mute)
-                        } else {
-                            ivVoice.setImageResource(R.drawable.ic_unmute)
+                if (mAiShareViewModel.isAiGame()) {
+
+                } else {
+                    mAiShareViewModel.mute { isMute ->
+                        mBinding?.apply {
+                            if (isMute) {
+                                ivVoice.setImageResource(R.drawable.ic_mute)
+                            } else {
+                                ivVoice.setImageResource(R.drawable.ic_unmute)
+                            }
                         }
                     }
                 }
+            }
+        })
+        mBinding?.ivVoice?.setOnLongClickListener(object :View.OnLongClickListener{
+            override fun onLongClick(v: View?): Boolean {
+                // TODO: AI游戏
+                mAiShareViewModel.longClickVoice {
+                    mBinding?.groupStt?.isVisible = true
+                }
+                return true
             }
         })
 
@@ -239,6 +272,19 @@ class AiPartnerFragment : BaseFragment() {
 //                }
 //            }
 //        })
+
+        mBinding?.btnSendText?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                mBinding?.groupStt?.isVisible = false
+                // TODO:
+                ToastUtils.showToast(R.string.the_recording_was_not_identified)
+            }
+        })
+        mBinding?.btnCancelText?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                mBinding?.groupStt?.isVisible = false
+            }
+        })
     }
 
     private fun initUnityView() {
@@ -257,6 +303,7 @@ class AiPartnerFragment : BaseFragment() {
                     mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
                     mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
                 }
+                mBinding?.tvSwitchRole?.isVisible = !mAiShareViewModel.isAiGame()
                 mAiShareViewModel.prepare()
             }
 
@@ -270,8 +317,7 @@ class AiPartnerFragment : BaseFragment() {
 
             override fun onSurfaceTextureUpdated(surfaceTexture: SurfaceTexture) {}
         }
-        val layoutParams =
-            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         mBinding?.layoutUnityContainer?.removeAllViews()
         mBinding?.layoutUnityContainer?.addView(mTextureView, 0, layoutParams)
     }

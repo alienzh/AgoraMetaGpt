@@ -163,20 +163,20 @@ class CreateRoomFragment : BaseFragment() {
                 groupGame.isVisible = false
                 btnAiGame.isVisible = false
                 // 英文只有 AI 伴侣
-                KeyCenter.mCurrentScene = Constant.Scene_AI_Partner
+                mAiShareViewModel.mCurrentScene = Constant.Scene_AI_Partner
             }
-            setupScene(KeyCenter.mCurrentScene)
+            setupScene(mAiShareViewModel.mCurrentScene)
         }
         mBinding?.btnAiPartner?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                KeyCenter.mCurrentScene = Constant.Scene_AI_Partner
-                setupScene(KeyCenter.mCurrentScene)
+                mAiShareViewModel.mCurrentScene = Constant.Scene_AI_Partner
+                setupScene(mAiShareViewModel.mCurrentScene)
             }
         })
         mBinding?.btnAiGame?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                KeyCenter.mCurrentScene = Constant.Scene_AI_Game
-                setupScene(KeyCenter.mCurrentScene)
+                mAiShareViewModel.mCurrentScene = Constant.Scene_AI_Game
+                setupScene(mAiShareViewModel.mCurrentScene)
             }
         })
         mBinding?.btnEnterRoom?.setOnClickListener(object : OnFastClickListener() {
