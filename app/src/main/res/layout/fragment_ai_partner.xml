@@ -161,7 +161,8 @@
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="gone" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideVertical50"
@@ -219,7 +220,71 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        tools:visibility="visible"
-        app:constraint_referenced_ids="tvEvaluate,tvTopic" />
+        app:constraint_referenced_ids="tvEvaluate,tvTopic"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivSttBgGradient"
+        android:layout_width="match_parent"
+        android:layout_height="242dp"
+        android:layout_marginBottom="100dp"
+        android:background="@drawable/bg_stt_gradient_background"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/ivSttBg1"
+        android:layout_width="match_parent"
+        android:layout_height="147dp"
+        android:background="@drawable/ic_stt_background"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvSttContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="25dp"
+        android:ellipsize="start"
+        android:lines="3"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/ivSttBgGradient"
+        app:layout_constraintTop_toTopOf="@+id/ivSttBgGradient"
+        tools:text="同学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSendText"
+        android:layout_width="117dp"
+        android:layout_height="49dp"
+        android:background="@drawable/bg_button_7a5_corners"
+        android:text="@string/send_text"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/ivSttBg1"
+        app:layout_constraintEnd_toStartOf="@+id/btnCancelText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/ivSttBg1" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnCancelText"
+        android:layout_width="117dp"
+        android:layout_height="49dp"
+        android:background="@android:color/transparent"
+        android:text="@string/send_cancel"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/ivSttBg1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnSendText"
+        app:layout_constraintTop_toTopOf="@+id/ivSttBg1" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupStt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="ivSttBg1,ivSttBgGradient,btnSendText,btnCancelText,tvSttContent"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -36,6 +36,8 @@
     <string name="role_latte_love">Latte Love</string>
     <string name="role_latte_love_tips">Barista, gentle and considerate</string>
     <string name="send_command_error">Please start the call before sending it</string>
+    <string name="send_text">Send</string>
+    <string name="send_cancel">Cancel</string>
 
     <string-array name="user_nickname">
         <item>James</item>

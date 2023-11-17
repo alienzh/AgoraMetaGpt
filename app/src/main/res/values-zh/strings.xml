@@ -36,6 +36,8 @@
     <string name="role_latte_love">静香</string>
     <string name="role_latte_love_tips">咖啡师，温柔体贴，性格开朗</string>
     <string name="send_command_error">请开始呼叫后再发送</string>
+    <string name="send_text">发送</string>
+    <string name="send_cancel">取消</string>
 
     <string-array name="user_nickname">
         <item>James</item>
