@@ -64,9 +64,11 @@ class AiPartnerFragment : BaseFragment() {
         super.initData()
         mAiShareViewModel.mPrepareResult.observe(this, object : Observer<Boolean> {
             override fun onChanged(t: Boolean?) {
-
+                mProgressLoadingDialog?.let { dialog ->
+                    if (dialog.isShowing) dialog.dismiss()
+                    mProgressLoadingDialog = null
+                }
             }
-
         })
 
         mAiShareViewModel.mEventResultModel.observe(this) { eventResult ->
@@ -97,6 +99,11 @@ class AiPartnerFragment : BaseFragment() {
 
     override fun initView() {
         super.initView()
+        if (mProgressLoadingDialog == null) {
+            mProgressLoadingDialog = CustomDialog.showLoadingProgress(requireContext())
+        }
+        mProgressLoadingDialog?.show()
+
         initUnityView()
 
         mBinding?.apply {
