@@ -166,7 +166,7 @@ class CreateRoomFragment : BaseFragment() {
             etNickname.doAfterTextChanged {
                 KeyCenter.userName = it.toString()
             }
-            val language = mAiShareViewModel.getCurrentLanguage()
+            val language = mAiShareViewModel.currentLanguage()
             tvChooseLanguageContent.text = getLanguageText(language)
         }
 

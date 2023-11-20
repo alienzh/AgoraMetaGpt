@@ -67,15 +67,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     private var mEnableEnglishTeacher = false
     private var mIsStartVoice: Boolean = false
     private var mEnableVirtualHuman: Boolean = false
-    private var mCurrentLanguage: Language = Language.JA_JP
 
     init {
-        val currentLanguage = SPUtil.get(Constant.CURRENT_LANGUAGE, "zh") as String
-        mAiEngineConfig.mLanguage = if (currentLanguage == "zh") {
-            Language.ZH_CN
-        } else {
-            Language.EN_US
-        }
+        mAiEngineConfig.mLanguage = Language.JA_JP
     }
 
     private var mCurrentAiRole: AIRole? = null
@@ -99,7 +93,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mEnableSaveLogToFile = true
             mUserName = KeyCenter.userName
             mUid = userId
-            mLanguage = mCurrentLanguage
             mRtcAppId = KeyCenter.APP_ID
             mRtcToken = KeyCenter.getRtcToken(roomName, userId)
             mRtmToken = KeyCenter.getRtmToken(userId)
@@ -427,11 +420,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         callback.invoke(mMute)
     }
 
-    fun getCurrentLanguage():Language = mCurrentLanguage
-
     // 设置AI语言环境,只记录语言
     fun switchLanguage(language: Language, callback: (Language) -> Unit) {
-        mCurrentLanguage = language
         mAiEngineConfig.mLanguage = language
         callback.invoke(mAiEngineConfig.mLanguage)
     }
