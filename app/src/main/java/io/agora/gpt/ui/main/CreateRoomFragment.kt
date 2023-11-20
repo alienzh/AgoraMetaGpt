@@ -145,6 +145,20 @@ class CreateRoomFragment : BaseFragment() {
         mAiShareViewModel.initAiEngine()
     }
 
+    private fun getLanguageText(language: Language): String {
+        mLanguageArray.forEach {
+            if (language == Language.ZH_CN && it.startsWith("Ch")) {
+                return it
+            } else if (language == Language.EN_US && it.startsWith("En")) {
+                return it
+            } else if (language == Language.JA_JP && it.startsWith("Ja")) {
+                return it
+            }
+        }
+
+        return mLanguageArray[0]
+    }
+
     override fun initView() {
         super.initView()
         mBinding?.apply {
@@ -152,7 +166,8 @@ class CreateRoomFragment : BaseFragment() {
             etNickname.doAfterTextChanged {
                 KeyCenter.userName = it.toString()
             }
-            tvChooseLanguageContent.text = mLanguageArray[0]
+            val language = mAiShareViewModel.currentLanguage()
+            tvChooseLanguageContent.text = getLanguageText(language)
         }
 
         mBinding?.btnEnterRoom?.setOnClickListener(object : OnFastClickListener() {
