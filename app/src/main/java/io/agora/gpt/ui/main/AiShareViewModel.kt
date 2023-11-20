@@ -427,8 +427,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         callback.invoke(mMute)
     }
 
+    fun getCurrentLanguage():Language = mCurrentLanguage
+
     // 设置AI语言环境,只记录语言
     fun switchLanguage(language: Language, callback: (Language) -> Unit) {
+        mCurrentLanguage = language
         mAiEngineConfig.mLanguage = language
         callback.invoke(mAiEngineConfig.mLanguage)
     }
