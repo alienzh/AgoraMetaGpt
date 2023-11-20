@@ -141,10 +141,6 @@ class CreateRoomFragment : BaseFragment() {
                 btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
             }
         }
-    }
-
-    override fun initClickEvent() {
-        super.initClickEvent()
         //防止多次频繁点击异常处理
         mBinding?.btnEnterRoom?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {

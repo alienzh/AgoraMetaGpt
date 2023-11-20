@@ -14,19 +14,15 @@ open class BaseFragment : Fragment() {
         initContentView(inflater, container, false)
         initData()
         initView()
-        initClickEvent()
-        initListener()
         return null
     }
 
     protected open fun initView() {}
-    protected open fun initClickEvent() {}
     protected open fun initContentView(inflater: LayoutInflater, container: ViewGroup?, attachToParent: Boolean) {}
     protected open fun initData() {
         mIsFront = false
     }
 
-    protected fun initListener() {}
     override fun onResume() {
         super.onResume()
         mIsFront = true
