@@ -102,6 +102,10 @@ class AiPartnerFragment : BaseFragment() {
                 mBinding?.aiHistoryList?.scrollToPosition(chatMessageAdapter.dataList.size - 1)
             }
         }
+
+        mAiShareViewModel.mUserSttContent.observe(this) {
+            mBinding?.tvSttContent?.text = it.first.message
+        }
     }
 
     override fun onDestroyView() {
@@ -252,15 +256,15 @@ class AiPartnerFragment : BaseFragment() {
                 }
             }
         })
-        mBinding?.ivVoice?.setOnLongClickListener(object :View.OnLongClickListener{
-            override fun onLongClick(v: View?): Boolean {
-                // TODO: AI游戏
+        mBinding?.ivVoice?.setOnLongClickListener {
+            if (mAiShareViewModel.isAiGame()) {
+                mBinding?.tvSttContent?.text = ""
                 mAiShareViewModel.longClickVoice {
                     mBinding?.groupStt?.isVisible = true
                 }
-                return true
             }
-        })
+            true
+        }
 
         mBinding?.ivHangUp?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
@@ -283,14 +287,28 @@ class AiPartnerFragment : BaseFragment() {
 
         mBinding?.btnSendText?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                mBinding?.groupStt?.isVisible = false
-                // TODO:
-                ToastUtils.showToast(R.string.the_recording_was_not_identified)
+                mBinding?.apply {
+                    mAiShareViewModel.mute {
+                        groupStt.isVisible = false
+                        val content = tvSttContent.text.toString()
+                        if (content.isEmpty()) {
+                            ToastUtils.showToast(R.string.the_recording_was_not_identified)
+                        } else {
+                            mAiShareViewModel.pushText(content)
+
+                        }
+                    }
+                }
             }
         })
         mBinding?.btnCancelText?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                mBinding?.groupStt?.isVisible = false
+                mBinding?.apply {
+                    mAiShareViewModel.mute {
+                        groupStt.isVisible = false
+                        tvSttContent.text = ""
+                    }
+                }
             }
         })
     }
@@ -302,12 +320,18 @@ class AiPartnerFragment : BaseFragment() {
         mTextureView?.clipToOutline = true
         mTextureView?.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
+                mAiShareViewModel.currentRole()?.let { aiRole->
+                    mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
+                    mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
+                }
                 mAiShareViewModel.setTexture(requireActivity(), mTextureView!!)
-                val usableAIRoles = mAiShareViewModel.getUsableAiRoles()
-                if (usableAIRoles.isNotEmpty()) {
-                    val aiRole = usableAIRoles[0]
-                    mAiShareViewModel.setAvatarModel(aiRole)
-                    mAiShareViewModel.setServiceVendor(aiRole)
+//                val usableAIRoles = mAiShareViewModel.getUsableAiRoles()
+//                if (usableAIRoles.isNotEmpty()) {
+//                    val aiRole = usableAIRoles[0]
+//                    mAiShareViewModel.setAvatarModel(aiRole)
+//                    mAiShareViewModel.setServiceVendor(aiRole)
+//                }
+                mAiShareViewModel.currentRole()?.let { aiRole->
                     mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
                     mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
                 }

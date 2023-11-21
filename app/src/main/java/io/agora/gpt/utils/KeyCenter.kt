@@ -9,14 +9,13 @@ import java.util.Random
 object KeyCenter {
 
     fun getAvatarName(aiRole: AIRole): String {
-        var avatarName = Constant.Avatar_Mina
-        when (aiRole.roleId) {
-            Constant.EN_Role_ID_WENDY -> avatarName = Constant.Avatar_Mina
-            Constant.EN_Role_ID_Cindy -> avatarName = Constant.Avatar_Mina
-            Constant.EN_Role_ID_yunibobo -> avatarName = Constant.Avatar_Kda
-            Constant.CN_Role_ID_yunibobo -> avatarName = Constant.Avatar_Mina
-            Constant.CN_Role_ID_jingxiang -> avatarName = Constant.Avatar_Kda
-
+        val avatarName = when (aiRole.roleId) {
+            Constant.EN_Role_ID_WENDY -> Constant.Avatar_Mina
+            Constant.EN_Role_ID_Cindy -> Constant.Avatar_Mina
+            Constant.EN_Role_ID_yunibobo -> Constant.Avatar_Kda
+            Constant.CN_Role_ID_yunibobo -> Constant.Avatar_Mina
+            Constant.CN_Role_ID_jingxiang -> Constant.Avatar_Kda
+            else -> Constant.Avatar_Mina
         }
         return avatarName
     }

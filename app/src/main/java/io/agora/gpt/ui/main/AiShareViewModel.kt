@@ -48,6 +48,10 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     val mNewLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = SingleLiveEvent()
 
+    val mUserSttContent: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = SingleLiveEvent()
+
+    val mAIEngineInit: MutableLiveData<Boolean> = SingleLiveEvent()
+
     // 禁音按钮
     private var mMute: Boolean = false
 
@@ -81,7 +85,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     fun isFirstEnterRoom(): Boolean = mFirstEnterRoom
 
-    fun setFirstEnterRoom(isFirstEnterRoom:Boolean){
+    fun setFirstEnterRoom(isFirstEnterRoom: Boolean) {
         this.mFirstEnterRoom = isFirstEnterRoom
     }
 
@@ -115,6 +119,12 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
         mAiEngine?.initialize(mAiEngineConfig)
         mChatMessageDataList.clear()
+    }
+
+    fun isAIGCEngineInit(): Boolean = mAIEngineInit.value == true
+
+    fun checkDownloadRes() {
+        mAiEngine?.checkDownloadRes()
     }
 
     // ServiceVendorGroup{sttList=[STTVendor{id='xunfei', vendorName='xunfei', accountInJson='null'},
@@ -225,6 +235,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 val index = mChatMessageDataList.indexOf(oldChatMessageModel)
                 oldChatMessageModel.message = result.data
                 mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
+                mUserSttContent.value = Triple(oldChatMessageModel, false, index)
             } else {
                 val messageModel = ChatMessageModel(
                     isAiMessage = false,
@@ -235,6 +246,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 )
                 mChatMessageDataList.add(messageModel)
                 mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
+
+                mUserSttContent.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
             }
             // 用户说话只需要最后完整的就行
 //            if (isRecognizedSpeech) {
@@ -251,7 +264,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 //                mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
 //            }
         }
-        return HandleResult.CONTINUE
+        return if (isAiGame()) HandleResult.DISCARD else HandleResult.CONTINUE
     }
 
     // gpt的回答，是流式的，同一个回答，是同一个sid
@@ -272,7 +285,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 val messageModel = ChatMessageModel(
                     isAiMessage = true,
                     sid = tempSid!!,
-                    name = getAiName(),
+                    name = currentRole()?.roleName
+                        ?: MainApplication.mGlobalApplication.getString(R.string.role_foodie),
                     message = answer.data,
 //                    costTime = System.currentTimeMillis() - (mSttEndTimeMap[sid] ?: mLastSpeech2TextTime)
                 )
@@ -346,7 +360,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mHandler.post {
             if (event == ServiceEvent.INITIALIZE) {
                 if (code == ServiceCode.SUCCESS) {
-                    mAiEngine?.checkDownloadRes()
+                    mAIEngineInit.postValue(true)
+                    Log.d(TAG, "AIGC INITIALIZE SUCCESS")
                 } else {
                     ToastUtils.showToast("AIGC INITIALIZE error:$code,msg:$msg")
                 }
@@ -392,8 +407,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
     }
 
-    fun getAiName(): String {
-        return mAiEngine?.currentRole?.roleName ?: MainApplication.mGlobalApplication.getString(R.string.role_foodie)
+    fun currentRole(): AIRole? {
+        return mAiEngine?.currentRole
     }
 
     fun isEnglishTeacher(aiRole: AIRole): Boolean {
@@ -422,6 +437,10 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     fun getUsableAiRoles(): List<AIRole> {
         val sdkAiRoles = mAiEngine?.roles ?: emptyArray()
         Log.d(TAG, "sdkAiRoles：$sdkAiRoles")
+        if (isAiGame()) {
+            return sdkAiRoles.filter { it.roleId.startsWith("game") }
+        }
+
         val sdkAiRoleMap = sdkAiRoles.associateBy { it.roleId }
 
         val localRoleIds = if (mAiEngineConfig.mLanguage == Language.EN_US) {
@@ -466,6 +485,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // 开启语聊
     fun startVoiceChat() {
+        // 不开麦
+        if (isAiGame()) {
+            mMute = true
+            mAiEngine?.mute(true)
+        }
         mIsStartVoice = true
         mAiEngine?.startVoiceChat()
         if (mEnableEnglishTeacher) {
@@ -497,7 +521,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     fun longClickVoice(callback: () -> Unit) {
         mLongStting = true
-        // TODO:
+        mMute = false
+        mAiEngine?.mute(false)
         callback.invoke()
     }
 
@@ -508,10 +533,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         } else {
             Language.ZH_CN
         }
+        mAiEngine?.updateConfig(mAiEngineConfig)
         callback.invoke(mAiEngineConfig.mLanguage)
     }
 
-    fun pushText(command: String, text: String? = null) {
+    fun pushText(command: String?, text: String? = null) {
 
         var content = ""
         when (command) {
@@ -525,6 +551,10 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
             Constant.COMMAND_INIT_CHAT_MESSAGE -> {
                 content = "/$command"
+            }
+
+            null -> {
+                content = text ?: ""
             }
 
             else -> {

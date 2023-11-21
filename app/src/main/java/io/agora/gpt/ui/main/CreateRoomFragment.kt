@@ -25,9 +25,11 @@ import io.agora.gpt.ui.view.CustomDialog.Companion.showDownloadingChooser
 import io.agora.gpt.ui.view.CustomDialog.Companion.showDownloadingProgress
 import io.agora.gpt.ui.view.CustomDialog.Companion.showLoadingProgress
 import io.agora.gpt.ui.view.OnFastClickListener
+import io.agora.gpt.ui.view.PickerChooseDialog
 import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.LanguageUtil
+import io.agora.gpt.utils.ToastUtils
 import java.util.Locale
 import java.util.Random
 
@@ -128,6 +130,13 @@ class CreateRoomFragment : BaseFragment() {
                 findNavController().navigate(R.id.action_createRoomFragment_to_aiRoomFragment)
             }
         }
+
+        mAiShareViewModel.mAIEngineInit.observe(this) {
+            if (it) {
+               setupRestRole()
+            }
+        }
+        mAiShareViewModel.initAiEngine()
     }
 
     private fun setupScene(currentScene: String) {
@@ -139,6 +148,7 @@ class CreateRoomFragment : BaseFragment() {
                     btnAiGame.isActivated = true
                     groupGame.isVisible = true
                 }
+
                 else -> {
                     btnAiPartner.isActivated = true
                     groupGame.isVisible = false
@@ -171,12 +181,14 @@ class CreateRoomFragment : BaseFragment() {
             override fun onClickJacking(view: View) {
                 mAiShareViewModel.mCurrentScene = Constant.Scene_AI_Partner
                 setupScene(mAiShareViewModel.mCurrentScene)
+                setupRestRole()
             }
         })
         mBinding?.btnAiGame?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
                 mAiShareViewModel.mCurrentScene = Constant.Scene_AI_Game
                 setupScene(mAiShareViewModel.mCurrentScene)
+                setupRestRole()
             }
         })
         mBinding?.btnEnterRoom?.setOnClickListener(object : OnFastClickListener() {
@@ -184,11 +196,15 @@ class CreateRoomFragment : BaseFragment() {
                 if (TextUtils.isEmpty(KeyCenter.mUserName)) {
                     Toast.makeText(requireActivity(), R.string.enter_nickname, Toast.LENGTH_LONG).show()
                 } else {
-                    if (mProgressLoadingDialog == null) {
-                        mProgressLoadingDialog = showLoadingProgress(requireContext())
+                    if (mAiShareViewModel.isAIGCEngineInit()) {
+                        if (mProgressLoadingDialog == null) {
+                            mProgressLoadingDialog = showLoadingProgress(requireContext())
+                        }
+                        mProgressLoadingDialog?.show()
+                        mAiShareViewModel.checkDownloadRes()
+                    } else {
+                        ToastUtils.showToast("Wait for AIGC engine initialization to complete!")
                     }
-                    mProgressLoadingDialog?.show()
-                    mAiShareViewModel.initAiEngine()
                 }
             }
         })
@@ -201,16 +217,51 @@ class CreateRoomFragment : BaseFragment() {
 
         mBinding?.btnSwitchLanguage?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                mAiShareViewModel.switchLanguage { language ->
-                    if (language == Language.ZH_CN) {
-                        LanguageUtil.changeLanguage(requireContext(), "zh", "CN")
-                    } else {
-                        LanguageUtil.changeLanguage(requireContext(), "en", "US")
+                if (mAiShareViewModel.isAIGCEngineInit()) {
+                    mAiShareViewModel.switchLanguage { language ->
+                        if (language == Language.ZH_CN) {
+                            LanguageUtil.changeLanguage(requireContext(), "zh", "CN")
+                        } else {
+                            LanguageUtil.changeLanguage(requireContext(), "en", "US")
+                        }
+                        setupRestRole()
+                        activity?.recreate()
                     }
-                    activity?.recreate()
+                } else {
+                    ToastUtils.showToast("Wait for AIGC engine initialization to complete!")
                 }
             }
         })
+        mBinding?.btnChooseGame?.setOnClickListener(object : OnFastClickListener() {
+            override fun onClickJacking(view: View) {
+                val aiRoles = mAiShareViewModel.getUsableAiRoles()
+                val chooseDialog = PickerChooseDialog(requireContext())
+                chooseDialog.setDatas(aiRoles.map { it.profession })
+                chooseDialog.setConfirmCallback { selected ->
+                    mBinding?.tvChooseGameContent?.text = selected
+                    aiRoles.find { it.roleName == selected }?.let { aiRole ->
+                        mAiShareViewModel.setAvatarModel(aiRole)
+                        mAiShareViewModel.setServiceVendor(aiRole)
+                    }
+                }
+                chooseDialog.show()
+            }
+        })
+    }
+
+    private fun setupRestRole(){
+        val aiRoles = mAiShareViewModel.getUsableAiRoles()
+        if (aiRoles.isEmpty()) {
+            ToastUtils.showToast("No games are available!")
+        } else {
+            val aiRole = aiRoles[0]
+            mAiShareViewModel.setAvatarModel(aiRole)
+            mAiShareViewModel.setServiceVendor(aiRole)
+            val role = mAiShareViewModel.currentRole()
+            if (mAiShareViewModel.isAiGame()) {
+                mBinding?.tvChooseGameContent?.text = aiRole.profession
+            }
+        }
     }
 
     override fun onStart() {
