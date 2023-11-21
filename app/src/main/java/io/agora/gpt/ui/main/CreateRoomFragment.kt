@@ -133,7 +133,7 @@ class CreateRoomFragment : BaseFragment() {
 
         mAiShareViewModel.mAIEngineInit.observe(this) {
             if (it) {
-               setupRestRole()
+                setupRestRole()
             }
         }
         mAiShareViewModel.initAiEngine()
@@ -240,8 +240,7 @@ class CreateRoomFragment : BaseFragment() {
                 chooseDialog.setConfirmCallback { selected ->
                     mBinding?.tvChooseGameContent?.text = selected
                     aiRoles.find { it.roleName == selected }?.let { aiRole ->
-                        mAiShareViewModel.setAvatarModel(aiRole)
-                        mAiShareViewModel.setServiceVendor(aiRole)
+                        mAiShareViewModel.setAvatarModel(aiRole, false)
                     }
                 }
                 chooseDialog.show()
@@ -249,15 +248,13 @@ class CreateRoomFragment : BaseFragment() {
         })
     }
 
-    private fun setupRestRole(){
+    private fun setupRestRole() {
         val aiRoles = mAiShareViewModel.getUsableAiRoles()
         if (aiRoles.isEmpty()) {
             ToastUtils.showToast("No games are available!")
         } else {
             val aiRole = aiRoles[0]
-            mAiShareViewModel.setAvatarModel(aiRole)
-            mAiShareViewModel.setServiceVendor(aiRole)
-            val role = mAiShareViewModel.currentRole()
+            mAiShareViewModel.setAvatarModel(aiRole, false)
             if (mAiShareViewModel.isAiGame()) {
                 mBinding?.tvChooseGameContent?.text = aiRole.profession
             }

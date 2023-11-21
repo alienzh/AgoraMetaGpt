@@ -70,6 +70,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     private var mEnableVirtualHuman: Boolean = false
     var mCurrentScene: String = Constant.Scene_AI_Partner
 
+    var mTempAiRole: AIRole? = null
+
     init {
         val currentLanguage = SPUtil.get(Constant.CURRENT_LANGUAGE, "zh") as String
         mAiEngineConfig.mLanguage = if (currentLanguage == "zh") {
@@ -165,18 +167,24 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             }
         }
         for (llmVendor in serviceVendors.llmList) {
-            if (currentLanguage() == Language.EN_US) {
+            if (isAiGame()) {
                 if (llmVendor.id.equals("azureOpenai-gpt-4", ignoreCase = true)) {
                     serviceVendor.llmVendor = llmVendor
                     break
                 }
             } else {
-                if (llmVendor.id.equals("minimax-abab5.5-chat", ignoreCase = true)) {
-                    serviceVendor.llmVendor = llmVendor
-                    break
+                if (currentLanguage() == Language.EN_US) {
+                    if (llmVendor.id.equals("azureOpenai-gpt-4", ignoreCase = true)) {
+                        serviceVendor.llmVendor = llmVendor
+                        break
+                    }
+                } else {
+                    if (llmVendor.id.equals("minimax-abab5.5-chat", ignoreCase = true)) {
+                        serviceVendor.llmVendor = llmVendor
+                        break
+                    }
                 }
             }
-
         }
         for (ttsVendor in serviceVendors.ttsList) {
             if (currentLanguage() == Language.EN_US) {
@@ -249,20 +257,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
                 mUserSttContent.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
             }
-            // 用户说话只需要最后完整的就行
-//            if (isRecognizedSpeech) {
-//                mLastSpeech2TextTime = System.currentTimeMillis()
-//                mSttEndTimeMap[tempSid] = System.currentTimeMillis()
-//                val messageModel = ChatMessageModel(
-//                    isAiMessage = false,
-//                    sid = tempSid,
-//                    name = KeyCenter.userName ?: "",
-//                    message = result.data,
-//                    costTime = 0
-//                )
-//                mChatMessageDataList.add(messageModel)
-//                mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
-//            }
         }
         return if (isAiGame()) HandleResult.DISCARD else HandleResult.CONTINUE
     }
@@ -460,7 +454,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     // 设置SDK使用的AIRol
-    fun setAvatarModel(aiRole: AIRole) {
+    fun setAvatarModel(aiRole: AIRole, needApply: Boolean = true) {
         val avatarName = KeyCenter.getAvatarName(aiRole)
         val avatarModel = AvatarModel().apply {
             name = avatarName
@@ -471,7 +465,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             avatarModel.bgFilePath = "bg_ai_female.png"
         }
         mAiEngineConfig.mAvatarModel = avatarModel
-        mAiEngine?.updateConfig(mAiEngineConfig)
+        if (needApply) {
+            mAiEngine?.updateConfig(mAiEngineConfig)
+        } else {
+            mTempAiRole = aiRole
+        }
         mAiEngine?.setRole(aiRole.roleId)
         Log.d(TAG, "setRole:$aiRole,avatarModel:$avatarModel")
     }
@@ -509,6 +507,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         val voiceChange = !mAiEngineConfig.mEnableVoiceChange
         mAiEngineConfig.mEnableVoiceChange = voiceChange
         mAiEngine?.updateConfig(mAiEngineConfig)
+        // 变声在基本 sdk 外，updateConfig 不会重新初始化
         callback.invoke(voiceChange)
     }
 
@@ -596,5 +595,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         stopVoiceChat()
         AIEngine.destroy()
         mAiEngine = null
+        mTempAiRole = null
     }
 }

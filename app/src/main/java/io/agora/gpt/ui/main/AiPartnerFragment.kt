@@ -294,8 +294,7 @@ class AiPartnerFragment : BaseFragment() {
                         if (content.isEmpty()) {
                             ToastUtils.showToast(R.string.the_recording_was_not_identified)
                         } else {
-                            mAiShareViewModel.pushText(content)
-
+                            mAiShareViewModel.pushText(null, content)
                         }
                     }
                 }
@@ -320,21 +319,13 @@ class AiPartnerFragment : BaseFragment() {
         mTextureView?.clipToOutline = true
         mTextureView?.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
-                mAiShareViewModel.currentRole()?.let { aiRole->
-                    mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
-                    mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
-                }
                 mAiShareViewModel.setTexture(requireActivity(), mTextureView!!)
-//                val usableAIRoles = mAiShareViewModel.getUsableAiRoles()
-//                if (usableAIRoles.isNotEmpty()) {
-//                    val aiRole = usableAIRoles[0]
-//                    mAiShareViewModel.setAvatarModel(aiRole)
-//                    mAiShareViewModel.setServiceVendor(aiRole)
-//                }
-                mAiShareViewModel.currentRole()?.let { aiRole->
-                    mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
-                    mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
-                }
+                // updateConfig 会重置，需要重新设置 aiRole
+                val aiRole = mAiShareViewModel.mTempAiRole ?: mAiShareViewModel.getUsableAiRoles()[0]
+                mAiShareViewModel.setAvatarModel(aiRole)
+                mAiShareViewModel.setServiceVendor(aiRole)
+                mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
+                mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
                 mBinding?.tvSwitchRole?.isVisible = !mAiShareViewModel.isAiGame()
                 mAiShareViewModel.prepare()
             }
