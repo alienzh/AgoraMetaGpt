@@ -104,7 +104,7 @@ class AiPartnerFragment : BaseFragment() {
         }
 
         mAiShareViewModel.mUserSttContent.observe(this) {
-            mBinding?.tvSttContent?.text = it.first.message
+            mBinding?.tvSttContent?.text = it
         }
     }
 

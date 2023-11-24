@@ -28,6 +28,7 @@ import io.agora.gpt.utils.SPUtil
 import io.agora.gpt.utils.SingleLiveEvent
 import io.agora.gpt.utils.ToastUtils
 import io.agora.gpt.utils.Utils
+import java.lang.StringBuilder
 
 class AiShareViewModel : ViewModel(), AIEngineCallback {
 
@@ -49,9 +50,12 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     val mNewLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = SingleLiveEvent()
 
-    val mUserSttContent: MutableLiveData<Pair<ChatMessageModel, Boolean>> = SingleLiveEvent()
+    val mUserSttContent: MutableLiveData<String> = SingleLiveEvent()
 
     val mAIEngineInit: MutableLiveData<Boolean> = SingleLiveEvent()
+
+    // ai 游戏中用户说话一轮合并一整句
+    private val mUserSttContentList = mutableListOf<ChatMessageModel>()
 
     // 禁音按钮
     private var mMute: Boolean = false
@@ -215,13 +219,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             if (oldChatMessageModel != null) {
                 val index = mChatMessageDataList.indexOf(oldChatMessageModel)
                 oldChatMessageModel.message = result.data
-
-                // ai 游戏没有发送不用展示在历史消息中
-                if (isAiGame()){
-                    mUserSttContent.value = Pair(oldChatMessageModel, false)
-                }else{
-                    mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
-                }
+                mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
             } else {
                 val messageModel = ChatMessageModel(
                     isAiMessage = false,
@@ -231,9 +229,19 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                     costTime = 0
                 )
                 // ai 游戏没有发送不用展示在历史消息中
-                if (isAiGame()){
-                    mUserSttContent.value = Pair(messageModel, true)
-                }else{
+                if (isAiGame()) {
+                    val exitsMessageModel = mUserSttContentList.find { it.sid == messageModel.sid }
+                    if (exitsMessageModel != null) {
+                        exitsMessageModel.message = messageModel.message
+                    } else {
+                        mUserSttContentList.add(messageModel)
+                    }
+                    val sb = StringBuilder()
+                    mUserSttContentList.map { it.message }.forEach {
+                        sb.append(it)
+                    }
+                    mUserSttContent.value = sb.toString()
+                } else {
                     mChatMessageDataList.add(messageModel)
                     mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
                 }
@@ -259,7 +267,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             } else {
                 val messageModel = ChatMessageModel(
                     isAiMessage = true,
-                    sid = tempSid!!,
+                    sid = tempSid,
                     name = currentRole()?.roleName
                         ?: MainApplication.mGlobalApplication.getString(R.string.role_foodie),
                     message = answer.data,
@@ -443,7 +451,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         if (aiRole.gender == Constants.GENDER_MALE) {
             avatarModel.bgFilePath = Utils.getCacheFilePath("bg_ai_male.png")
         } else {
-            avatarModel.bgFilePath =  Utils.getCacheFilePath("bg_ai_female.png")
+            avatarModel.bgFilePath = Utils.getCacheFilePath("bg_ai_female.png")
         }
         mAiEngineConfig.mAvatarModel = avatarModel
         if (needApply) {
@@ -500,6 +508,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     fun longClickVoice(callback: () -> Unit) {
+        mUserSttContentList.clear()
         mLongStting = true
         mMute = false
         mAiEngine?.mute(false)
@@ -518,11 +527,22 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     // 发送的数据加入
-    fun checkAddUserSttContent(){
-        mUserSttContent.value?.let {
-            mChatMessageDataList.add(it.first)
-            mNewLineMessageModel.value = Triple(it.first, true, mChatMessageDataList.size - 1)
+    fun checkAddUserSttContent() {
+        if (mUserSttContentList.isEmpty()) return
+        val lastMessageModel = mUserSttContentList.last()
+        val chatMessageModel = ChatMessageModel(
+            isAiMessage = false,
+            sid = lastMessageModel.sid,
+            name = lastMessageModel.name,
+            message = "",
+            costTime = 0
+        )
+        mUserSttContentList.forEach { messageModel ->
+            chatMessageModel.message = chatMessageModel.message.plus(messageModel.message)
         }
+        mChatMessageDataList.add(chatMessageModel)
+        mNewLineMessageModel.value = Triple(chatMessageModel, true, mChatMessageDataList.size - 1)
+        mUserSttContentList.clear()
     }
 
     fun pushText(command: String?, text: String? = null) {
