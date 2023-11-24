@@ -28,6 +28,7 @@ import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.SPUtil
 import io.agora.gpt.utils.SingleLiveEvent
 import io.agora.gpt.utils.ToastUtils
+import io.agora.gpt.utils.Utils
 
 class AiShareViewModel : ViewModel(), AIEngineCallback {
 
@@ -368,9 +369,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             name = roleAvatars[0]
         }
         if (aiRole.gender == Constants.GENDER_MALE) {
-            avatarModel.bgFilePath = "bg_ai_male.png"
+            avatarModel.bgFilePath = Utils.getCacheFilePath("bg_ai_male.png")
         } else {
-            avatarModel.bgFilePath = "bg_ai_female.png"
+            avatarModel.bgFilePath =  Utils.getCacheFilePath("bg_ai_female.png")
         }
         mAiEngineConfig.mAvatarModel = avatarModel
         mAiEngineConfig.mEnableChatConversation = isEnglishTeacher(aiRole)

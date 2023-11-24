@@ -206,7 +206,6 @@ class CreateRoomFragment : BaseFragment() {
                     }
                 }
                 chooseDialog.show()
-                ToastUtils.showToast("click choose a scene")
             }
         })
         mBinding?.btnChooseLanguage?.setOnClickListener(object : OnFastClickListener() {

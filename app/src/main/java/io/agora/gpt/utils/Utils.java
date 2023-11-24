@@ -26,6 +26,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.agora.gpt.MainApplication;
+
 public class Utils {
     /**
      * 将dip或dp值转换为px值，保证尺寸大小不变
@@ -350,5 +352,9 @@ public class Utils {
 
     public static String getSessionId() {
         return UUID.randomUUID().toString();
+    }
+
+    public static String getCacheFilePath(String fileName){
+        return MainApplication.mGlobalApplication.getExternalCacheDir().getPath() + File.separator + fileName;
     }
 }
