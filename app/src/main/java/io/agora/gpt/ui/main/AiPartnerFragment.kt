@@ -294,6 +294,8 @@ class AiPartnerFragment : BaseFragment() {
                         if (content.isEmpty()) {
                             ToastUtils.showToast(R.string.the_recording_was_not_identified)
                         } else {
+                            // 发送后展示消息
+                            mAiShareViewModel.checkAddUserSttContent()
                             mAiShareViewModel.pushText(null, content)
                         }
                     }

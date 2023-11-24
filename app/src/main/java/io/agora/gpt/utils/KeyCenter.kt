@@ -12,7 +12,7 @@ object KeyCenter {
         val avatarName = when (aiRole.roleId) {
             Constant.EN_Role_ID_WENDY -> Constant.Avatar_Mina
             Constant.EN_Role_ID_Cindy -> Constant.Avatar_Mina
-            Constant.EN_Role_ID_yunibobo -> Constant.Avatar_Kda
+            Constant.EN_Role_ID_yunibobo -> Constant.Avatar_Mina
             Constant.CN_Role_ID_yunibobo -> Constant.Avatar_Mina
             Constant.CN_Role_ID_jingxiang -> Constant.Avatar_Kda
             else -> Constant.Avatar_Mina

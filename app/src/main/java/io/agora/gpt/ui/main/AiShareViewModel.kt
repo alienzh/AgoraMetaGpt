@@ -27,6 +27,7 @@ import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.SPUtil
 import io.agora.gpt.utils.SingleLiveEvent
 import io.agora.gpt.utils.ToastUtils
+import io.agora.gpt.utils.Utils
 
 class AiShareViewModel : ViewModel(), AIEngineCallback {
 
@@ -48,7 +49,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     val mNewLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = SingleLiveEvent()
 
-    val mUserSttContent: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = SingleLiveEvent()
+    val mUserSttContent: MutableLiveData<Pair<ChatMessageModel, Boolean>> = SingleLiveEvent()
 
     val mAIEngineInit: MutableLiveData<Boolean> = SingleLiveEvent()
 
@@ -129,33 +130,16 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mAiEngine?.checkDownloadRes()
     }
 
-    // ServiceVendorGroup{sttList=[STTVendor{id='xunfei', vendorName='xunfei', accountInJson='null'},
+    // ServiceVendorGroup{
+    // sttList= [STTVendor{id='xunfei', vendorName='xunfei', accountInJson='null'},
     // STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
     // llmList=[LLMVendor{id='minimax-abab5.5-chat', vendorName='minimax', model='abab5.5-chat', accountInJson='null'},
-    // LLMVendor{id='azureOpenai-gpt-4', vendorName='azureOpenai', model='gpt-4', accountInJson='null'},
-    // LLMVendor{id='bigModel-chatglm_pro', vendorName='bigModel', model='chatglm_pro', accountInJson='null'},
-    // LLMVendor{id='senseTime-nova-ptc-xl-v1', vendorName='senseTime', model='nova-ptc-xl-v1', accountInJson='null'}],
+    // LLMVendor{id='azureOpenai-gpt-4', vendorName='azureOpenai', model='gpt-4', accountInJson='null'}],
     // ttsList=[TTSVendor{id='microsoft-en-US-Jenny-cheerful', vendorName='microsoft', language='en-US', voiceName='Jenny', voiceNameValue='en-US-JennyNeural', voiceNameStyle='cheerful', accountInJson='null'},
     // TTSVendor{id='microsoft-en-US-Jenny-gentle', vendorName='microsoft', language='en-US', voiceName='Jenny', voiceNameValue='en-US-JennyNeural', voiceNameStyle='gentle', accountInJson='null'},
     // TTSVendor{id='microsoft-en-US-Davis-cheerful', vendorName='microsoft', language='en-US', voiceName='Davis', voiceNameValue='en-US-DavisNeural', voiceNameStyle='cheerful', accountInJson='null'},
-    // TTSVendor{id='elevenLabs-Bella', vendorName='elevenLabs', language='', voiceName='Bella', voiceNameValue='EXAVITQu4vr4xnSDxMaL', voiceNameStyle='', accountInJson='null'}]}
+    // TTSVendor{id='elevenLabs-Matilda', vendorName='elevenLabs', language='', voiceName='Matilda', voiceNameValue='XrExE9yKIg1WjnnlVkGX', voiceNameStyle='', accountInJson='null'}]}
 
-
-    //ServiceVendorGroup{sttList=[
-    // STTVendor{id='xunfei', vendorName='xunfei', accountInJson='null'},
-    // STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
-    // llmList=[
-    // LLMVendor{id='minimax-abab5.5-chat', vendorName='minimax', model='abab5.5-chat', accountInJson='null'},
-    // LLMVendor{id='azureOpenai-gpt-4', vendorName='azureOpenai', model='gpt-4', accountInJson='null'},
-    // LLMVendor{id='bigModel-chatglm_pro', vendorName='bigModel', model='chatglm_pro', accountInJson='null'},
-    // LLMVendor{id='senseTime-nova-ptc-xl-v1', vendorName='senseTime', model='nova-ptc-xl-v1', accountInJson='null'}],
-    // ttsList=[
-    // TTSVendor{id='microsoft-zh-CN-xiaoxiao-cheerful', vendorName='microsoft', language='zh-CN', voiceName='晓晓(普通话)', voiceNameValue='zh-CN-XiaoxiaoNeural', voiceNameStyle='cheerful', accountInJson='null'},
-    // TTSVendor{id='microsoft-zh-CN-xiaoyi-gentle', vendorName='microsoft', language='zh-CN', voiceName='晓伊(普通话)', voiceNameValue='zh-CN-XiaoyiNeural', voiceNameStyle='gentle', accountInJson='null'},
-    // TTSVendor{id='microsoft-zh-CN-yunxi-cheerful', vendorName='microsoft', language='zh-CN', voiceName='云希(普通话)', voiceNameValue='zh-CN-YunxiNeural', voiceNameStyle='cheerful', accountInJson='null'},
-    // TTSVendor{id='xunfei-zh-CN-xiaoyan', vendorName='xunfei', language='zh-CN', voiceName='晓燕(普通话)', voiceNameValue='xiaoyan', voiceNameStyle='', accountInJson='null'},
-    // TTSVendor{id='xunfei-zh-CN-xiaoyu', vendorName='xunfei', language='zh-CN', voiceName='xiaoyu', voiceNameValue='xiaoyu', voiceNameStyle='', accountInJson='null'},
-    // TTSVendor{id='elevenLabs-Bella', vendorName='elevenLabs', language='', voiceName='Bella', voiceNameValue='EXAVITQu4vr4xnSDxMaL', voiceNameStyle='', accountInJson='null'}]}
     fun setServiceVendor(aiRole: AIRole) {
         val serviceVendors: ServiceVendorGroup = mAiEngine?.serviceVendors ?: return
         Log.d(TAG, "serviceVendors $serviceVendors")
@@ -188,19 +172,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
         for (ttsVendor in serviceVendors.ttsList) {
             if (currentLanguage() == Language.EN_US) {
-                if (aiRole.roleId.equals(Constant.EN_Role_ID_WENDY, true) &&
-                    ttsVendor.id.equals("microsoft-en-US-Jenny-cheerful", true)
-                ) {
-                    serviceVendor.ttsVendor = ttsVendor
-                    break
-                } else if (aiRole.roleId.equals(Constant.EN_Role_ID_Cindy, true)
-                    && ttsVendor.id.equals("microsoft-en-US-Jenny-cheerful", ignoreCase = true)
-                ) {
-                    serviceVendor.ttsVendor = ttsVendor
-                    break
-                } else if (aiRole.roleId.equals(Constant.EN_Role_ID_yunibobo, true) &&
-                    ttsVendor.id.equals("microsoft-en-US-Jenny-gentle", true)
-                ) {
+                // 英文场景统一用 elevenLabs-Matilda
+                if (ttsVendor.id.equals("elevenLabs-Matilda", true)) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 }
@@ -242,8 +215,13 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             if (oldChatMessageModel != null) {
                 val index = mChatMessageDataList.indexOf(oldChatMessageModel)
                 oldChatMessageModel.message = result.data
-                mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
-                mUserSttContent.value = Triple(oldChatMessageModel, false, index)
+
+                // ai 游戏没有发送不用展示在历史消息中
+                if (isAiGame()){
+                    mUserSttContent.value = Pair(oldChatMessageModel, false)
+                }else{
+                    mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
+                }
             } else {
                 val messageModel = ChatMessageModel(
                     isAiMessage = false,
@@ -252,10 +230,13 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                     message = result.data,
                     costTime = 0
                 )
-                mChatMessageDataList.add(messageModel)
-                mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
-
-                mUserSttContent.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
+                // ai 游戏没有发送不用展示在历史消息中
+                if (isAiGame()){
+                    mUserSttContent.value = Pair(messageModel, true)
+                }else{
+                    mChatMessageDataList.add(messageModel)
+                    mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
+                }
             }
         }
         return if (isAiGame()) HandleResult.DISCARD else HandleResult.CONTINUE
@@ -438,7 +419,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         val sdkAiRoleMap = sdkAiRoles.associateBy { it.roleId }
 
         val localRoleIds = if (mAiEngineConfig.mLanguage == Language.EN_US) {
-            mutableListOf(Constant.EN_Role_ID_WENDY, Constant.EN_Role_ID_Cindy, Constant.EN_Role_ID_yunibobo)
+            mutableListOf(Constant.EN_Role_ID_yunibobo, Constant.EN_Role_ID_WENDY, Constant.EN_Role_ID_Cindy)
         } else {
             mutableListOf(Constant.CN_Role_ID_yunibobo, Constant.CN_Role_ID_jingxiang)
         }
@@ -460,9 +441,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             name = avatarName
         }
         if (aiRole.gender == Constants.GENDER_MALE) {
-            avatarModel.bgFilePath = "bg_ai_male.png"
+            avatarModel.bgFilePath = Utils.getCacheFilePath("bg_ai_male.png")
         } else {
-            avatarModel.bgFilePath = "bg_ai_female.png"
+            avatarModel.bgFilePath =  Utils.getCacheFilePath("bg_ai_female.png")
         }
         mAiEngineConfig.mAvatarModel = avatarModel
         if (needApply) {
@@ -534,6 +515,14 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
         mAiEngine?.updateConfig(mAiEngineConfig)
         callback.invoke(mAiEngineConfig.mLanguage)
+    }
+
+    // 发送的数据加入
+    fun checkAddUserSttContent(){
+        mUserSttContent.value?.let {
+            mChatMessageDataList.add(it.first)
+            mNewLineMessageModel.value = Triple(it.first, true, mChatMessageDataList.size - 1)
+        }
     }
 
     fun pushText(command: String?, text: String? = null) {
