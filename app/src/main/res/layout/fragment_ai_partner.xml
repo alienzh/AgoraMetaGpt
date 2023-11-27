@@ -252,18 +252,34 @@
         android:background="@drawable/ic_stt_background"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvSttContent"
+    <FrameLayout
+        android:id="@+id/layoutSttContent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="25dp"
-        android:ellipsize="start"
-        android:lines="3"
-        android:textColor="@color/white"
-        android:textSize="16sp"
+        android:layout_height="69dp"
         app:layout_constraintBottom_toBottomOf="@+id/ivSttBgGradient"
-        app:layout_constraintTop_toTopOf="@+id/ivSttBgGradient"
-        tools:text="同学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？" />
+        app:layout_constraintTop_toTopOf="@+id/ivSttBgGradient">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollSttContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvSttContent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="25dp"
+                android:ellipsize="start"
+                android:scrollbars="vertical"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="@+id/ivSttBgGradient"
+                app:layout_constraintTop_toTopOf="@+id/ivSttBgGradient"
+                tools:text="同学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？" />
+
+        </androidx.core.widget.NestedScrollView>
+
+    </FrameLayout>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnSendText"
@@ -298,6 +314,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="ivSttBg1,ivSttBgGradient,btnSendText,btnCancelText,tvSttContent" />
+        app:constraint_referenced_ids="ivSttBg1,ivSttBgGradient,btnSendText,btnCancelText,layoutSttContent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

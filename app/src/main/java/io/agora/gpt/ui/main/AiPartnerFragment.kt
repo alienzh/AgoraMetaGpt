@@ -4,15 +4,18 @@ import android.graphics.SurfaceTexture
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import android.widget.ScrollView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.ScrollingView
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -104,7 +107,12 @@ class AiPartnerFragment : BaseFragment() {
         }
 
         mAiShareViewModel.mUserSttContent.observe(this) {
-            mBinding?.tvSttContent?.text = it
+            mBinding?.apply {
+                tvSttContent.text = it
+                scrollSttContent.post {
+                    scrollSttContent.fullScroll(ScrollView.FOCUS_DOWN)
+                }
+            }
         }
     }
 
@@ -242,7 +250,10 @@ class AiPartnerFragment : BaseFragment() {
         mBinding?.ivVoice?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
                 if (mAiShareViewModel.isAiGame()) {
-
+                    mBinding?.tvSttContent?.text = ""
+                    mAiShareViewModel.startUserSpeak {
+                        mBinding?.groupStt?.isVisible = true
+                    }
                 } else {
                     mAiShareViewModel.mute { isMute ->
                         mBinding?.apply {
@@ -256,15 +267,6 @@ class AiPartnerFragment : BaseFragment() {
                 }
             }
         })
-        mBinding?.ivVoice?.setOnLongClickListener {
-            if (mAiShareViewModel.isAiGame()) {
-                mBinding?.tvSttContent?.text = ""
-                mAiShareViewModel.longClickVoice {
-                    mBinding?.groupStt?.isVisible = true
-                }
-            }
-            true
-        }
 
         mBinding?.ivHangUp?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {

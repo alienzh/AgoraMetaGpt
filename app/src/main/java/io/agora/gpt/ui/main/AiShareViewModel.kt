@@ -118,7 +118,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mVirtualHumanRtcToken = KeyCenter.getRtcToken(roomName, virtualHumanUid)
             mRoomName = roomName
             mEnableVoiceChange = false
-            mSpeechRecognitionFiltersLength = 0
+            mSpeechRecognitionFiltersLength = 1
             mEnableChatConversation = true
         }
         if (mAiEngine == null) {
@@ -507,7 +507,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         callback.invoke(mMute)
     }
 
-    fun longClickVoice(callback: () -> Unit) {
+    fun startUserSpeak(callback: () -> Unit) {
         mUserSttContentList.clear()
         mLongStting = true
         mMute = false

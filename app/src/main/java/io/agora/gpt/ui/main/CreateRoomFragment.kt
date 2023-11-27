@@ -239,7 +239,7 @@ class CreateRoomFragment : BaseFragment() {
                 chooseDialog.setDatas(aiRoles.map { it.profession })
                 chooseDialog.setConfirmCallback { selected ->
                     mBinding?.tvChooseGameContent?.text = selected
-                    aiRoles.find { it.roleName == selected }?.let { aiRole ->
+                    aiRoles.find { it.profession == selected }?.let { aiRole ->
                         mAiShareViewModel.setAvatarModel(aiRole, false)
                     }
                 }
