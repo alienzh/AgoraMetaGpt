@@ -119,9 +119,19 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mAiEngine?.checkDownloadRes()
     }
 
-    //sttList= [STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
-    // llmList=[LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'}], 、
+    //ServiceVendorGroup{
+    // sttList=[STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
+    // llmList=[LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'},
+    // LLMVendor{id='claude-anthropic.claude-v2-100k', vendorName='claude', model='anthropic.claude-v2-100k', accountInJson='null'}],
     // ttsList=[TTSVendor{id='microsoft-ja-JP-Nanami-cheerful-female', vendorName='microsoft', language='ja-JP', voiceName='Nanami', voiceNameValue='ja-JP-NanamiNeural', voiceNameStyle='cheerful', accountInJson='null'}]}
+
+    //ServiceVendorGroup{
+    // sttList=[STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
+    // llmList=[LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'},
+    // LLMVendor{id='claude-anthropic.claude-v2-100k', vendorName='claude', model='anthropic.claude-v2-100k', accountInJson='null'}],
+    // ttsList=[TTSVendor{id='microsoft-en-US-Jenny-cheerful-female', vendorName='microsoft', language='en-US', voiceName='Jenny', voiceNameValue='en-US-JennyNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='microsoft-en-US-Jenny-gentle-female', vendorName='microsoft', language='en-US', voiceName='Jenny', voiceNameValue='en-US-JennyNeural', voiceNameStyle='gentle', accountInJson='null'},
+    // TTSVendor{id='microsoft-en-US-Davis-cheerful-male', vendorName='microsoft', language='en-US', voiceName='Davis', voiceNameValue='en-US-DavisNeural', voiceNameStyle='cheerful', accountInJson='null'}]}
     fun setServiceVendor() {
         val serviceVendors: ServiceVendorGroup = mAiEngine?.serviceVendors ?: return
         Log.d(TAG, "serviceVendors $serviceVendors")
@@ -138,8 +148,19 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 break
             }
         }
-        if (serviceVendors.ttsList.isNotEmpty()) {
-            serviceVendor.ttsVendor = serviceVendors.ttsList[0]
+        for (ttsVendor in serviceVendors.ttsList) {
+            if (currentLanguage() == Language.EN_US || currentLanguage() == Language.JA_JP) {
+                // 英文/日文场景统一用 elevenLabs-Matilda
+                if (ttsVendor.id.equals("elevenLabs-Matilda", true)) {
+                    serviceVendor.ttsVendor = ttsVendor
+                    break
+                }
+            } else if (currentLanguage() == Language.ZH_CN) {
+                if (ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful-female", true)) {
+                    serviceVendor.ttsVendor = ttsVendor
+                    break
+                }
+            }
         }
         Log.d(TAG, "setServiceVendor $serviceVendor")
         mAiEngine?.setServiceVendor(serviceVendor)
