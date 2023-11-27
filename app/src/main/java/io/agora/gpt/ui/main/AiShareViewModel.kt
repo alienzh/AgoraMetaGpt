@@ -117,9 +117,23 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mAiEngine?.checkDownloadRes()
     }
 
-    //sttList= [STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
-    // llmList=[LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'}], 、
-    // ttsList=[TTSVendor{id='microsoft-ja-JP-Nanami-cheerful-female', vendorName='microsoft', language='ja-JP', voiceName='Nanami', voiceNameValue='ja-JP-NanamiNeural', voiceNameStyle='cheerful', accountInJson='null'}]}
+    // ServiceVendorGroup{
+    // sttList=[STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
+    // llmList=[LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'}],
+    // ttsList=[TTSVendor{id='microsoft-zh-CN-xiaoxiao-cheerful-female', vendorName='microsoft', language='zh-CN', voiceName='晓晓(普通话)', voiceNameValue='zh-CN-XiaoxiaoNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='elevenLabs-Matilda', vendorName='elevenLabs', language='', voiceName='Matilda', voiceNameValue='XrExE9yKIg1WjnnlVkGX', voiceNameStyle='', accountInJson='null'}]}
+
+    //ServiceVendorGroup{
+    // sttList=[STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
+    // llmList=[LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'}],
+    // ttsList=[TTSVendor{id='microsoft-en-US-Jenny-cheerful-female', vendorName='microsoft', language='en-US', voiceName='Jenny', voiceNameValue='en-US-JennyNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='elevenLabs-Matilda', vendorName='elevenLabs', language='', voiceName='Matilda', voiceNameValue='XrExE9yKIg1WjnnlVkGX', voiceNameStyle='', accountInJson='null'}]}
+
+    //ServiceVendorGroup{
+    // sttList=[STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
+    // llmList=[LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'}],
+    // ttsList=[TTSVendor{id='microsoft-ja-JP-Nanami-cheerful-female', vendorName='microsoft', language='ja-JP', voiceName='Nanami', voiceNameValue='ja-JP-NanamiNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='elevenLabs-Matilda', vendorName='elevenLabs', language='', voiceName='Matilda', voiceNameValue='XrExE9yKIg1WjnnlVkGX', voiceNameStyle='', accountInJson='null'}]}
     fun setServiceVendor() {
         val serviceVendors: ServiceVendorGroup = mAiEngine?.serviceVendors ?: return
         Log.d(TAG, "serviceVendors $serviceVendors")
@@ -136,9 +150,21 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 break
             }
         }
-        if (serviceVendors.ttsList.isNotEmpty()) {
-            serviceVendor.ttsVendor = serviceVendors.ttsList[0]
+        for (ttsVendor in serviceVendors.ttsList) {
+            if (currentLanguage() == Language.EN_US || currentLanguage() == Language.JA_JP) {
+                // 英文/日文场景统一用 elevenLabs-Matilda
+                if (ttsVendor.id.equals("elevenLabs-Matilda", true)) {
+                    serviceVendor.ttsVendor = ttsVendor
+                    break
+                }
+            } else if (currentLanguage() == Language.ZH_CN) {
+                if (ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful-female", true)) {
+                    serviceVendor.ttsVendor = ttsVendor
+                    break
+                }
+            }
         }
+
         Log.d(TAG, "setServiceVendor $serviceVendor")
         mAiEngine?.setServiceVendor(serviceVendor)
     }
@@ -162,7 +188,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 val index = mChatMessageDataList.indexOf(oldChatMessageModel)
                 oldChatMessageModel.message = result.data
                 _mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
-            }else{
+            } else {
                 val messageModel = ChatMessageModel(
                     isAiMessage = false,
                     sid = tempSid,
@@ -371,7 +397,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         if (aiRole.gender == Constants.GENDER_MALE) {
             avatarModel.bgFilePath = Utils.getCacheFilePath("bg_ai_male.png")
         } else {
-            avatarModel.bgFilePath =  Utils.getCacheFilePath("bg_ai_female.png")
+            avatarModel.bgFilePath = Utils.getCacheFilePath("bg_ai_female.png")
         }
         mAiEngineConfig.mAvatarModel = avatarModel
         mAiEngineConfig.mEnableChatConversation = isEnglishTeacher(aiRole)
