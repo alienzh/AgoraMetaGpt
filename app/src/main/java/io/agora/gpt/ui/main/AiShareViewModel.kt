@@ -102,7 +102,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mRoomName = roomName
             mEnableVoiceChange = false
             mEnableChatConversation = true
-            mSpeechRecognitionFiltersLength = 0
+            mSpeechRecognitionFiltersLength = 1
         }
         if (mAiEngine == null) {
             mAiEngine = AIEngine.create()
