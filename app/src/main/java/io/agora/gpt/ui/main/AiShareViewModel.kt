@@ -252,7 +252,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // gpt的回答，是流式的，同一个回答，是同一个sid
     override fun onLLMResult(sid: String?, answer: Data<String>): HandleResult {
-        Log.i(TAG, "onLLMResult sid:$sid answer:$answer")
+        Log.i(TAG, "onLLMResult sid:$sid answer:$answer length ${sid?.length }")
         var tempSid = sid
         if (tempSid.isNullOrEmpty()) {
             tempSid = KeyCenter.getRandomString(20)
@@ -281,7 +281,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
             }
         }
-        return HandleResult.CONTINUE
+        if (tempSid.length == 64 && tempSid.startsWith("00000000000000000000000000000000")) {
+            return HandleResult.DISCARD
+        } else {
+            return HandleResult.CONTINUE
+        }
     }
 
     // tts
@@ -493,11 +497,16 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // 开启/关闭 变声
     fun enableVoiceChange(callback: (Boolean) -> Unit) {
+        val tempAiRole = mAiEngine?.currentRole
         val voiceChange = !mAiEngineConfig.mEnableVoiceChange
         mAiEngineConfig.mEnableVoiceChange = voiceChange
         mAiEngine?.updateConfig(mAiEngineConfig)
         // 变声在基本 sdk 外，updateConfig 不会重新初始化
         callback.invoke(voiceChange)
+
+        tempAiRole?.let {
+            mAiEngine?.setRole(it.roleId)
+        }
     }
 
     // 静音/取消静音

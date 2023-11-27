@@ -186,17 +186,38 @@
         app:layout_constraintTop_toTopOf="@id/btnCalling"
         tools:visibility="visible" />
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivLongPressTips"
+    <LinearLayout
+        android:id="@+id/layoutPressTips"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
-        android:src="@drawable/ic_long_press_speak"
+        android:gravity="center"
+        android:orientation="vertical"
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@id/ivVoice"
         app:layout_constraintEnd_toEndOf="@id/ivVoice"
         app:layout_constraintStart_toStartOf="@id/ivVoice"
-        tools:visibility="visible" />
+        tools:visibility="visible">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_button_191_corners"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:text="@string/click_to_speak"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_arrow_head"
+            app:layout_constraintBottom_toTopOf="@id/ivVoice"
+            app:layout_constraintEnd_toEndOf="@id/ivVoice"
+            app:layout_constraintStart_toStartOf="@id/ivVoice" />
+    </LinearLayout>
+
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivHangUp"

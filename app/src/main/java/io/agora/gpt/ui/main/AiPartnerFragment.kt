@@ -126,7 +126,7 @@ class AiPartnerFragment : BaseFragment() {
 
     private val mHideLongPressTipsTask: Runnable by lazy {
         Runnable {
-            mBinding?.ivLongPressTips?.isVisible = false
+            mBinding?.layoutPressTips?.isVisible = false
         }
     }
 
@@ -238,11 +238,11 @@ class AiPartnerFragment : BaseFragment() {
                     ivHangUp.visibility = View.VISIBLE
                     mAiShareViewModel.startVoiceChat()
                     if (mAiShareViewModel.isAiGame() && mAiShareViewModel.isFirstEnterRoom()) {
-                        mBinding?.ivLongPressTips?.isVisible = true
+                        mBinding?.layoutPressTips?.isVisible = true
                         mAiShareViewModel.setFirstEnterRoom(false)
                         mMainHandler.postDelayed(mHideLongPressTipsTask, 5000)
                     } else {
-                        mBinding?.ivLongPressTips?.isVisible = false
+                        mBinding?.layoutPressTips?.isVisible = false
                     }
                 }
             }
