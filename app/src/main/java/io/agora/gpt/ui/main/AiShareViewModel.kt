@@ -119,19 +119,28 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mAiEngine?.checkDownloadRes()
     }
 
-    //ServiceVendorGroup{
+    //ServiceVendorGroup{sttList=[STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
+    // llmList=[LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'},
+    // LLMVendor{id='claude-anthropic.claude-v2-100k', vendorName='claude', model='anthropic.claude-v2-100k', accountInJson='null'}],
+    // ttsList=[TTSVendor{id='microsoft-zh-CN-xiaoxiao-cheerful-female', vendorName='microsoft', language='zh-CN', voiceName='晓晓(普通话)', voiceNameValue='zh-CN-XiaoxiaoNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='microsoft-zh-CN-xiaoyi-gentle-femal', vendorName='microsoft', language='zh-CN', voiceName='晓伊(普通话)', voiceNameValue='zh-CN-XiaoyiNeural', voiceNameStyle='gentle', accountInJson='null'},
+    // TTSVendor{id='microsoft-zh-CN-yunxi-cheerful-male', vendorName='microsoft', language='zh-CN', voiceName='云希(普通话)', voiceNameValue='zh-CN-YunxiNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='elevenLabs-Matilda', vendorName='elevenLabs', language='', voiceName='Matilda', voiceNameValue='XrExE9yKIg1WjnnlVkGX', voiceNameStyle='', accountInJson='null'}]}
+
+    // ServiceVendorGroup{
     // sttList=[STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
     // llmList=[LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'},
     // LLMVendor{id='claude-anthropic.claude-v2-100k', vendorName='claude', model='anthropic.claude-v2-100k', accountInJson='null'}],
-    // ttsList=[TTSVendor{id='microsoft-ja-JP-Nanami-cheerful-female', vendorName='microsoft', language='ja-JP', voiceName='Nanami', voiceNameValue='ja-JP-NanamiNeural', voiceNameStyle='cheerful', accountInJson='null'}]}
+    // ttsList=[TTSVendor{id='microsoft-ja-JP-Nanami-cheerful-female', vendorName='microsoft', language='ja-JP', voiceName='Nanami', voiceNameValue='ja-JP-NanamiNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='elevenLabs-Matilda', vendorName='elevenLabs', language='', voiceName='Matilda', voiceNameValue='XrExE9yKIg1WjnnlVkGX', voiceNameStyle='', accountInJson='null'}]}
 
-    //ServiceVendorGroup{
-    // sttList=[STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
+    // ServiceVendorGroup{sttList=[STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
     // llmList=[LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'},
     // LLMVendor{id='claude-anthropic.claude-v2-100k', vendorName='claude', model='anthropic.claude-v2-100k', accountInJson='null'}],
     // ttsList=[TTSVendor{id='microsoft-en-US-Jenny-cheerful-female', vendorName='microsoft', language='en-US', voiceName='Jenny', voiceNameValue='en-US-JennyNeural', voiceNameStyle='cheerful', accountInJson='null'},
     // TTSVendor{id='microsoft-en-US-Jenny-gentle-female', vendorName='microsoft', language='en-US', voiceName='Jenny', voiceNameValue='en-US-JennyNeural', voiceNameStyle='gentle', accountInJson='null'},
-    // TTSVendor{id='microsoft-en-US-Davis-cheerful-male', vendorName='microsoft', language='en-US', voiceName='Davis', voiceNameValue='en-US-DavisNeural', voiceNameStyle='cheerful', accountInJson='null'}]}
+    // TTSVendor{id='microsoft-en-US-Davis-cheerful-male', vendorName='microsoft', language='en-US', voiceName='Davis', voiceNameValue='en-US-DavisNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='elevenLabs-Matilda', vendorName='elevenLabs', language='', voiceName='Matilda', voiceNameValue='XrExE9yKIg1WjnnlVkGX', voiceNameStyle='', accountInJson='null'}]}
     fun setServiceVendor() {
         val serviceVendors: ServiceVendorGroup = mAiEngine?.serviceVendors ?: return
         Log.d(TAG, "serviceVendors $serviceVendors")
