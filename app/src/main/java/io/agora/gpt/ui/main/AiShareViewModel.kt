@@ -75,7 +75,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     private var mEnableVirtualHuman: Boolean = false
     var mCurrentScene: String = Constant.Scene_AI_Partner
 
-    var mTempAiRole: AIRole? = null
+    // ai 游戏保存上次一角色
+    var mLastAiRole: AIRole? = null
 
     init {
         val currentLanguage = SPUtil.get(Constant.CURRENT_LANGUAGE, "zh") as String
@@ -252,7 +253,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // gpt的回答，是流式的，同一个回答，是同一个sid
     override fun onLLMResult(sid: String?, answer: Data<String>): HandleResult {
-        Log.i(TAG, "onLLMResult sid:$sid answer:$answer length ${sid?.length }")
+        Log.i(TAG, "onLLMResult sid:$sid answer:$answer length ${sid?.length}")
         var tempSid = sid
         if (tempSid.isNullOrEmpty()) {
             tempSid = KeyCenter.getRandomString(20)
@@ -458,11 +459,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             avatarModel.bgFilePath = Utils.getCacheFilePath("bg_ai_female.png")
         }
         mAiEngineConfig.mAvatarModel = avatarModel
-        if (needApply) {
-            mAiEngine?.updateConfig(mAiEngineConfig)
-        } else {
-            mTempAiRole = aiRole
-        }
+        mAiEngine?.updateConfig(mAiEngineConfig)
         mAiEngine?.setRole(aiRole.roleId)
         Log.d(TAG, "setRole:$aiRole,avatarModel:$avatarModel")
     }
@@ -602,6 +599,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     fun releaseEngine() {
+        mLastAiRole = if (isAiGame()) {
+            currentRole()
+        } else {
+            null
+        }
         KeyCenter.mUserName = ""
         mMute = false
         mLongStting = false
@@ -613,6 +615,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         stopVoiceChat()
         AIEngine.destroy()
         mAiEngine = null
-        mTempAiRole = null
+
     }
 }

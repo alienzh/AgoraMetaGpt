@@ -323,13 +323,13 @@ class AiPartnerFragment : BaseFragment() {
         mTextureView?.clipToOutline = true
         mTextureView?.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
+                val tempAiRole = mAiShareViewModel.currentRole() ?: mAiShareViewModel.getUsableAiRoles()[0]
                 mAiShareViewModel.setTexture(requireActivity(), mTextureView!!)
                 // updateConfig 会重置，需要重新设置 aiRole
-                val aiRole = mAiShareViewModel.mTempAiRole ?: mAiShareViewModel.getUsableAiRoles()[0]
-                mAiShareViewModel.setAvatarModel(aiRole)
-                mAiShareViewModel.setServiceVendor(aiRole)
-                mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
-                mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
+                mAiShareViewModel.setAvatarModel(tempAiRole)
+                mAiShareViewModel.setServiceVendor(tempAiRole)
+                mBinding?.btnCalling?.text = resources.getString(R.string.calling, tempAiRole.getRoleName())
+                mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(tempAiRole)
                 mBinding?.tvSwitchRole?.isVisible = !mAiShareViewModel.isAiGame()
                 mAiShareViewModel.prepare()
             }
