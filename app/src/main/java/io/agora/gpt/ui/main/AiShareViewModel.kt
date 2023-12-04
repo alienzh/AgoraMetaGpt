@@ -42,22 +42,15 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     private val mAiEngineConfig: AIEngineConfig = AIEngineConfig()
 
-    private val _mEventResultModel: MutableLiveData<EventResultModel> = SingleLiveEvent()
-    val mEventResultModel: LiveData<EventResultModel> = _mEventResultModel
-    private val _mDownloadProgress: MutableLiveData<DownloadProgressModel> = SingleLiveEvent()
-    val mDownloadProgress: LiveData<DownloadProgressModel> = _mDownloadProgress
-    val _mPrepareResult: MutableLiveData<Boolean> = SingleLiveEvent()
-    val mPrepareResult: LiveData<Boolean> = _mPrepareResult
-    val _mDownloadRes: MutableLiveData<DownloadResModel> = SingleLiveEvent()
-    val mDownloadRes: LiveData<DownloadResModel> = _mDownloadRes
-    val _mDownloadResFinish: MutableLiveData<Boolean> = SingleLiveEvent()
-    val mDownloadResFinish: LiveData<Boolean> = _mDownloadResFinish
+    val mEventResultModel: MutableLiveData<EventResultModel> = SingleLiveEvent()
+    val mDownloadProgress: MutableLiveData<DownloadProgressModel> = SingleLiveEvent()
+    val mPrepareResult: MutableLiveData<Boolean> = SingleLiveEvent()
+    val mDownloadRes: MutableLiveData<DownloadResModel> = SingleLiveEvent()
+    val mDownloadResFinish: MutableLiveData<Boolean> = SingleLiveEvent()
 
-    val _mNewLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = SingleLiveEvent()
-    val mNewLineMessageModel: LiveData<Triple<ChatMessageModel, Boolean, Int>> = _mNewLineMessageModel
-
-    val _mAIEngineInit: MutableLiveData<Boolean> = SingleLiveEvent()
-    val mAIEngineInit: MutableLiveData<Boolean> = _mAIEngineInit
+    val mNewLineMessageModel: MutableLiveData<Triple<ChatMessageModel, Boolean, Int>> = SingleLiveEvent()
+    val mAIEngineInit: MutableLiveData<Boolean> = SingleLiveEvent()
+    val mUpdateConfigResult: MutableLiveData<Boolean> = SingleLiveEvent()
 
     private var mMute: Boolean = false
 
@@ -73,10 +66,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mAiEngineConfig.mLanguage = Language.JA_JP
     }
 
-    private var mCurrentAiRole: AIRole? = null
-
-    fun getCurAiRole(): AIRole {
-        return mCurrentAiRole ?: getUsableAiRoles()[0]
+    fun getCurAiRole(): AIRole? {
+        return mAiEngine?.currentRole
     }
 
     fun currentLanguage(): Language {
@@ -117,10 +108,10 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mAiEngine?.checkDownloadRes()
     }
 
-    // ServiceVendorGroup{
+    //ServiceVendorGroup{
     // sttList=[STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
     // llmList=[LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'}],
-    // ttsList=[TTSVendor{id='microsoft-zh-CN-xiaoxiao-cheerful-female', vendorName='microsoft', language='zh-CN', voiceName='晓晓(普通话)', voiceNameValue='zh-CN-XiaoxiaoNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // ttsList=[TTSVendor{id='microsoft-ja-JP-Nanami-cheerful-female', vendorName='microsoft', language='ja-JP', voiceName='Nanami', voiceNameValue='ja-JP-NanamiNeural', voiceNameStyle='cheerful', accountInJson='null'},
     // TTSVendor{id='elevenLabs-Matilda', vendorName='elevenLabs', language='', voiceName='Matilda', voiceNameValue='XrExE9yKIg1WjnnlVkGX', voiceNameStyle='', accountInJson='null'}]}
 
     //ServiceVendorGroup{
@@ -151,9 +142,14 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             }
         }
         for (ttsVendor in serviceVendors.ttsList) {
-            if (currentLanguage() == Language.EN_US || currentLanguage() == Language.JA_JP) {
+            if (currentLanguage() == Language.EN_US) {
                 // 英文/日文场景统一用 elevenLabs-Matilda
                 if (ttsVendor.id.equals("elevenLabs-Matilda", true)) {
+                    serviceVendor.ttsVendor = ttsVendor
+                    break
+                }
+            } else if (currentLanguage() == Language.JA_JP) {
+                if (ttsVendor.id.equals("microsoft-ja-JP-Nanami-cheerful-female", true)) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 }
@@ -187,7 +183,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             if (oldChatMessageModel != null) {
                 val index = mChatMessageDataList.indexOf(oldChatMessageModel)
                 oldChatMessageModel.message = result.data
-                _mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
+                mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
             } else {
                 val messageModel = ChatMessageModel(
                     isAiMessage = false,
@@ -197,7 +193,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                     costTime = 0
                 )
                 mChatMessageDataList.add(messageModel)
-                _mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
+                mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
             }
             // 用户说话只需要最后完整的就行
 //            if (isRecognizedSpeech) {
@@ -230,7 +226,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             if (oldChatMessageModel != null) {
                 val index = mChatMessageDataList.indexOf(oldChatMessageModel)
                 oldChatMessageModel.message = oldChatMessageModel.message.plus(answer.data)
-                _mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
+                mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
             } else {
                 val messageModel = ChatMessageModel(
                     isAiMessage = true,
@@ -244,7 +240,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                     mSttEndTimeMap[tempSid] = System.currentTimeMillis()
                 }
                 mChatMessageDataList.add(messageModel)
-                _mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
+                mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
             }
         }
         return HandleResult.CONTINUE
@@ -265,7 +261,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 val index = mChatMessageDataList.indexOf(oldChatMessageModel)
                 oldChatMessageModel.costTime =
                     System.currentTimeMillis() - (mSttEndTimeMap[tempSid] ?: mLastSpeech2TextTime)
-                _mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
+                mNewLineMessageModel.value = Triple(oldChatMessageModel, false, index)
             }
         }
         return HandleResult.CONTINUE
@@ -281,7 +277,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     override fun onDownloadResFinish() {
         Log.i(TAG, "onDownloadResFinish")
         mHandler.post {
-            _mDownloadResFinish.value = true
+            mDownloadResFinish.value = true
         }
     }
 
@@ -289,9 +285,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         Log.i(TAG, "onCheckDownloadResResult totalSize:$totalSize,fileCount:$fileCount")
         mHandler.post {
             if (totalSize == 0L) { // totalSize:0 目前就表示不用下载的
-                _mDownloadResFinish.value = true
+                mDownloadResFinish.value = true
             } else {
-                _mDownloadRes.value = DownloadResModel(totalSize, fileCount)
+                mDownloadRes.value = DownloadResModel(totalSize, fileCount)
             }
         }
     }
@@ -299,7 +295,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     override fun onDownloadResProgress(progress: Int, index: Int, count: Int) {
         Log.i(TAG, "onDownloadResProgress progress:$progress,index:$index,count:$count")
         mHandler.post {
-            _mDownloadProgress.value = DownloadProgressModel(progress, index, count)
+            mDownloadProgress.value = DownloadProgressModel(progress, index, count)
         }
     }
 
@@ -315,19 +311,22 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 }
             } else if (event == ServiceEvent.DESTROY && code == ServiceCode.SUCCESS) {
             }
-            _mEventResultModel.postValue(EventResultModel(event, code))
+            mEventResultModel.postValue(EventResultModel(event, code))
         }
     }
 
     override fun onPrepareResult(code: Int, msg: String?) {
         Log.i(TAG, "onPrepareResult code:$code,msg:$msg")
         mHandler.post {
-            _mPrepareResult.value = code == ServiceCode.SUCCESS.code
+            mPrepareResult.value = code == ServiceCode.SUCCESS.code
         }
     }
 
     override fun onUpdateConfigResult(code: Int, msg: String?) {
         Log.i(TAG, "onUpdateConfigResult code:$code,msg:$msg")
+        mHandler.post {
+            mUpdateConfigResult.value = code == ServiceCode.SUCCESS.code
+        }
     }
 
     override fun onVirtualHumanStart(code: Int, msg: String?) {
@@ -388,6 +387,10 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         return sdkAiRoles.asList()
     }
 
+    fun setAiRole(aiRole: AIRole) {
+        mAiEngine?.setRole(aiRole.roleId)
+    }
+
     // 设置SDK使用的AIRol
     fun setAvatarModel(aiRole: AIRole) {
         val roleAvatars = KeyCenter.avatars
@@ -402,7 +405,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mAiEngineConfig.mAvatarModel = avatarModel
         mAiEngineConfig.mEnableChatConversation = isEnglishTeacher(aiRole)
         mAiEngine?.updateConfig(mAiEngineConfig)
-        mAiEngine?.setRole(aiRole.roleId)
         Log.d(TAG, "setRole:$aiRole,avatarModel:$avatarModel")
     }
 
@@ -450,6 +452,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     // 设置AI语言环境,只记录语言
     fun switchLanguage(language: Language, callback: (Language) -> Unit) {
         mAiEngineConfig.mLanguage = language
+        mAiEngine?.updateConfig(mAiEngineConfig)
         callback.invoke(mAiEngineConfig.mLanguage)
     }
 

@@ -181,10 +181,13 @@ class AiPartnerFragment : BaseFragment() {
         mTextureView?.clipToOutline = true
         mTextureView?.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
+                val tempAiRole = mAiShareViewModel.getCurAiRole() ?: mAiShareViewModel.getUsableAiRoles()[0]
                 mAiShareViewModel.setTexture(requireActivity(), mTextureView!!)
-                mAiShareViewModel.setAvatarModel(mAiShareViewModel.getCurAiRole())
+                val aiRole = mAiShareViewModel.getCurAiRole()
+                mAiShareViewModel.setAvatarModel(tempAiRole)
+                mAiShareViewModel.setAiRole(tempAiRole)
                 mAiShareViewModel.setServiceVendor()
-                mBinding?.btnCalling?.text = resources.getString(R.string.calling, mAiShareViewModel.getCurAiRole().getRoleName())
+                mBinding?.btnCalling?.text = resources.getString(R.string.calling, tempAiRole.getRoleName())
                 mAiShareViewModel.prepare()
             }
 

@@ -45,6 +45,7 @@ class CreateRoomFragment : BaseFragment() {
     private var mDownloadingChooserDialog: MaterialDialog? = null
     private var mProgressLoadingDialog: AlertDialog? = null
     private var mTotalSize: Long = 0
+    private var mChangeLanguage = false
 
     private val mAiShareViewModel: AiShareViewModel by activityViewModels()
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -138,10 +139,26 @@ class CreateRoomFragment : BaseFragment() {
                 if (aiRoles.isEmpty()) {
                     ToastUtils.showToast("No roles are available!")
                 } else {
-                    mBinding?.tvChooseRoleContent?.text = aiRoles[0].profession
+                    val aiRole = aiRoles[0]
+                    mAiShareViewModel.setAiRole(aiRole)
+                    mBinding?.tvChooseRoleContent?.text = aiRole.profession
                 }
             }
         }
+        mAiShareViewModel.mUpdateConfigResult.observe(this) {
+            if (it && mChangeLanguage) {
+                val aiRoles = mAiShareViewModel.getUsableAiRoles()
+                if (aiRoles.isEmpty()) {
+                    ToastUtils.showToast("No roles are available!")
+                } else {
+                    val aiRole = aiRoles[0]
+                    mAiShareViewModel.setAiRole(aiRole)
+                    mBinding?.tvChooseRoleContent?.text = aiRole.profession
+                }
+                mChangeLanguage = false
+            }
+        }
+
         mAiShareViewModel.initAiEngine()
     }
 
@@ -202,7 +219,7 @@ class CreateRoomFragment : BaseFragment() {
                 chooseDialog.setConfirmCallback { selected ->
                     mBinding?.tvChooseRoleContent?.text = selected
                     aiRoles.find { it.roleName == selected }?.let { aiRole ->
-                        mAiShareViewModel.setAvatarModel(aiRole)
+                        mAiShareViewModel.setAiRole(aiRole)
                     }
                 }
                 chooseDialog.show()
@@ -220,7 +237,9 @@ class CreateRoomFragment : BaseFragment() {
                         "English" -> Language.EN_US
                         else -> Language.JA_JP
                     }
+                    mChangeLanguage = true
                     mAiShareViewModel.switchLanguage(language) {
+
                     }
                 }
                 chooseDialog.show()
