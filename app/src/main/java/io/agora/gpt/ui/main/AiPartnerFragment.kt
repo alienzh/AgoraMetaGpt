@@ -365,6 +365,7 @@ class AiPartnerFragment : BaseFragment() {
             if (usableAIRoles.isNotEmpty()) {
                 val aiRole = usableAIRoles[it]
                 mAiShareViewModel.setAvatarModel(aiRole)
+                mAiShareViewModel.setAiRole(aiRole)
                 mAiShareViewModel.setServiceVendor(aiRole)
                 mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
                 mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
