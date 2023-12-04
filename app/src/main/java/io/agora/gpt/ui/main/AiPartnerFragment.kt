@@ -327,6 +327,7 @@ class AiPartnerFragment : BaseFragment() {
                 mAiShareViewModel.setTexture(requireActivity(), mTextureView!!)
                 // updateConfig 会重置，需要重新设置 aiRole
                 mAiShareViewModel.setAvatarModel(tempAiRole)
+                mAiShareViewModel.setAiRole(tempAiRole)
                 mAiShareViewModel.setServiceVendor(tempAiRole)
                 mBinding?.btnCalling?.text = resources.getString(R.string.calling, tempAiRole.getRoleName())
                 mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(tempAiRole)

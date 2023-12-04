@@ -240,7 +240,7 @@ class CreateRoomFragment : BaseFragment() {
                 chooseDialog.setConfirmCallback { selected ->
                     mBinding?.tvChooseGameContent?.text = selected
                     aiRoles.find { it.profession == selected }?.let { aiRole ->
-                        mAiShareViewModel.setAvatarModel(aiRole)
+                        mAiShareViewModel.setAiRole(aiRole)
                     }
                 }
                 chooseDialog.show()
@@ -254,7 +254,7 @@ class CreateRoomFragment : BaseFragment() {
             ToastUtils.showToast("No games are available!")
         } else {
             val aiRole = if (mAiShareViewModel.isAiGame()) mAiShareViewModel.mLastAiRole ?: aiRoles[0] else aiRoles[0]
-            mAiShareViewModel.setAvatarModel(aiRole)
+            mAiShareViewModel.setAiRole(aiRole)
             if (mAiShareViewModel.isAiGame()) {
                 mBinding?.tvChooseGameContent?.text = aiRole.profession
             }

@@ -447,6 +447,10 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         return usableAiRoles
     }
 
+    fun setAiRole(aiRole: AIRole) {
+        mAiEngine?.setRole(aiRole.roleId)
+    }
+
     // 设置SDK使用的AIRol
     fun setAvatarModel(aiRole: AIRole, needApply: Boolean = true) {
         val avatarName = KeyCenter.getAvatarName(aiRole)
@@ -460,7 +464,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
         mAiEngineConfig.mAvatarModel = avatarModel
         mAiEngine?.updateConfig(mAiEngineConfig)
-        mAiEngine?.setRole(aiRole.roleId)
         Log.d(TAG, "setRole:$aiRole,avatarModel:$avatarModel")
     }
 
@@ -494,16 +497,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // 开启/关闭 变声
     fun enableVoiceChange(callback: (Boolean) -> Unit) {
-        val tempAiRole = mAiEngine?.currentRole
         val voiceChange = !mAiEngineConfig.mEnableVoiceChange
         mAiEngineConfig.mEnableVoiceChange = voiceChange
         mAiEngine?.updateConfig(mAiEngineConfig)
         // 变声在基本 sdk 外，updateConfig 不会重新初始化
         callback.invoke(voiceChange)
-
-        tempAiRole?.let {
-            mAiEngine?.setRole(it.roleId)
-        }
     }
 
     // 静音/取消静音
@@ -527,6 +525,9 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             Language.EN_US
         } else {
             Language.ZH_CN
+        }
+        if (mAiEngineConfig.mLanguage == Language.EN_US) {
+            mCurrentScene = Constant.Scene_AI_Partner
         }
         mAiEngine?.updateConfig(mAiEngineConfig)
         callback.invoke(mAiEngineConfig.mLanguage)
