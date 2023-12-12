@@ -20,6 +20,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import io.agora.aiengine.ServiceConfig
 import io.agora.aigc.sdk.constants.ServiceCode
 import io.agora.aigc.sdk.constants.ServiceEvent
 import io.agora.gpt.R
@@ -43,8 +44,6 @@ class AiPartnerFragment : BaseFragment() {
     private var mBinding: FragmentAiPartnerBinding? = null
 
     private var mTextureView: TextureView? = null
-
-    private var mIsSpeaking = false
 
     private var mSelectIndex: Int = 0
 
@@ -174,11 +173,7 @@ class AiPartnerFragment : BaseFragment() {
 
         mBinding?.tvSwitchRole?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
-                if (mIsSpeaking) {
-                    ToastUtils.showToast(R.string.switch_role_tips)
-                } else {
-                    showChooseRoleDialog()
-                }
+                showChooseRoleDialog()
             }
         })
 
@@ -330,7 +325,9 @@ class AiPartnerFragment : BaseFragment() {
                 mAiShareViewModel.setAiRole(tempAiRole)
                 mAiShareViewModel.setServiceVendor(tempAiRole)
                 mBinding?.btnCalling?.text = resources.getString(R.string.calling, tempAiRole.getRoleName())
-                mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(tempAiRole)
+                mBinding?.tvTopic?.isVisible = mAiShareViewModel.isEnglishTeacher(tempAiRole)
+                mBinding?.tvEvaluate?.isVisible = mAiShareViewModel.isEnglishTeacher(tempAiRole)
+                mBinding?.tvVoiceChange?.isVisible = ServiceConfig.SERVICE_VOICE_CHANGE_ENABLE
                 mBinding?.tvSwitchRole?.isVisible = !mAiShareViewModel.isAiGame()
                 mAiShareViewModel.prepare()
             }
@@ -368,7 +365,8 @@ class AiPartnerFragment : BaseFragment() {
                 mAiShareViewModel.setAiRole(aiRole)
                 mAiShareViewModel.setServiceVendor(aiRole)
                 mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
-                mBinding?.groupOralEnglishTeacher?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
+                mBinding?.tvTopic?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
+                mBinding?.tvEvaluate?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
             }
         }
         chooseRoleDialog.setupAiRoles(mSelectIndex, mAiShareViewModel.getUsableAiRoles())
