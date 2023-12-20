@@ -2,6 +2,7 @@ package io.agora.gpt.utils
 
 import io.agora.aigc.sdk.model.AIRole
 import io.agora.gpt.BuildConfig
+import io.agora.gpt.R
 import io.agora.media.RtcTokenBuilder
 import io.agora.rtm.RtmTokenBuilder
 import java.util.Random
@@ -18,6 +19,23 @@ object KeyCenter {
             else -> Constant.Avatar_Mina
         }
         return avatarName
+    }
+
+    fun getAvatarDrawableStr(aiRole: AIRole): String {
+        val drawableStr: String = if (aiRole.roleId.equals(Constant.Role_ID_yunibobo, true)) {
+            Constant.AI_Avatar_1
+        } else if (aiRole.roleId.equals(Constant.Role_ID_jingxiang, true)) {
+            Constant.AI_Avatar_2
+        } else if (aiRole.roleId.startsWith(Constant.Role_ID_Foodie, true)) {
+            Constant.AI_Avatar_1
+        } else if (aiRole.roleId.startsWith(Constant.Role_ID_WENDY, true)) {
+            Constant.AI_Avatar_2
+        } else if (aiRole.roleId.startsWith(Constant.Role_ID_Cindy, true)) {
+            Constant.AI_Avatar_3
+        } else {
+            Constant.AI_Avatar_1
+        }
+        return drawableStr
     }
 
     private const val USER_MAX_UID = 10000

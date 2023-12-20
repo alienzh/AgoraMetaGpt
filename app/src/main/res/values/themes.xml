@@ -39,11 +39,9 @@
         <item name="android:windowExitAnimation">@anim/dialog_bottom_out</item>
     </style>
 
-    <style name="ShapeAppearance.MaterialComponents.Avatar.BottomRound" parent="ShapeAppearance.MaterialComponents">
-        <item name="cornerFamilyBottomRight">rounded</item>
-        <item name="cornerSizeBottomRight">40dp</item>
-        <item name="cornerFamilyBottomLeft">rounded</item>
-        <item name="cornerSizeBottomLeft">40dp</item>
+    <style name="ShapeAppearance.MaterialComponents.AvatarRound" parent="ShapeAppearance.MaterialComponents">
+        <item name="cornerRadius">40dp</item>
+        <item name="cornerFamily">rounded</item>
     </style>
     <style name="Theme.MetaWorld.Fullscreen" parent="Theme.MetaWorld">
         <item name="android:actionBarStyle">@style/Widget.Theme.MetaWorld.ActionBar.Fullscreen</item>

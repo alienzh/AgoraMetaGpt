@@ -6,7 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import io.agora.aigc.sdk.constants.Constants
 import io.agora.aigc.sdk.constants.Language
 import io.agora.aigc.sdk.model.AIRole
@@ -14,6 +18,7 @@ import io.agora.gpt.R
 import io.agora.gpt.utils.AppUtils
 import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
+import io.agora.gpt.utils.dp
 
 class RoleSelectAdapter constructor(
     private val mContext: Context,
@@ -40,11 +45,15 @@ class RoleSelectAdapter constructor(
             holder.ivGender.setBackgroundResource(R.drawable.ic_gender_female)
             holder.ivSelect.setBackgroundResource(R.drawable.bg_button_e25_corners_female)
         }
-        var avatarName = KeyCenter.getAvatarName(chatRoleModel)
+        val drawableStr :String= KeyCenter.getAvatarDrawableStr(chatRoleModel)
 
-        var drawableId = AppUtils.getDrawableRes(mContext, "ai_portrait_$avatarName")
-        if (drawableId == 0) drawableId = R.drawable.ai_portrait_mina
-        holder.ivRolePortrait.setImageResource(drawableId)
+        var drawableId = AppUtils.getDrawableRes(mContext, drawableStr)
+        if (drawableId == 0) drawableId = R.drawable.ai_avatar1
+        val drawable = ContextCompat.getDrawable(mContext, drawableId)
+
+        Glide.with(mContext).load(drawable)
+            .apply(RequestOptions.circleCropTransform())
+            .into(holder.ivRolePortrait)
         if (selectIndex == position) {
             holder.ivRolePortrait.setBackgroundResource(R.drawable.bg_button_role_select)
             holder.ivGender.visibility = View.INVISIBLE

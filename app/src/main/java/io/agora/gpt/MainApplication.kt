@@ -42,8 +42,9 @@ class MainApplication : Application() {
 
     private fun initFiles() {
         try {
-            Utils.copyAssetFile(this, "bg_ai_female.png")
-            Utils.copyAssetFile(this, "bg_ai_male.png")
+            Utils.copyAssetFile(this, "ai_avatar1.png")
+            Utils.copyAssetFile(this, "ai_avatar2.png")
+            Utils.copyAssetFile(this, "ai_avatar3.png")
         } catch (e: IOException) {
             Log.d("MainApplication", "copyAssetFile error " + e.message)
         }

@@ -29,59 +29,63 @@
         app:layout_constraintBottom_toBottomOf="@id/tvTitle"
         app:layout_constraintTop_toTopOf="@id/tvTitle" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/layoutAvatarBg"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginHorizontal="15dp"
         android:layout_marginVertical="30dp"
-        android:background="@drawable/bg_ai_female"
-        app:layout_constraintBottom_toTopOf="@+id/recyclerRole"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitle">
+        app:cardCornerRadius="40dp"
+        app:layout_constraintBottom_toTopOf="@+id/recyclerRole">
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/ivRoleAvatar"
-            app:shapeAppearance="@style/ShapeAppearance.MaterialComponents.Avatar.BottomRound"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ai_avatar_mina"
-            android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <androidx.appcompat.widget.AppCompatImageView
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutAvatarBg"
             android:layout_width="match_parent"
-            android:layout_height="69dp"
-            android:background="@drawable/bg_button_black70_bottom_corners40"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvRoleIntroduce"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:textColor="@color/white"
-            android:textSize="13sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="美食博主，爱好做饭和探店" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivRoleAvatar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ai_avatar1"
+                android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvRoleName"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginBottom="49dp"
-            android:background="@drawable/bg_button_white_corners16"
-            android:gravity="center"
-            android:paddingHorizontal="20dp"
-            android:textColor="@color/black"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:text="尹希尔小不点" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="match_parent"
+                android:layout_height="69dp"
+                android:background="#B3000000"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRoleIntroduce"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="美食博主，爱好做饭和探店" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvRoleName"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginBottom="49dp"
+                android:background="@drawable/bg_button_white_corners16"
+                android:gravity="center"
+                android:paddingHorizontal="20dp"
+                android:textColor="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:text="尹希尔小不点" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerRole"

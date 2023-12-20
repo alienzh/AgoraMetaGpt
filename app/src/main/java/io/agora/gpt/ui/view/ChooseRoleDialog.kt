@@ -3,7 +3,6 @@ package io.agora.gpt.ui.view
 import android.content.Context
 import android.view.View
 import android.view.WindowManager
-import io.agora.aiengine.model.AvatarModel
 import io.agora.aigc.sdk.constants.Language
 import io.agora.aigc.sdk.model.AIRole
 import io.agora.gpt.R
@@ -67,10 +66,11 @@ class ChooseRoleDialog constructor(context: Context, private val language: Langu
     }
 
     private fun setupCurrentRoleView(selectRole: AIRole) {
-        val avatarName = KeyCenter.getAvatarName(selectRole)
+        val drawableStr :String= KeyCenter.getAvatarDrawableStr(selectRole)
 
-        var drawableId = AppUtils.getDrawableRes(context, "ai_avatar_$avatarName")
-        if (drawableId == 0) drawableId = R.drawable.ai_avatar_mina
+        var drawableId = AppUtils.getDrawableRes(context, drawableStr)
+        if (drawableId == 0) drawableId = R.drawable.ai_avatar1
+
         binding.ivRoleAvatar.setImageResource(drawableId)
         binding.tvRoleIntroduce.text = selectRole.description
         binding.tvRoleName.text = selectRole.roleName

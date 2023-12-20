@@ -19,6 +19,18 @@ object Constant {
     const val CN_Role_ID_yunibobo = "yunibobo-zh-CN"
     const val CN_Role_ID_jingxiang = "jingxiang-zh-CN"
 
+    const val Role_ID_yunibobo = "yunibobo"
+    const val Role_ID_jingxiang = "jingxiang"
+
+    const val Role_ID_Foodie = "Foodie"
+    const val Role_ID_WENDY = "Wendy"
+    const val Role_ID_Cindy = "Cindy"
+
+    const val AI_Avatar_1 = "ai_avatar1"
+    const val AI_Avatar_2 = "ai_avatar2"
+    const val AI_Avatar_3 = "ai_avatar3"
+
+
     const val Scene_AI_Partner = "scene_ai_partner"
     const val Scene_AI_Game = "scene_ai_game"
 }

@@ -457,11 +457,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         val avatarModel = AvatarModel().apply {
             name = avatarName
         }
-        if (aiRole.gender == Constants.GENDER_MALE) {
-            avatarModel.bgFilePath = Utils.getCacheFilePath("bg_ai_male.png")
-        } else {
-            avatarModel.bgFilePath = Utils.getCacheFilePath("bg_ai_female.png")
-        }
+        val avatarDrawableStr = KeyCenter.getAvatarDrawableStr(aiRole)
+        avatarModel.bgFilePath = Utils.getCacheFilePath("$avatarDrawableStr.png")
         mAiEngineConfig.mAvatarModel = avatarModel
         mAiEngine?.updateConfig(mAiEngineConfig)
         Log.d(TAG, "setRole:$aiRole,avatarModel:$avatarModel")
