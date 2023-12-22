@@ -54,7 +54,7 @@ class GameAIPartnerActivity : BaseActivity() {
     private fun handlePermission() {
 
         // 需要动态申请的权限
-        val permission = Manifest.permission.READ_EXTERNAL_STORAGE
+        val permission = Manifest.permission.RECORD_AUDIO
 
         //查看是否已有权限
         val checkSelfPermission = ActivityCompat.checkSelfPermission(applicationContext, permission)
@@ -73,8 +73,6 @@ class GameAIPartnerActivity : BaseActivity() {
 
     private fun appRequestPermission() {
         val permissions = arrayOf(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
         )
         requestPermissions(permissions, 1)

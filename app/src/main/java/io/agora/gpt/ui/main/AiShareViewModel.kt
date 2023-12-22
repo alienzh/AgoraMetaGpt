@@ -15,8 +15,10 @@ import io.agora.aiengine.model.AvatarModel
 import io.agora.aigc.sdk.constants.Constants
 import io.agora.aigc.sdk.constants.HandleResult
 import io.agora.aigc.sdk.constants.Language
+import io.agora.aigc.sdk.constants.NoiseEnvironment
 import io.agora.aigc.sdk.constants.ServiceCode
 import io.agora.aigc.sdk.constants.ServiceEvent
+import io.agora.aigc.sdk.constants.SpeechRecognitionCompletenessLevel
 import io.agora.aigc.sdk.model.AIRole
 import io.agora.aigc.sdk.model.Data
 import io.agora.aigc.sdk.model.ServiceVendor
@@ -76,7 +78,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     fun initAiEngine() {
         val userId = KeyCenter.userUid
-        val roomName = KeyCenter.roomName
+        val roomName = io.agora.aigc.sdk.utils.Utils.getCurrentDateStr("yyyyMMddHHmmss") +
+                io.agora.aigc.sdk.utils.Utils.getRandomString(2)
         val virtualHumanUid = KeyCenter.virtualHumanUid
         mAiEngineConfig.apply {
             mContext = MainApplication.mGlobalApplication.applicationContext
@@ -94,6 +97,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mEnableVoiceChange = false
             mEnableChatConversation = true
             mSpeechRecognitionFiltersLength = 1
+            noiseEnvironment = NoiseEnvironment.NOISE
+            speechRecognitionCompleteLevel = SpeechRecognitionCompletenessLevel.NORMAL
         }
         if (mAiEngine == null) {
             mAiEngine = AIEngine.create()

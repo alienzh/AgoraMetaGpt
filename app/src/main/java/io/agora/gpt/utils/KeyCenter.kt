@@ -33,13 +33,13 @@ object KeyCenter {
     private var mRoomName: String? = null
     private var internalAvatars: Array<String>? = null
     var userName: String? = null
-    val roomName: String?
-        get() {
-            if (mRoomName == null || mRoomName == "") {
-                mRoomName = getRandomString(12)
-            }
-            return mRoomName
-        }
+//    val roomName: String?
+//        get() {
+//            if (mRoomName == null || mRoomName == "") {
+//                mRoomName = getRandomString(12)
+//            }
+//            return mRoomName
+//        }
     val userUid: Int
         get() {
             if (-1 == USER_RTC_UID) {

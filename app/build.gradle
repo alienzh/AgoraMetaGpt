@@ -16,7 +16,7 @@ android {
         minSdk 23
         targetSdk 30
         versionCode 1000
-        versionName "1024"
+        versionName "1033"
 
         flavorDimensions "versionCode"
 
@@ -56,7 +56,7 @@ android {
     }
     applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "Agora-NaomiAI-${versionName}-${variant.buildType.name}-${releaseTime()}.apk"
+            outputFileName = "Agora-NaomiAI-v${versionName}-${variant.buildType.name}-${releaseTime()}.apk"
         }
     }
 
