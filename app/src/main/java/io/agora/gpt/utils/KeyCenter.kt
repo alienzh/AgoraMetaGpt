@@ -22,9 +22,9 @@ object KeyCenter {
     }
 
     fun getAvatarDrawableStr(aiRole: AIRole): String {
-        val drawableStr: String = if (aiRole.roleId.equals(Constant.Role_ID_yunibobo, true)) {
+        val drawableStr: String = if (aiRole.roleId.startsWith(Constant.Role_ID_yunibobo, true)) {
             Constant.AI_Avatar_1
-        } else if (aiRole.roleId.equals(Constant.Role_ID_jingxiang, true)) {
+        } else if (aiRole.roleId.startsWith(Constant.Role_ID_jingxiang, true)) {
             Constant.AI_Avatar_2
         } else if (aiRole.roleId.startsWith(Constant.Role_ID_Foodie, true)) {
             Constant.AI_Avatar_1
@@ -46,13 +46,13 @@ object KeyCenter {
     private var innerRoomName: String? = null
     var mUserName: String? = null
 
-    val mRoomName: String?
-        get() {
-            if (innerRoomName == null || innerRoomName == "") {
-                innerRoomName = getRandomString(12)
-            }
-            return innerRoomName
-        }
+//    val mRoomName: String?
+//        get() {
+//            if (innerRoomName == null || innerRoomName == "") {
+//                innerRoomName = getRandomString(12)
+//            }
+//            return innerRoomName
+//        }
     val mUserUid: Int
         get() {
             if (-1 == USER_RTC_UID) {
