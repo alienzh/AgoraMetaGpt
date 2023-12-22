@@ -56,7 +56,7 @@ android {
     }
     applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "Agora-MetaGpt-${versionName}-${variant.buildType.name}-${releaseTime()}.apk"
+            outputFileName = "Agora-MetaGpt-v${versionName}-${variant.buildType.name}-${releaseTime()}.apk"
         }
     }
 
