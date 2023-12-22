@@ -402,11 +402,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         val avatarModel = AvatarModel().apply {
             name = roleAvatars[0]
         }
-        if (aiRole.gender == Constants.GENDER_MALE) {
-            avatarModel.bgFilePath = Utils.getCacheFilePath("bg_ai_male.png")
-        } else {
-            avatarModel.bgFilePath = Utils.getCacheFilePath("bg_ai_female.png")
-        }
+        avatarModel.bgFilePath = Utils.getCacheFilePath("ai_avatar1.png")
         mAiEngineConfig.mAvatarModel = avatarModel
         mAiEngineConfig.mEnableChatConversation = isEnglishTeacher(aiRole)
         mAiEngine?.updateConfig(mAiEngineConfig)
