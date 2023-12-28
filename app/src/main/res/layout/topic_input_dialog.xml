@@ -3,60 +3,83 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_gravity="bottom"
-
-    android:background="@drawable/bg_dialog_top_radius20_gradient_white">
-
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="58dp"
-        android:text="@string/topic"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnOk"
-        android:layout_width="40dp"
-        android:layout_height="26dp"
-        android:layout_marginHorizontal="20dp"
-        android:background="@drawable/bg_button_7a5_corners4"
-        android:gravity="center"
-        android:text="@string/ok"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:textAllCaps="false"
-        app:layout_constraintBottom_toBottomOf="@id/tvTitle"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tvTitle" />
+    android:background="@android:color/transparent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:background="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitle">
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_dialog_top_radius20_gradient_white"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/etTopic"
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="58dp"
+            android:gravity="center"
+            android:text="@string/topic"
             android:textColor="@color/black"
-            android:textSize="18sp"
-            android:inputType="text"
-            android:gravity="start|top"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="12dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnOk"
+            android:layout_width="40dp"
+            android:layout_height="26dp"
+            android:layout_marginHorizontal="20dp"
+            android:background="@drawable/bg_button_7a5_corners4"
+            android:gravity="center"
+            android:text="@string/ok"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvTitle" />
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutRoomName"
             android:layout_width="match_parent"
-            android:layout_height="88dp"
-            android:background="@drawable/bg_text_fbf_corners8"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="8dp"
-            android:layout_marginHorizontal="20dp"/>
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:paddingTop="8dp"
+            android:paddingBottom="20dp"
+            app:boxBackgroundMode="none"
+            app:boxStrokeColor="@android:color/transparent"
+            app:hintEnabled="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTopic"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginHorizontal="20dp"
+                android:background="@drawable/bg_text_fbf_corners8"
+                android:gravity="start|top"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLength="15"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="@color/black"
+                android:textColorHint="#979CBB"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnRandom"
+                app:layout_constraintTop_toTopOf="parent" />
+        </com.google.android.material.textfield.TextInputLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -374,12 +374,15 @@ class AiPartnerFragment : BaseFragment() {
     }
 
     private fun showTopicDialog() {
-        val requireContext = context ?: return
+        val requireContext = activity ?: return
         val topicInputDialog = TopicInputDialog(requireContext)
         topicInputDialog.setInputTextCallback {
             if (it.isNotEmpty()) {
                 mAiShareViewModel.pushText(Constant.COMMAND_TOPIC, it)
             }
+        }
+        topicInputDialog.setOnShowListener {
+
         }
         topicInputDialog.show()
     }

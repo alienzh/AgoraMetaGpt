@@ -1,5 +1,6 @@
 package io.agora.gpt.ui.view
 
+import android.app.Activity
 import android.content.Context
 import android.view.Gravity
 import android.view.View
@@ -7,7 +8,7 @@ import android.view.WindowManager
 import io.agora.gpt.databinding.TopicInputDialogBinding
 import io.agora.gpt.ui.base.BaseDialog
 
-class TopicInputDialog constructor(context: Context) : BaseDialog(context) {
+class TopicInputDialog constructor(val context: Activity) : BaseDialog(context) {
 
     private lateinit var binding: TopicInputDialogBinding
 
@@ -28,9 +29,10 @@ class TopicInputDialog constructor(context: Context) : BaseDialog(context) {
         window?.let { window ->
             window.setBackgroundDrawableResource(android.R.color.transparent)
             window.setDimAmount(0f)
-            window.setType(WindowManager.LayoutParams.TYPE_APPLICATION_PANEL)
+//            window.setType(WindowManager.LayoutParams.TYPE_APPLICATION_PANEL)
 //            window.setFlags(
 //                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN, WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+//
 //            )
 //            window.setFlags(
 //                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
@@ -39,13 +41,18 @@ class TopicInputDialog constructor(context: Context) : BaseDialog(context) {
                 val lp = WindowManager.LayoutParams()
                 lp.copyFrom(window.attributes)
                 lp.width = WindowManager.LayoutParams.MATCH_PARENT
-                lp.height = WindowManager.LayoutParams.WRAP_CONTENT
+                lp.height = WindowManager.LayoutParams.MATCH_PARENT
                 window.attributes = lp
             }
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         }
         setCanceledOnTouchOutside(true)
+        setOnShowListener {
+            binding.root.postDelayed({
+                showKeyboard(context, binding.etTopic)
+            }, 200)
+        }
     }
 
     override fun initView() {
@@ -53,9 +60,7 @@ class TopicInputDialog constructor(context: Context) : BaseDialog(context) {
             inputTextCallback?.invoke(binding.etTopic.text.toString())
             dismiss()
         }
-        binding.root.postDelayed({
-            showKeyboard(binding.etTopic)
-        }, 200)
+
 
     }
 

@@ -47,8 +47,8 @@ abstract class BaseDialog constructor(context: Context) : Dialog(context, R.styl
         imm.hideSoftInputFromWindow(editText.windowToken, 0)
     }
 
-    protected open fun showKeyboard(editText: EditText?) {
-        val context: Activity = ownerActivity ?: return
+    protected open fun showKeyboard(activity: Activity?, editText: EditText?) {
+        val context: Activity = activity ?: ownerActivity ?: return
         val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(editText, 0)
     }
