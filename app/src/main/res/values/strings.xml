@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Naomi AI</string>
+    <string name="app_name">Naomi AI-Test</string>
     <string name="create_room">Create Room</string>
     <string name="select_scene">Select Scene</string>
     <string name="game_ai_partner">AI Agent</string>

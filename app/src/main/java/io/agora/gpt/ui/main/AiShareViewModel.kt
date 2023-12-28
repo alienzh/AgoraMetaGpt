@@ -98,7 +98,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mEnableChatConversation = true
             mSpeechRecognitionFiltersLength = 1
             noiseEnvironment = NoiseEnvironment.NOISE
-            speechRecognitionCompleteLevel = SpeechRecognitionCompletenessLevel.NORMAL
+            speechRecognitionCompletenessLevel = SpeechRecognitionCompletenessLevel.NORMAL
         }
         if (mAiEngine == null) {
             mAiEngine = AIEngine.create()
@@ -141,7 +141,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             }
         }
         for (llmVendor in serviceVendors.llmList) {
-            if (llmVendor.id.equals("azureOpenai-gpt-35-turbo-16k", ignoreCase = true)) {
+//            if (llmVendor.id.equals("azureOpenai-gpt-35-turbo-16k", ignoreCase = true)) {
+//                serviceVendor.llmVendor = llmVendor
+//                break
+//            }
+            if (llmVendor.id.equals("GPTBase-ai-question", ignoreCase = true)) {
                 serviceVendor.llmVendor = llmVendor
                 break
             }
@@ -149,7 +153,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         for (ttsVendor in serviceVendors.ttsList) {
             if (currentLanguage() == Language.EN_US) {
                 // 英文/日文场景统一用 elevenLabs-Matilda
-                if (ttsVendor.id.equals("elevenLabs-Matilda", true)) {
+//                if (ttsVendor.id.equals("elevenLabs-Matilda", true)) {
+//                    serviceVendor.ttsVendor = ttsVendor
+//                    break
+//                }
+                if (ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful-female", true)) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 }
