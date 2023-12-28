@@ -68,6 +68,9 @@ class PickerChooseDialog constructor(context: Context) : BaseDialog(context) {
             }
             dismiss()
         }
+        binding.tvCancel.setOnClickListener {
+            dismiss()
+        }
     }
 
     override fun setGravity() {
