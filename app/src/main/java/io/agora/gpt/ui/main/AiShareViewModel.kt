@@ -148,8 +148,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
         for (ttsVendor in serviceVendors.ttsList) {
             if (currentLanguage() == Language.EN_US) {
-                // 英文/日文场景统一用 elevenLabs-Matilda
-                if (ttsVendor.id.equals("elevenLabs-Matilda", true)) {
+                if (ttsVendor.id.equals("microsoft-en-US-Jenny-cheerful-female", true)) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 }
