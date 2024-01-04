@@ -98,7 +98,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             mEnableChatConversation = true
             mSpeechRecognitionFiltersLength = 1
             noiseEnvironment = NoiseEnvironment.NOISE
-            speechRecognitionCompleteLevel = SpeechRecognitionCompletenessLevel.NORMAL
+            speechRecognitionCompletenessLevel = SpeechRecognitionCompletenessLevel.NORMAL
         }
         if (mAiEngine == null) {
             mAiEngine = AIEngine.create()
