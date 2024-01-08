@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -24,6 +26,7 @@ import io.agora.gpt.ui.view.WrapContentLinearLayoutManager
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.TextureVideoViewOutlineProvider
 import io.agora.gpt.utils.dp
+import io.agora.gpt.utils.statusBarHeight
 
 class AiPartnerFragment : BaseFragment() {
 
@@ -58,6 +61,11 @@ class AiPartnerFragment : BaseFragment() {
 
             }
         })
+        mBinding?.apply {
+            val titleParams: ViewGroup.MarginLayoutParams = layoutUser.layoutParams as ViewGroup.MarginLayoutParams
+            titleParams.topMargin = layoutUser.context.statusBarHeight
+            layoutUser.layoutParams = titleParams
+        }
     }
 
     override fun initData() {
