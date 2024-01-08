@@ -38,6 +38,7 @@ import io.agora.gpt.utils.TextureVideoViewOutlineProvider
 import io.agora.gpt.utils.ToastUtils
 import io.agora.gpt.utils.Utils
 import io.agora.gpt.utils.dp
+import io.agora.gpt.utils.statusBarHeight
 
 class AiPartnerFragment : BaseFragment() {
 
@@ -74,6 +75,11 @@ class AiPartnerFragment : BaseFragment() {
 
             }
         })
+        mBinding?.apply {
+            val titleParams: ViewGroup.MarginLayoutParams = layoutUser.layoutParams as ViewGroup.MarginLayoutParams
+            titleParams.topMargin = layoutUser.context.statusBarHeight
+            layoutUser.layoutParams = titleParams
+        }
     }
 
     override fun initData() {

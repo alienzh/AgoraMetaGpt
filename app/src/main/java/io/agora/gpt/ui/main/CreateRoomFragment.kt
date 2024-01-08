@@ -30,6 +30,7 @@ import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.LanguageUtil
 import io.agora.gpt.utils.ToastUtils
+import io.agora.gpt.utils.statusBarHeight
 import java.util.Locale
 import java.util.Random
 
@@ -63,6 +64,11 @@ class CreateRoomFragment : BaseFragment() {
                 activity?.finish()
             }
         })
+        mBinding?.apply {
+            val titleParams: ViewGroup.MarginLayoutParams = tvTitle.layoutParams as ViewGroup.MarginLayoutParams
+            titleParams.topMargin = tvTitle.context.statusBarHeight
+            tvTitle.layoutParams = titleParams
+        }
     }
 
     override fun initData() {
