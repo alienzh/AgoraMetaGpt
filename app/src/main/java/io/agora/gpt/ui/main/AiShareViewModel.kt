@@ -486,9 +486,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
         mIsStartVoice = true
         mAiEngine?.startVoiceChat()
-        if (mEnableEnglishTeacher) {
-            pushText(Constant.COMMAND_INIT_CHAT_MESSAGE)
-        }
     }
 
     // 结束语聊
@@ -560,14 +557,17 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         var content = ""
         when (command) {
             Constant.COMMAND_TOPIC -> {
-                content = "/$command $text"
+                if (text.equals("/start")) {
+                    content = "$text"
+                } else {
+                    content = "/$command $text"
+                }
             }
 
             Constant.COMMAND_EVALUATE -> {
                 content = "/$command"
             }
-
-            Constant.COMMAND_INIT_CHAT_MESSAGE -> {
+            Constant.COMMAND_START -> {
                 content = "/$command"
             }
 

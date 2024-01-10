@@ -40,6 +40,7 @@
     <string name="send_cancel">Cancel</string>
     <string name="the_recording_was_not_identified">未识别到语音，请重新录音</string>
     <string name="click_to_speak">点击说话</string>
+    <string name="start_failed">start timeout，please retry!</string>
 
     <string-array name="user_nickname">
         <item>James</item>

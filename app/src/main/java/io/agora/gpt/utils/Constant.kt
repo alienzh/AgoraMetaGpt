@@ -7,7 +7,7 @@ object Constant {
     const val CURRENT_COUNTRY = "current_country"
     const val COMMAND_TOPIC = "topic"
     const val COMMAND_EVALUATE = "evaluate"
-    const val COMMAND_INIT_CHAT_MESSAGE = "init_chat_message"
+    const val COMMAND_START = "start"
 
     const val Avatar_Mina = "mina"
     const val Avatar_Kda = "kda"

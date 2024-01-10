@@ -97,6 +97,27 @@ class AiPartnerFragment : BaseFragment() {
         mAiShareViewModel.mEventResultModel.observe(this) { eventResult ->
             if (eventResult.event == ServiceEvent.DESTROY && eventResult.code == ServiceCode.SUCCESS) {
                 findNavController().popBackStack(R.id.crateRoomFragment, false)
+            } else if (eventResult.event == ServiceEvent.START) {
+                mBinding?.apply {
+                    btnCalling.isEnabled = true
+                    btnCalling.alpha = 1.0f
+                    if (eventResult.code==ServiceCode.SUCCESS){
+                        btnCalling.visibility = View.INVISIBLE
+                        ivVoice.visibility = View.VISIBLE
+                        ivHangUp.visibility = View.VISIBLE
+                    }else{
+                        btnCalling.visibility = View.VISIBLE
+                        ivVoice.visibility = View.INVISIBLE
+                        ivHangUp.visibility = View.INVISIBLE
+                        ToastUtils.showToast(R.string.start_failed)
+                    }
+                }
+            } else if (eventResult.event == ServiceEvent.STOP) {
+                mBinding?.apply {
+                    btnCalling.visibility = View.VISIBLE
+                    ivVoice.visibility = View.INVISIBLE
+                    ivHangUp.visibility = View.INVISIBLE
+                }
             }
         }
 
@@ -144,7 +165,6 @@ class AiPartnerFragment : BaseFragment() {
         mProgressLoadingDialog?.show()
         initUnityView()
 
-//        mAiShareViewModel.setServiceVendor()
         mBinding?.apply {
             val requireContext = context ?: return
             tvUserName.text = KeyCenter.mUserName
@@ -234,9 +254,8 @@ class AiPartnerFragment : BaseFragment() {
         mBinding?.btnCalling?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
                 mBinding?.apply {
-                    btnCalling.visibility = View.INVISIBLE
-                    ivVoice.visibility = View.VISIBLE
-                    ivHangUp.visibility = View.VISIBLE
+                    btnCalling.isEnabled = false
+                    btnCalling.alpha = 0.3f
                     mAiShareViewModel.startVoiceChat()
                     if (mAiShareViewModel.isAiGame() && mAiShareViewModel.isFirstEnterRoom()) {
                         mBinding?.layoutPressTips?.isVisible = true
@@ -272,21 +291,10 @@ class AiPartnerFragment : BaseFragment() {
         mBinding?.ivHangUp?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
                 mBinding?.apply {
-                    btnCalling.visibility = View.VISIBLE
-                    ivVoice.visibility = View.INVISIBLE
-                    ivHangUp.visibility = View.INVISIBLE
                     mAiShareViewModel.stopVoiceChat()
                 }
             }
         })
-
-//        mBinding?.tvEnableVirtual?.setOnClickListener(object : OnFastClickListener() {
-//            override fun onClickJacking(view: View) {
-//                mAiShareViewModel.enableVirtualHuman {
-//                    updateTextureSize(it)
-//                }
-//            }
-//        })
 
         mBinding?.btnSendText?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
@@ -324,7 +332,17 @@ class AiPartnerFragment : BaseFragment() {
         mTextureView?.clipToOutline = true
         mTextureView?.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
-                val tempAiRole = mAiShareViewModel.currentRole() ?: mAiShareViewModel.getUsableAiRoles()[0]
+                var tempAiRole = mAiShareViewModel.currentRole()
+                if (tempAiRole == null) {
+                    val aiRoles = mAiShareViewModel.getUsableAiRoles()
+                    if (aiRoles.isEmpty()) {
+                        ToastUtils.showToast("No roles are available!")
+                        return
+                    } else {
+                        tempAiRole = aiRoles[0]
+                    }
+                }
+
                 mAiShareViewModel.setTexture(requireActivity(), mTextureView!!)
                 // updateConfig 会重置，需要重新设置 aiRole
                 mAiShareViewModel.setAvatarModel(tempAiRole)
