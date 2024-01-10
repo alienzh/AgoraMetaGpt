@@ -68,7 +68,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mAiEngineConfig.mLanguage = Language.JA_JP
     }
 
-    fun getCurAiRole(): AIRole? {
+    fun currentRole(): AIRole? {
         return mAiEngine?.currentRole
     }
 

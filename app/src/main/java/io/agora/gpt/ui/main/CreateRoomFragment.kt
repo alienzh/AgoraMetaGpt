@@ -220,6 +220,10 @@ class CreateRoomFragment : BaseFragment() {
         mBinding?.btnChooseRole?.setOnClickListener(object : OnFastClickListener() {
             override fun onClickJacking(view: View) {
                 val aiRoles = mAiShareViewModel.getUsableAiRoles()
+                if (aiRoles.isEmpty()){
+                    ToastUtils.showToast("No roles are available!")
+                    return
+                }
                 val chooseDialog = ChooseDialog(requireContext())
                 chooseDialog.setDatas(aiRoles.map { it.profession })
                 chooseDialog.setConfirmCallback { selected ->
