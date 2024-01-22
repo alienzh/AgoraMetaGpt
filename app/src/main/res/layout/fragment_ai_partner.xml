@@ -7,22 +7,57 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_room_detail1">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/horizontal25"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.25" />
-
     <FrameLayout
         android:id="@+id/layoutUnityContainer"
-        android:layout_width="132dp"
-        android:layout_height="132dp"
-        android:background="@drawable/bg_button_ai_oval"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:padding="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/horizontal25" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/layoutVideoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/black"
+        app:layout_constraintDimensionRatio="5:3"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/videoLoading"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="16dp"
+        android:indeterminateBehavior="repeat"
+        android:indeterminateDuration="500"
+        android:indeterminateDrawable="@drawable/progressbar_loading"
+        app:layout_constraintEnd_toEndOf="@id/layoutVideoContainer"
+        app:layout_constraintStart_toStartOf="@id/layoutVideoContainer"
+        app:layout_constraintTop_toTopOf="@id/layoutVideoContainer"
+        app:layout_constraintBottom_toBottomOf="@id/layoutVideoContainer"/>
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:id="@+id/videoProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:progress="100"
+        tools:max="1000"
+        android:progressDrawable="@drawable/seekbar_progress"
+        android:thumb="@drawable/seekbar_thumb20"
+        app:layout_constraintBottom_toBottomOf="@+id/layoutVideoContainer"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvVideoDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        tools:text="0:00/1:47:33"
+        android:textColor="@color/white"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/videoProgress"
+        app:layout_constraintStart_toStartOf="@+id/videoProgress"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutUser"
@@ -70,86 +105,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/layoutUser" />
 
-
-    <LinearLayout
-        android:id="@+id/layoutAction"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:orientation="vertical"
-        android:paddingBottom="24dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnCalling"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvTopic"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:background="@drawable/bg_button_white_corners16"
-            android:drawableTop="@drawable/ic_topic"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp"
-            android:text="@string/topic"
-            android:textColor="@color/black"
-            android:textSize="11sp" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvEvaluate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:background="@drawable/bg_button_white_corners16"
-            android:drawableTop="@drawable/ic_evaluate"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp"
-            android:text="@string/evaluate"
-            android:textColor="@color/black"
-            android:textSize="11sp" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvVoiceChange"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:background="@drawable/bg_button_white_corners16"
-            android:drawableTop="@drawable/icon_voice_default"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp"
-            android:text="@string/voice_change"
-            android:textColor="@color/black"
-            android:textSize="11sp" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvSwitchRole"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:background="@drawable/bg_button_white_corners16"
-            android:drawableTop="@drawable/ic_switch"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp"
-            android:text="@string/role"
-            android:textColor="@color/black"
-            android:textSize="11sp" />
-    </LinearLayout>
-
-
-    <!--<androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvEnableVirtual"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:background="@drawable/bg_button_white_corners16"
-        android:drawableTop="@drawable/ic_topic"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="8dp"
-        android:text="@string/virtual_human"
-        android:textColor="@color/black"
-        android:textSize="11sp"
-        app:layout_constraintBottom_toTopOf="@id/tvTopic"
-        app:layout_constraintEnd_toEndOf="parent" />-->
-
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnCalling"
         android:layout_width="match_parent"
@@ -189,39 +144,6 @@
         app:layout_constraintTop_toTopOf="@id/btnCalling"
         tools:visibility="visible" />
 
-    <LinearLayout
-        android:id="@+id/layoutPressTips"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@id/ivVoice"
-        app:layout_constraintEnd_toEndOf="@id/ivVoice"
-        app:layout_constraintStart_toStartOf="@id/ivVoice"
-        tools:visibility="visible">
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_button_191_corners"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
-            android:text="@string/click_to_speak"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_arrow_head"
-            app:layout_constraintBottom_toTopOf="@id/ivVoice"
-            app:layout_constraintEnd_toEndOf="@id/ivVoice"
-            app:layout_constraintStart_toStartOf="@id/ivVoice" />
-    </LinearLayout>
-
-
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/ivHangUp"
         style="@style/ShapeAppearance.MaterialComponents.Avatar"
@@ -248,89 +170,9 @@
         android:fadingEdgeLength="30dp"
         android:requiresFadingEdge="vertical"
         android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@id/layoutUnityContainer"
         app:layout_constraintBottom_toTopOf="@id/btnCalling"
-        app:layout_constraintEnd_toStartOf="@id/layoutAction"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:listitem="@layout/item_chat_message" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivSttBgGradient"
-        android:layout_width="match_parent"
-        android:layout_height="242dp"
-        android:layout_marginBottom="100dp"
-        android:background="@drawable/bg_stt_gradient_background"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivSttBg1"
-        android:layout_width="match_parent"
-        android:layout_height="147dp"
-        android:background="@drawable/ic_stt_background"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-    <FrameLayout
-        android:id="@+id/layoutSttContent"
-        android:layout_width="match_parent"
-        android:layout_height="69dp"
-        app:layout_constraintBottom_toBottomOf="@+id/ivSttBgGradient"
-        app:layout_constraintTop_toTopOf="@+id/ivSttBgGradient">
-
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/scrollSttContent"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvSttContent"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginHorizontal="25dp"
-                android:ellipsize="start"
-                android:scrollbars="vertical"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="@+id/ivSttBgGradient"
-                app:layout_constraintTop_toTopOf="@+id/ivSttBgGradient"
-                tools:text="同学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？学不来的原因是因为蚂蚁搬家吗？同学不来的原因是因为蚂蚁搬家吗？" />
-
-        </androidx.core.widget.NestedScrollView>
-
-    </FrameLayout>
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnSendText"
-        android:layout_width="117dp"
-        android:layout_height="49dp"
-        android:background="@drawable/bg_button_7a5_corners"
-        android:text="@string/send_text"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/ivSttBg1"
-        app:layout_constraintEnd_toStartOf="@+id/btnCancelText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/ivSttBg1" />
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnCancelText"
-        android:layout_width="117dp"
-        android:layout_height="49dp"
-        android:background="@android:color/transparent"
-        android:text="@string/send_cancel"
-        android:textAllCaps="false"
-        android:textColor="@color/black"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/ivSttBg1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btnSendText"
-        app:layout_constraintTop_toTopOf="@+id/ivSttBg1" />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/groupStt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="ivSttBg1,ivSttBgGradient,btnSendText,btnCancelText,layoutSttContent" />
-
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layoutUnityContainer"
+        tools:listitem="@layout/item_chat_message" />
 </androidx.constraintlayout.widget.ConstraintLayout>

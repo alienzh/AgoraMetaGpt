@@ -2,6 +2,7 @@ package io.agora.gpt
 
 import android.app.Application
 import android.util.Log
+import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.Utils
 import java.io.IOException
 
@@ -24,5 +25,6 @@ class MainApplication : Application() {
         } catch (e: IOException) {
             Log.d("MainApplication", "copyAssetFile error " + e.message)
         }
+        Log.d("MainApplication", "${KeyCenter.mSportList}")
     }
 }

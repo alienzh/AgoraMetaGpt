@@ -24,5 +24,10 @@ data class ChatMessageModel constructor(
     val sid: String,
     var name: String,
     var message: String,
-    var costTime: Long = 0
+    var costTime1: Long = 0
+)
+
+data class SportsTextModel constructor(
+    var time: Int,
+    var content: String
 )

@@ -145,113 +145,37 @@ class CreateRoomFragment : BaseFragment() {
         mAiShareViewModel.initAiEngine()
     }
 
-    private fun setupScene(currentScene: String) {
-        mBinding?.apply {
-            btnAiPartner.isActivated = false
-            btnAiGame.isActivated = false
-            when (currentScene) {
-                Constant.Scene_AI_Game -> {
-                    btnAiGame.isActivated = true
-                    groupGame.isVisible = true
-                }
-
-                else -> {
-                    btnAiPartner.isActivated = true
-                    groupGame.isVisible = false
-                }
-            }
-        }
-
-    }
-
     override fun initView() {
         super.initView()
         mBinding?.apply {
+            btnAiPartner.isActivated = true
             etNickname.doAfterTextChanged {
                 KeyCenter.mUserName = it.toString()
             }
-            if (mAiShareViewModel.currentLanguage() == Language.ZH_CN) {
-                btnSwitchLanguage.setImageResource(R.drawable.icon_zh_to_en)
-                groupGame.isVisible = true
-                btnAiGame.isVisible = true
-            } else {
-                btnSwitchLanguage.setImageResource(R.drawable.icon_en_to_zh)
-                groupGame.isVisible = false
-                btnAiGame.isVisible = false
-                // 英文只有 AI 伴侣
-                mAiShareViewModel.mCurrentScene = Constant.Scene_AI_Partner
-            }
-            setupScene(mAiShareViewModel.mCurrentScene)
-        }
-        mBinding?.btnAiPartner?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                mAiShareViewModel.mCurrentScene = Constant.Scene_AI_Partner
-                setupScene(mAiShareViewModel.mCurrentScene)
-                setupRestRole()
-            }
-        })
-        mBinding?.btnAiGame?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                mAiShareViewModel.mCurrentScene = Constant.Scene_AI_Game
-                setupScene(mAiShareViewModel.mCurrentScene)
-                setupRestRole()
-            }
-        })
-        mBinding?.btnEnterRoom?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                if (TextUtils.isEmpty(KeyCenter.mUserName)) {
-                    Toast.makeText(requireActivity(), R.string.enter_nickname, Toast.LENGTH_LONG).show()
-                } else {
-                    if (mAiShareViewModel.isAIGCEngineInit()) {
-                        if (mProgressLoadingDialog == null) {
-                            mProgressLoadingDialog = showLoadingProgress(requireContext())
-                        }
-                        mProgressLoadingDialog?.show()
-                        mAiShareViewModel.checkDownloadRes()
+            btnEnterRoom.setOnClickListener(object : OnFastClickListener() {
+                override fun onClickJacking(view: View) {
+                    if (TextUtils.isEmpty(KeyCenter.mUserName)) {
+                        Toast.makeText(requireActivity(), R.string.enter_nickname, Toast.LENGTH_LONG).show()
                     } else {
-                        ToastUtils.showToast("Wait for AIGC engine initialization to complete!")
-                    }
-                }
-            }
-        })
-        mBinding?.tvNicknameRandom?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                val nameIndex = mRandom.nextInt(mNicknameArray.size)
-                mBinding?.etNickname?.setText(mNicknameArray[nameIndex])
-            }
-        })
-
-        mBinding?.btnSwitchLanguage?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                if (mAiShareViewModel.isAIGCEngineInit()) {
-                    mAiShareViewModel.switchLanguage { language ->
-                        if (language == Language.ZH_CN) {
-                            LanguageUtil.changeLanguage(requireContext(), "zh", "CN")
+                        if (mAiShareViewModel.isAIGCEngineInit()) {
+                            if (mProgressLoadingDialog == null) {
+                                mProgressLoadingDialog = showLoadingProgress(requireContext())
+                            }
+                            mProgressLoadingDialog?.show()
+                            mAiShareViewModel.checkDownloadRes()
                         } else {
-                            LanguageUtil.changeLanguage(requireContext(), "en", "US")
+                            ToastUtils.showToast("Wait for AIGC engine initialization to complete!")
                         }
-                        setupRestRole()
-                        activity?.recreate()
-                    }
-                } else {
-                    ToastUtils.showToast("Wait for AIGC engine initialization to complete!")
-                }
-            }
-        })
-        mBinding?.btnChooseGame?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                val aiRoles = mAiShareViewModel.getUsableAiRoles()
-                val chooseDialog = PickerChooseDialog(requireContext())
-                chooseDialog.setDatas(aiRoles.map { it.profession })
-                chooseDialog.setConfirmCallback { selected ->
-                    mBinding?.tvChooseGameContent?.text = selected
-                    aiRoles.find { it.profession == selected }?.let { aiRole ->
-                        mAiShareViewModel.setAiRole(aiRole)
                     }
                 }
-                chooseDialog.show()
-            }
-        })
+            })
+            tvNicknameRandom.setOnClickListener(object : OnFastClickListener() {
+                override fun onClickJacking(view: View) {
+                    val nameIndex = mRandom.nextInt(mNicknameArray.size)
+                    mBinding?.etNickname?.setText(mNicknameArray[nameIndex])
+                }
+            })
+        }
     }
 
     private fun setupRestRole() {
@@ -259,11 +183,7 @@ class CreateRoomFragment : BaseFragment() {
         if (aiRoles.isEmpty()) {
             ToastUtils.showToast("No games are available!")
         } else {
-            val aiRole = if (mAiShareViewModel.isAiGame()) mAiShareViewModel.mLastAiRole ?: aiRoles[0] else aiRoles[0]
-            mAiShareViewModel.setAiRole(aiRole)
-            if (mAiShareViewModel.isAiGame()) {
-                mBinding?.tvChooseGameContent?.text = aiRole.profession
-            }
+            mAiShareViewModel.setAiRole(aiRoles[0])
         }
     }
 

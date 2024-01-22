@@ -1,14 +1,18 @@
 package io.agora.gpt.utils
 
+import android.content.Context
+import android.text.TextUtils
 import io.agora.aigc.sdk.model.AIRole
 import io.agora.gpt.BuildConfig
-import io.agora.gpt.R
+import io.agora.gpt.MainApplication
+import io.agora.gpt.ui.main.SportsTextModel
 import io.agora.media.RtcTokenBuilder
 import io.agora.rtm.RtmTokenBuilder
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.util.Random
 
 object KeyCenter {
-
     fun getAvatarName(aiRole: AIRole): String {
         val avatarName = when (aiRole.roleId) {
             Constant.EN_Role_ID_WENDY -> Constant.Avatar_Mina
@@ -43,16 +47,8 @@ object KeyCenter {
     const val APP_ID = BuildConfig.APP_ID
     private var USER_RTC_UID = -1
     private var DIGITAL_HUMAN_RTC_UID = -1
-    private var innerRoomName: String? = null
     var mUserName: String? = null
 
-//    val mRoomName: String?
-//        get() {
-//            if (innerRoomName == null || innerRoomName == "") {
-//                innerRoomName = getRandomString(12)
-//            }
-//            return innerRoomName
-//        }
     val mUserUid: Int
         get() {
             if (-1 == USER_RTC_UID) {
@@ -102,5 +98,39 @@ object KeyCenter {
             sb.append(str[number])
         }
         return sb.toString()
+    }
+
+
+    private var innerSportList: MutableList<SportsTextModel> = mutableListOf()
+
+    val mSportList: List<SportsTextModel>
+        get() {
+            if (innerSportList.isEmpty()){
+                innerSportList.addAll(getSportsFromAssets(MainApplication.mGlobalApplication))
+            }
+            return innerSportList
+        }
+
+    private fun getSportsFromAssets(context: Context): List<SportsTextModel> {
+        val result = mutableListOf<SportsTextModel>()
+        try {
+            InputStreamReader(context.resources.assets.open("ai_tts.txt")).use { inputReader ->
+                BufferedReader(inputReader).use { bufReader ->
+                    var line: String?
+                    while (bufReader.readLine().also { line = it } != null) {
+                        val textList = line?.split('\'') ?: continue
+                        val sportsTextModel = SportsTextModel(0, "")
+                        sportsTextModel.time = textList[0].toIntOrNull() ?: 0
+                        sportsTextModel.content = textList[1]
+                        sportsTextModel.content = textList[1].replaceFirst(" - ","")
+                        result.add(sportsTextModel)
+                    }
+                    return result.toList()
+                }
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+        return result.toList()
     }
 }

@@ -12,11 +12,11 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "io.agora.metagpt"
+        applicationId "io.agora.xagpt"
         minSdk 23
         targetSdk 30
         versionCode 1000
-        versionName "1038"
+        versionName "1101"
 
         flavorDimensions "versionCode"
 

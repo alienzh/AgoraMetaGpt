@@ -4,40 +4,32 @@ import android.graphics.SurfaceTexture
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
-import android.widget.ScrollView
+import android.widget.SeekBar
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.ScrollingView
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import io.agora.aiengine.ServiceConfig
 import io.agora.aigc.sdk.constants.ServiceCode
 import io.agora.aigc.sdk.constants.ServiceEvent
 import io.agora.gpt.R
 import io.agora.gpt.databinding.FragmentAiPartnerBinding
 import io.agora.gpt.ui.adapter.ChatMessageAdapter
 import io.agora.gpt.ui.base.BaseFragment
-import io.agora.gpt.ui.view.ChooseRoleDialog
 import io.agora.gpt.ui.view.CustomDialog
 import io.agora.gpt.ui.view.OnFastClickListener
-import io.agora.gpt.ui.view.TopicInputDialog
 import io.agora.gpt.ui.view.WrapContentLinearLayoutManager
 import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
-import io.agora.gpt.utils.TextureVideoViewOutlineProvider
 import io.agora.gpt.utils.ToastUtils
-import io.agora.gpt.utils.Utils
-import io.agora.gpt.utils.dp
+import io.agora.gpt.utils.formatDurationTime
 import io.agora.gpt.utils.statusBarHeight
 
 class AiPartnerFragment : BaseFragment() {
@@ -45,8 +37,7 @@ class AiPartnerFragment : BaseFragment() {
     private var mBinding: FragmentAiPartnerBinding? = null
 
     private var mTextureView: TextureView? = null
-
-    private var mSelectIndex: Int = 0
+    private var mMediaTextureView: TextureView? = null
 
     private val mAiShareViewModel: AiShareViewModel by activityViewModels()
 
@@ -91,7 +82,6 @@ class AiPartnerFragment : BaseFragment() {
                     mProgressLoadingDialog = null
                 }
             }
-
         })
 
         mAiShareViewModel.mEventResultModel.observe(this) { eventResult ->
@@ -101,11 +91,14 @@ class AiPartnerFragment : BaseFragment() {
                 mBinding?.apply {
                     btnCalling.isEnabled = true
                     btnCalling.alpha = 1.0f
-                    if (eventResult.code==ServiceCode.SUCCESS){
+                    if (eventResult.code == ServiceCode.SUCCESS) {
                         btnCalling.visibility = View.INVISIBLE
                         ivVoice.visibility = View.VISIBLE
                         ivHangUp.visibility = View.VISIBLE
-                    }else{
+                        mMediaTextureView?.let {
+                            mAiShareViewModel.startOpenVideo(it, Constant.Sport_Video_Url)
+                        }
+                    } else {
                         btnCalling.visibility = View.VISIBLE
                         ivVoice.visibility = View.INVISIBLE
                         ivHangUp.visibility = View.INVISIBLE
@@ -132,13 +125,37 @@ class AiPartnerFragment : BaseFragment() {
             }
         }
 
-        mAiShareViewModel.mUserSttContent.observe(this) {
-            mBinding?.apply {
-                tvSttContent.text = it
-                scrollSttContent.post {
-                    scrollSttContent.fullScroll(ScrollView.FOCUS_DOWN)
+        mAiShareViewModel.mVideoDurationData.observe(this) { duration ->
+            if (duration > 0) {
+                mBinding?.apply {
+                    videoProgress.max = (duration / 1000).toInt()
+                    videoProgress.progress = 0
+                    videoLoading.isVisible = false
                 }
             }
+        }
+        mAiShareViewModel.mVideoCurrentPosition.observe(this) { currentPosition ->
+            mBinding?.apply {
+                val progress: Int = (currentPosition / 1000).toInt()
+                updateVideoText(progress)
+            }
+        }
+        mAiShareViewModel.mVideoStartData.observe(this) { startPlay ->
+            if (startPlay) {
+                mBinding?.apply {
+                    videoProgress.isEnabled = true
+                    videoLoading.isVisible = false
+                    updateVideoText(0)
+                }
+            }
+        }
+    }
+
+    private fun updateVideoText(progress: Int) {
+        mBinding?.apply {
+            videoProgress.progress = progress
+            tvVideoDuration.text =
+                "${progress.formatDurationTime}/${(mAiShareViewModel.mVideoDuration / 1000).formatDurationTime}"
         }
     }
 
@@ -147,12 +164,6 @@ class AiPartnerFragment : BaseFragment() {
         mProgressLoadingDialog?.let { dialog ->
             if (dialog.isShowing) dialog.dismiss()
             mProgressLoadingDialog = null
-        }
-    }
-
-    private val mHideLongPressTipsTask: Runnable by lazy {
-        Runnable {
-            mBinding?.layoutPressTips?.isVisible = false
         }
     }
 
@@ -177,104 +188,32 @@ class AiPartnerFragment : BaseFragment() {
                 mAiShareViewModel.mChatMessageDataList.clear()
                 mHistoryListAdapter?.notifyDataSetChanged()
             }
-        }
-        mBinding?.btnExit?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                mBinding?.apply {
-                    if (ivHangUp.visibility == View.VISIBLE) {
-                        btnCalling.visibility = View.VISIBLE
-                        ivVoice.visibility = View.INVISIBLE
-                        ivHangUp.visibility = View.INVISIBLE
-                        mAiShareViewModel.stopVoiceChat()
-                    }
-                }
-                if (mProgressLoadingDialog == null) {
-                    mProgressLoadingDialog = CustomDialog.showLoadingProgress(requireContext())
-                }
-                mProgressLoadingDialog?.show()
-                mAiShareViewModel.releaseEngine()
-                mMainHandler.removeCallbacksAndMessages(null)
-            }
-        })
-
-        mBinding?.tvSwitchRole?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                showChooseRoleDialog()
-            }
-        })
-
-        mBinding?.tvVoiceChange?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                mAiShareViewModel.enableVoiceChange { isVoiceChange ->
+            btnExit.setOnClickListener(object : OnFastClickListener() {
+                override fun onClickJacking(view: View) {
                     mBinding?.apply {
-                        if (isVoiceChange) {
-                            mBinding?.tvVoiceChange?.setCompoundDrawablesRelative(
-                                null,
-                                root.context.getDrawable(R.drawable.icon_voice_change)?.apply {
-                                    setBounds(0, 0, intrinsicWidth, intrinsicHeight)
-                                },
-                                null,
-                                null
-                            )
-                        } else {
-                            mBinding?.tvVoiceChange?.setCompoundDrawablesRelative(
-                                null,
-                                root.context.getDrawable(R.drawable.icon_voice_default)?.apply {
-                                    setBounds(0, 0, intrinsicWidth, intrinsicHeight)
-                                },
-                                null,
-                                null
-                            )
+                        if (ivHangUp.visibility == View.VISIBLE) {
+                            btnCalling.visibility = View.VISIBLE
+                            ivVoice.visibility = View.INVISIBLE
+                            ivHangUp.visibility = View.INVISIBLE
                         }
                     }
+                    if (mProgressLoadingDialog == null) {
+                        mProgressLoadingDialog = CustomDialog.showLoadingProgress(requireContext())
+                    }
+                    mProgressLoadingDialog?.show()
+                    mAiShareViewModel.mayReleaseEngine()
+                    mMainHandler.removeCallbacksAndMessages(null)
                 }
-            }
-        })
-
-        mBinding?.tvTopic?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                if (mAiShareViewModel.enableEnglishTeacher()) {
-                    showTopicDialog()
-                } else {
-                    ToastUtils.showToast(R.string.send_command_error)
-                }
-            }
-        })
-
-        mBinding?.tvEvaluate?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                if (mAiShareViewModel.enableEnglishTeacher()) {
-                    mAiShareViewModel.pushText(Constant.COMMAND_EVALUATE)
-                } else {
-                    ToastUtils.showToast(R.string.send_command_error)
-                }
-            }
-        })
-
-        mBinding?.btnCalling?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                mBinding?.apply {
-                    btnCalling.isEnabled = false
-                    btnCalling.alpha = 0.3f
-                    mAiShareViewModel.startVoiceChat()
-                    if (mAiShareViewModel.isAiGame() && mAiShareViewModel.isFirstEnterRoom()) {
-                        mBinding?.layoutPressTips?.isVisible = true
-                        mAiShareViewModel.setFirstEnterRoom(false)
-                        mMainHandler.postDelayed(mHideLongPressTipsTask, 5000)
-                    } else {
-                        mBinding?.layoutPressTips?.isVisible = false
+            })
+            btnCalling.setOnClickListener(object : OnFastClickListener() {
+                override fun onClickJacking(view: View) {
+                    mBinding?.apply {
+                        mAiShareViewModel.startVoiceChat()
                     }
                 }
-            }
-        })
-        mBinding?.ivVoice?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                if (mAiShareViewModel.isAiGame()) {
-                    mBinding?.tvSttContent?.text = ""
-                    mAiShareViewModel.startUserSpeak {
-                        mBinding?.groupStt?.isVisible = true
-                    }
-                } else {
+            })
+            ivVoice.setOnClickListener(object : OnFastClickListener() {
+                override fun onClickJacking(view: View) {
                     mAiShareViewModel.mute { isMute ->
                         mBinding?.apply {
                             if (isMute) {
@@ -285,51 +224,45 @@ class AiPartnerFragment : BaseFragment() {
                         }
                     }
                 }
-            }
-        })
-
-        mBinding?.ivHangUp?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                mBinding?.apply {
-                    mAiShareViewModel.stopVoiceChat()
-                }
-            }
-        })
-
-        mBinding?.btnSendText?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                mBinding?.apply {
-                    mAiShareViewModel.mute {
-                        groupStt.isVisible = false
-                        val content = tvSttContent.text.toString()
-                        if (content.isEmpty()) {
-                            ToastUtils.showToast(R.string.the_recording_was_not_identified)
-                        } else {
-                            // 发送后展示消息
-                            mAiShareViewModel.checkAddUserSttContent()
-                            mAiShareViewModel.pushText(null, content)
+            })
+            ivHangUp.setOnClickListener(object : OnFastClickListener() {
+                override fun onClickJacking(view: View) {
+                    mAiShareViewModel.stopVoiceChat {
+                        mBinding?.apply {
+                            videoProgress.isEnabled = false
                         }
                     }
                 }
-            }
-        })
-        mBinding?.btnCancelText?.setOnClickListener(object : OnFastClickListener() {
-            override fun onClickJacking(view: View) {
-                mBinding?.apply {
-                    mAiShareViewModel.mute {
-                        groupStt.isVisible = false
-                        tvSttContent.text = ""
+            })
+            videoProgress.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                    seekBar?.progress?.let { progress ->
+                        updateVideoText(progress)
+                        mAiShareViewModel.seekPlay(progress * 1000)
                     }
                 }
-            }
-        })
+            })
+
+            videoProgress.isEnabled = false
+            videoLoading.isVisible = true
+        }
     }
 
     private fun initUnityView() {
         val requireContext = context ?: return
         mTextureView = TextureView(requireContext)
-        mTextureView?.outlineProvider = TextureVideoViewOutlineProvider(64.dp);
-        mTextureView?.clipToOutline = true
+        mMediaTextureView = TextureView(requireContext)
+        mBinding?.layoutVideoContainer?.removeAllViews()
+        val mediaLayoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        mBinding?.layoutVideoContainer?.removeAllViews()
+        mBinding?.layoutVideoContainer?.addView(mMediaTextureView, 0, mediaLayoutParams)
+
         mTextureView?.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, i: Int, i1: Int) {
                 var tempAiRole = mAiShareViewModel.currentRole()
@@ -348,11 +281,8 @@ class AiPartnerFragment : BaseFragment() {
                 mAiShareViewModel.setAvatarModel(tempAiRole)
                 mAiShareViewModel.setAiRole(tempAiRole)
                 mAiShareViewModel.setServiceVendor(tempAiRole)
-                mBinding?.btnCalling?.text = resources.getString(R.string.calling, tempAiRole.getRoleName())
-                mBinding?.tvTopic?.isVisible = mAiShareViewModel.isEnglishTeacher(tempAiRole)
-                mBinding?.tvEvaluate?.isVisible = mAiShareViewModel.isEnglishTeacher(tempAiRole)
-                mBinding?.tvVoiceChange?.isVisible = ServiceConfig.SERVICE_VOICE_CHANGE_ENABLE
-                mBinding?.tvSwitchRole?.isVisible = !mAiShareViewModel.isAiGame()
+                mAiShareViewModel.setVirtualHumanVendors()
+                mBinding?.btnCalling?.text = resources.getString(R.string.calling, "AI主播")
                 mAiShareViewModel.prepare()
             }
 
@@ -369,65 +299,5 @@ class AiPartnerFragment : BaseFragment() {
         val layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         mBinding?.layoutUnityContainer?.removeAllViews()
         mBinding?.layoutUnityContainer?.addView(mTextureView, 0, layoutParams)
-    }
-
-    private fun showChooseRoleDialog() {
-        val requireContext = context ?: return
-        val chooseRoleDialog = ChooseRoleDialog(requireContext, mAiShareViewModel.currentLanguage())
-        chooseRoleDialog.setSelectRoleCallback {
-            mSelectIndex = it
-            mBinding?.apply {
-                btnCalling.visibility = View.VISIBLE
-                ivVoice.visibility = View.INVISIBLE
-                ivHangUp.visibility = View.INVISIBLE
-            }
-            val usableAIRoles = mAiShareViewModel.getUsableAiRoles()
-            mAiShareViewModel.stopVoiceChat()
-            if (usableAIRoles.isNotEmpty()) {
-                val aiRole = usableAIRoles[it]
-                mAiShareViewModel.setAvatarModel(aiRole)
-                mAiShareViewModel.setAiRole(aiRole)
-                mAiShareViewModel.setServiceVendor(aiRole)
-                mBinding?.btnCalling?.text = resources.getString(R.string.calling, aiRole.getRoleName())
-                mBinding?.tvTopic?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
-                mBinding?.tvEvaluate?.isVisible = mAiShareViewModel.isEnglishTeacher(aiRole)
-            }
-        }
-        chooseRoleDialog.setupAiRoles(mSelectIndex, mAiShareViewModel.getUsableAiRoles())
-        chooseRoleDialog.show()
-    }
-
-    private fun showTopicDialog() {
-        val requireContext = activity ?: return
-        val topicInputDialog = TopicInputDialog(requireContext)
-        topicInputDialog.setInputTextCallback {
-            if (it.isNotEmpty()) {
-                mAiShareViewModel.pushText(Constant.COMMAND_TOPIC, it)
-            }
-        }
-        topicInputDialog.setOnShowListener {
-
-        }
-        topicInputDialog.show()
-    }
-
-    private fun updateTextureSize(full: Boolean) {
-        val requireContext = context ?: return
-        mBinding?.layoutUnityContainer?.let { unityContainer ->
-            if (full) {
-                val containerParams =
-                    ConstraintLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-                mTextureView?.outlineProvider =
-                    TextureVideoViewOutlineProvider(Utils.dip2px(requireContext, 0f).toFloat());
-                mTextureView?.clipToOutline = false
-                unityContainer.layoutParams = containerParams
-            } else {
-                val containerParams = ConstraintLayout.LayoutParams(132.dp.toInt(), 132.dp.toInt())
-                mTextureView?.outlineProvider =
-                    TextureVideoViewOutlineProvider(64.dp);
-                mTextureView?.clipToOutline = true
-            }
-        }
-
     }
 }
