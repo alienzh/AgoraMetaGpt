@@ -229,7 +229,7 @@ class AiPartnerFragment : BaseFragment() {
             })
             ivHangUp.setOnClickListener(object : OnFastClickListener() {
                 override fun onClickJacking(view: View) {
-                    mAiShareViewModel.stopVoiceChat{
+                    mAiShareViewModel.stopVoiceChat {
                         mBinding?.apply {
                             videoProgress.isEnabled = false
                         }
@@ -256,13 +256,17 @@ class AiPartnerFragment : BaseFragment() {
 
             ivGiftCar.setOnClickListener {
                 if (mAiShareViewModel.mEventResultModel.value?.event == ServiceEvent.START) {
-                    mAiShareViewModel.pushTxtToTTS("感谢老铁送的跑车!", false)
+                    val content =
+                        String.format(getString(R.string.gift_text_format, KeyCenter.mUserName ?: "老铁", "跑车"))
+                    mAiShareViewModel.pushTxtToTTS(content, false)
                 }
 
             }
             ivGiftMike.setOnClickListener {
                 if (mAiShareViewModel.mEventResultModel.value?.event == ServiceEvent.START) {
-                    mAiShareViewModel.pushTxtToTTS("感谢老铁送的茅子!", false)
+                    val content =
+                        String.format(getString(R.string.gift_text_format, KeyCenter.mUserName ?: "老铁", "茅子"))
+                    mAiShareViewModel.pushTxtToTTS(content, false)
                 }
             }
         }
