@@ -5,12 +5,12 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.TextureView
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.agora.aiengine.AIEngine
 import io.agora.aiengine.AIEngineCallback
 import io.agora.aiengine.AIEngineConfig
-import io.agora.aiengine.model.AvatarModel
 import io.agora.aiengine.model.VirtualHumanVendor
 import io.agora.aigc.sdk.constants.HandleResult
 import io.agora.aigc.sdk.constants.Language
@@ -56,14 +56,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     val mAIEngineInit: MutableLiveData<Boolean> = SingleLiveEvent()
 
-    // ai 游戏中用户说话一轮合并一整句
-    private val mUserSttContentList = mutableListOf<ChatMessageModel>()
+    val mVirtualHumanStart: MutableLiveData<Boolean> = SingleLiveEvent()
+    val mVirtualHumanStop: MutableLiveData<Boolean> = SingleLiveEvent()
 
     // 禁音按钮
     private var mMute: Boolean = false
-
-    // 第一次进入房间
-    private var mFirstEnterRoom: Boolean = true
 
     val mChatMessageDataList = mutableListOf<ChatMessageModel>()
 
@@ -188,7 +185,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         var tempSid = sid
         if (tempSid.isNullOrEmpty()) {
             tempSid = KeyCenter.getRandomString(20)
-            Log.i(TAG, "onSpeech2TextResult tempSid:$tempSid,result:$result,isRecognizedSpeech:$isRecognizedSpeech")
         }
 
         mHandler.post {
@@ -213,11 +209,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // gpt的回答，是流式的，同一个回答，是同一个sid
     override fun onLLMResult(sid: String?, answer: Data<String>): HandleResult {
+        Log.i(TAG, "onLLMResult sid:$sid answer:$answer")
         var tempSid = sid
         if (tempSid.isNullOrEmpty()) {
             tempSid = KeyCenter.getRandomString(20)
         }
-        Log.i(TAG, "onLLMResult tempSid:$tempSid answer:$answer")
         // fix FT-1018
         if (isLLMPrompt(tempSid)) {
             Log.i(TAG, "onLLMResult isPartner isLLMPrompt")
@@ -257,10 +253,10 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         roundId: String?, voice: Data<ByteArray>?, sampleRates: Int, channels: Int, bits: Int
     ): HandleResult {
 
+        Log.i(TAG, "onText2SpeechResult roundId:$roundId,sampleRates:$sampleRates,channels:$channels,bits:$bits")
         var tempSid = roundId
         if (tempSid.isNullOrEmpty()) {
             tempSid = KeyCenter.getRandomString(20)
-            Log.i(TAG, "onText2SpeechResult tempSid:$tempSid,sampleRates:$sampleRates,channels:$channels,bits:$bits")
         }
         return HandleResult.CONTINUE
     }
@@ -300,14 +296,41 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     override fun onEventResult(event: ServiceEvent, code: ServiceCode, msg: String?) {
         Log.d(TAG, "onEventResult event:$event,code:$code,msg:$msg")
         mHandler.post {
-            if (event == ServiceEvent.INITIALIZE) {
-                if (code == ServiceCode.SUCCESS) {
-                    mAIEngineInit.postValue(true)
-                    Log.d(TAG, "AIGC INITIALIZE SUCCESS")
-                } else {
-                    ToastUtils.showToast("AIGC INITIALIZE error:$code,msg:$msg")
+            when (event) {
+                ServiceEvent.INITIALIZE -> {
+                    if (code == ServiceCode.SUCCESS) {
+                        mAIEngineInit.postValue(true)
+                    } else {
+                        ToastUtils.showToast("AIGC Initialize error:$code,msg:$msg")
+                    }
                 }
-            } else if (event == ServiceEvent.DESTROY && code == ServiceCode.SUCCESS) {
+
+                ServiceEvent.START -> {
+                    if (code == ServiceCode.SUCCESS) {
+                        mMediaPlayer?.let { iMediaPlayer ->
+                            if (mVideoState == Constants.MediaPlayerState.PLAYER_STATE_OPEN_COMPLETED ||
+                                mVideoState == Constants.MediaPlayerState.PLAYER_STATE_PLAYBACK_ALL_LOOPS_COMPLETED
+                            ) {
+                                iMediaPlayer.play()
+                                checkPushTxtToTts(0)
+                            } else if (mVideoState == Constants.MediaPlayerState.PLAYER_STATE_PAUSED) {
+                                iMediaPlayer.resume()
+                            } else {
+                                Log.d(TAG, "onEventResult start iMediaPlayer state $mVideoState")
+                            }
+                        }
+                    } else {
+                        ToastUtils.showToast("AIGC Start error:$code,msg:$msg")
+                    }
+                }
+
+                ServiceEvent.STOP -> {
+                    if (code == ServiceCode.SUCCESS) {
+
+                    } else {
+                        ToastUtils.showToast("AIGC Stop error:$code,msg:$msg")
+                    }
+                }
             }
             mEventResultModel.value = EventResultModel(event, code)
         }
@@ -316,7 +339,14 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     override fun onPrepareResult(code: Int, msg: String?) {
         Log.i(TAG, "onPrepareResult code:$code,msg:$msg")
         mHandler.post {
-            mPrepareResult.value = code == ServiceCode.SUCCESS.code
+            if (code == ServiceCode.SUCCESS.code) {
+                innerStartEnableVirtualHuman {
+                    startVirtualHumanCallback = null
+                }
+            } else {
+                ToastUtils.showToast("onPrepareResult code:$code,msg:$msg")
+                mPrepareResult.postValue(false)
+            }
         }
     }
 
@@ -326,18 +356,16 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     override fun onVirtualHumanStart(code: Int, msg: String?) {
         Log.i(TAG, "onVirtualHumanStart code:$code,msg:$msg")
+        // 数字人开启后才能获取 rtcEngine
         mHandler.post {
-            if (mNeedEnableVirtualHuman) {
-                mPrepareResult.value = code == ServiceCode.SUCCESS.code
-            }
             if (code == 0) {
                 mEnableVirtualHuman = true
                 startVirtualHumanCallback?.invoke(true)
+                mVirtualHumanStart.postValue(true)
             } else {
                 ToastUtils.showToast("数字人启动失败:$msg")
                 startVirtualHumanCallback?.invoke(false)
             }
-
         }
     }
 
@@ -396,16 +424,16 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     // 设置SDK使用的AIRol
-    fun setAvatarModel(aiRole: AIRole, needApply: Boolean = true) {
-        val avatarName = KeyCenter.getAvatarName(aiRole)
-        val avatarModel = AvatarModel().apply {
-            name = avatarName
-        }
-        val avatarDrawableStr = KeyCenter.getAvatarDrawableStr(aiRole)
-        avatarModel.bgFilePath = Utils.getCacheFilePath("$avatarDrawableStr.png")
-        mAiEngineConfig.mAvatarModel = avatarModel
-        mAiEngine?.updateConfig(mAiEngineConfig)
-        Log.d(TAG, "setRole:$aiRole,avatarModel:$avatarModel")
+    fun setAvatarModel(aiRole: AIRole) {
+//        val avatarName = KeyCenter.getAvatarName(aiRole)
+//        val avatarModel = AvatarModel().apply {
+//            name = avatarName
+//        }
+//        val avatarDrawableStr = KeyCenter.getAvatarDrawableStr(aiRole)
+//        avatarModel.bgFilePath = Utils.getCacheFilePath("$avatarDrawableStr.png")
+//        mAiEngineConfig.mAvatarModel = avatarModel
+//        mAiEngine?.updateConfig(mAiEngineConfig)
+//        Log.d(TAG, "setRole:$aiRole,avatarModel:$avatarModel")
     }
 
     // 设置 texture
@@ -422,23 +450,17 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 startVirtualHumanCallback = null
                 mAiEngine?.startVoiceChat()
             }
+        } else {
+            mAiEngine?.startVoiceChat()
         }
     }
 
-    // 结束语聊
+    // 关闭语聊
     fun stopVoiceChat(callback: (Boolean) -> Unit) {
-        if (mNeedEnableVirtualHuman) {
-            innerStopEnableVirtualHuman {
-                stopVirtualHumanCallback = null
-                mAiEngine?.stopVoiceChat()
-                mMediaPlayer?.pause()
-                callback.invoke(true)
-            }
-        } else {
-            mAiEngine?.stopVoiceChat()
-            callback.invoke(true)
-            mMediaPlayer?.pause()
-        }
+        mMediaPlayer?.pause()
+        mAiEngine?.stopVoiceChat()
+        callback.invoke(true)
+        mMediaPlayer?.pause()
     }
 
     private var startVirtualHumanCallback: ((Boolean) -> Unit)? = null
@@ -446,12 +468,21 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     private fun innerStartEnableVirtualHuman(callback: (Boolean) -> Unit) {
         startVirtualHumanCallback = callback
-        mAiEngine?.enableVirtualHuman(true)
+        if (mEnableVirtualHuman) {
+            callback.invoke(true)
+        } else {
+            mAiEngine?.enableVirtualHuman(true)
+        }
     }
 
+    // 数字人关闭 rtcEngine 需要重新创建，不退出房间不关闭数字人
     private fun innerStopEnableVirtualHuman(callback: (Boolean) -> Unit) {
         stopVirtualHumanCallback = callback
-        mAiEngine?.enableVirtualHuman(false)
+        if (!mEnableVirtualHuman) {
+            callback.invoke(true)
+        } else {
+            mAiEngine?.enableVirtualHuman(false)
+        }
     }
 
     // 静音/取消静音
@@ -496,12 +527,16 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     }
 
     fun mayReleaseEngine() {
-        if (mEventResultModel.value?.event == ServiceEvent.START) {
-            stopVoiceChat {
+        innerStopEnableVirtualHuman {
+            if (mEventResultModel.value?.event == ServiceEvent.START) {
+                stopVoiceChat {
+                    innerStopEnableVirtualHuman {
+                        innerReleaseEngine()
+                    }
+                }
+            } else {
                 innerReleaseEngine()
             }
-        } else {
-            innerReleaseEngine()
         }
     }
 
@@ -510,38 +545,35 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             it.unRegisterPlayerObserver(mMediaPlayerObserver)
             it.destroy()
             mMediaPlayer = null
+            mVideoState = Constants.MediaPlayerState.PLAYER_STATE_IDLE
         }
         KeyCenter.mUserName = ""
         mMute = false
-        mFirstEnterRoom = true
         mChatMessageDataList.clear()
         AIEngine.destroy()
         mAiEngine = null
+        lastSportTxt = null
     }
 
     //===== mediaPlayer ==========
     fun startOpenVideo(texture: TextureView, url: String) {
         if (mMediaPlayer == null) {
             if (mAiEngine?.rtcEngine == null) {
+                ToastUtils.showToast("createMediaPlayer rtcEngine==null")
                 Log.d(TAG, "createMediaPlayer rtcEngine==null")
             }
             mMediaPlayer = mAiEngine?.rtcEngine?.createMediaPlayer()
         }
         if (mMediaPlayer == null) {
-            Log.d(TAG, "createMediaPlayer error")
+            ToastUtils.showToast("createMediaPlayer error")
             return
         }
+
         mMediaPlayer?.let { iMediaPlayer ->
-            if (mVideoState==Constants.MediaPlayerState.PLAYER_STATE_PAUSED){
-                iMediaPlayer.resume()
-            }else{
-                iMediaPlayer.registerPlayerObserver(mMediaPlayerObserver)
-                iMediaPlayer.setView(texture)
-                iMediaPlayer.open(url, 0)
-            }
-
+            iMediaPlayer.registerPlayerObserver(mMediaPlayerObserver)
+            iMediaPlayer.setView(texture)
+            iMediaPlayer.open(url, 0)
         }
-
     }
 
     val mVideoDuration: Int
@@ -558,46 +590,70 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     private var mVideoState: Constants.MediaPlayerState = Constants.MediaPlayerState.PLAYER_STATE_IDLE
 
+    private var lastSportTxt: SportsTextModel? = null
+    private fun checkPushTxtToTts(position: Long) {
+        if (mSportTxtByMins.isEmpty()) {
+            KeyCenter.mSportList.filter { it.time * 60 * 1000 - 500 < position && it.time * 60 * 1000 + 500 > position }
+                .let {
+                    mSportTxtByMins.addAll(it)
+                }
+        }
+        if (mSportTxtByMins.isNotEmpty()) {
+            Log.d(TAG, "onPositionChanged pushTxtToTTS mSportTxtByMins $mSportTxtByMins")
+            mSportTxtByMins.removeFirst().apply {
+                Log.d(TAG, "onPositionChanged pushTxtToTTS $time $content")
+                if (lastSportTxt?.content != content) {
+                    pushTxtToTTS(content, lastSportTxt?.time == time)
+                }
+                lastSportTxt = this
+            }
+        }
+    }
+
+    fun pushTxtToTTS(txt: String, isAppend: Boolean) {
+        mAiEngine?.pushTxtToTTS(txt, isAppend)
+        val tempSid = KeyCenter.getRandomString(20)
+        val messageModel = ChatMessageModel(
+            isAiMessage = false,
+            sid = tempSid,
+            name = "AI主播",
+            message = txt,
+        )
+        mChatMessageDataList.add(messageModel)
+        mNewLineMessageModel.value = Triple(messageModel, true, mChatMessageDataList.size - 1)
+    }
+
     private val mMediaPlayerObserver = object : IMediaPlayerObserver {
         override fun onPlayerStateChanged(state: Constants.MediaPlayerState, error: Constants.MediaPlayerError) {
             Log.d(TAG, "onPlayerStateChanged $state $error")
-            mVideoState = state
-            when (state) {
-                Constants.MediaPlayerState.PLAYER_STATE_OPEN_COMPLETED -> {
-                    mMediaPlayer?.apply {
-                        mVideoDurationData.postValue(duration)
-                        play()
+            mHandler.post {
+                mVideoState = state
+                when (state) {
+                    Constants.MediaPlayerState.PLAYER_STATE_OPEN_COMPLETED -> {
+                        mMediaPlayer?.let { iMediaPlayer ->
+                            iMediaPlayer.mute(true)
+                            mVideoDurationData.postValue(iMediaPlayer.duration)
+                            mPrepareResult.postValue(true)
+                        }
+                    }
+
+                    Constants.MediaPlayerState.PLAYER_STATE_PLAYBACK_ALL_LOOPS_COMPLETED -> {
+                        lastSportTxt = null
+                    }
+
+                    Constants.MediaPlayerState.PLAYER_STATE_PLAYING -> {
+                        mVideoStartData.postValue(true)
                     }
                 }
-
-                Constants.MediaPlayerState.PLAYER_STATE_PLAYING -> {
-                    mVideoStartData.postValue(true)
-                }
             }
+
         }
 
         override fun onPositionChanged(positionMs: Long, timestampMs: Long) {
             Log.d(TAG, "onPositionChanged $positionMs $timestampMs")
-            mMediaPlayer?.apply {
+            mHandler.post {
                 mVideoCurrentPosition.postValue(positionMs)
                 checkPushTxtToTts(positionMs)
-            }
-
-        }
-
-        private fun checkPushTxtToTts(position: Long) {
-            if (mSportTxtByMins.isEmpty()) {
-                KeyCenter.mSportList.filter { it.time * 60 * 1000 - 500 < position && it.time * 60 * 1000 + 500 > position }
-                    .let {
-                        mSportTxtByMins.addAll(it)
-                    }
-            }
-            if (mSportTxtByMins.isNotEmpty()) {
-                Log.d(TAG, "onPositionChanged pushTxtToTTS mSportTxtByMins $mSportTxtByMins")
-                mSportTxtByMins.removeFirst().apply {
-                    Log.d(TAG, "onPositionChanged pushTxtToTTS $time $content")
-                    mAiEngine?.pushTxtToTTS(content, false)
-                }
             }
         }
 

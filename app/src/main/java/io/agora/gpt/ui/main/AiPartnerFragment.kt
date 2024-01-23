@@ -15,7 +15,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import io.agora.aigc.sdk.constants.ServiceCode
 import io.agora.aigc.sdk.constants.ServiceEvent
@@ -75,14 +74,12 @@ class AiPartnerFragment : BaseFragment() {
 
     override fun initData() {
         super.initData()
-        mAiShareViewModel.mPrepareResult.observe(this, object : Observer<Boolean> {
-            override fun onChanged(t: Boolean?) {
-                mProgressLoadingDialog?.let { dialog ->
-                    if (dialog.isShowing) dialog.dismiss()
-                    mProgressLoadingDialog = null
-                }
+        mAiShareViewModel.mPrepareResult.observe(this) {
+            mProgressLoadingDialog?.let { dialog ->
+                if (dialog.isShowing) dialog.dismiss()
+                mProgressLoadingDialog = null
             }
-        })
+        }
 
         mAiShareViewModel.mEventResultModel.observe(this) { eventResult ->
             if (eventResult.event == ServiceEvent.DESTROY && eventResult.code == ServiceCode.SUCCESS) {
@@ -95,9 +92,6 @@ class AiPartnerFragment : BaseFragment() {
                         btnCalling.visibility = View.INVISIBLE
                         ivVoice.visibility = View.VISIBLE
                         ivHangUp.visibility = View.VISIBLE
-                        mMediaTextureView?.let {
-                            mAiShareViewModel.startOpenVideo(it, Constant.Sport_Video_Url)
-                        }
                     } else {
                         btnCalling.visibility = View.VISIBLE
                         ivVoice.visibility = View.INVISIBLE
@@ -110,6 +104,14 @@ class AiPartnerFragment : BaseFragment() {
                     btnCalling.visibility = View.VISIBLE
                     ivVoice.visibility = View.INVISIBLE
                     ivHangUp.visibility = View.INVISIBLE
+                }
+            }
+        }
+
+        mAiShareViewModel.mVirtualHumanStart.observe(this) {
+            if (it) {
+                mMediaTextureView?.let {
+                    mAiShareViewModel.startOpenVideo(it, Constant.Sport_Video_Url)
                 }
             }
         }
@@ -227,7 +229,7 @@ class AiPartnerFragment : BaseFragment() {
             })
             ivHangUp.setOnClickListener(object : OnFastClickListener() {
                 override fun onClickJacking(view: View) {
-                    mAiShareViewModel.stopVoiceChat {
+                    mAiShareViewModel.stopVoiceChat{
                         mBinding?.apply {
                             videoProgress.isEnabled = false
                         }
@@ -251,6 +253,18 @@ class AiPartnerFragment : BaseFragment() {
 
             videoProgress.isEnabled = false
             videoLoading.isVisible = true
+
+            ivGiftCar.setOnClickListener {
+                if (mAiShareViewModel.mEventResultModel.value?.event == ServiceEvent.START) {
+                    mAiShareViewModel.pushTxtToTTS("感谢老铁送的跑车!", false)
+                }
+
+            }
+            ivGiftMike.setOnClickListener {
+                if (mAiShareViewModel.mEventResultModel.value?.event == ServiceEvent.START) {
+                    mAiShareViewModel.pushTxtToTTS("感谢老铁送的茅子!", false)
+                }
+            }
         }
     }
 
