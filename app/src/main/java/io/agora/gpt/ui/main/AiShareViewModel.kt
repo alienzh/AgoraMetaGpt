@@ -23,6 +23,7 @@ import io.agora.aigc.sdk.model.Data
 import io.agora.aigc.sdk.model.ServiceVendor
 import io.agora.aigc.sdk.model.ServiceVendorGroup
 import io.agora.gpt.MainApplication
+import io.agora.gpt.R
 import io.agora.gpt.utils.Constant
 import io.agora.gpt.utils.KeyCenter
 import io.agora.gpt.utils.SingleLiveEvent
@@ -162,7 +163,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         val virtualHumanVendors: List<VirtualHumanVendor> = mAiEngine?.virtualHumanVendors ?: return
         Log.d(TAG, "setVirtualHumanVendors $virtualHumanVendors")
         for (virtualVendor in virtualHumanVendors) {
-            if (virtualVendor.vendorName.equals("xiaoIce", true)) {
+            if (virtualVendor.vendorName.equals("senseTime", true)) {
                 val serviceVendor = io.agora.aiengine.model.ServiceVendor().apply {
                     vendorName = virtualVendor.vendorName
                     if (virtualVendor.videos.isNotEmpty()) {
@@ -228,7 +229,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                     val messageModel = ChatMessageModel(
                         isAiMessage = true,
                         sid = tempSid,
-                        name = "AI主播",
+                        name = currentRole()?.roleName
+                            ?: MainApplication.mGlobalApplication.getString(R.string.role_foodie),
                         message = answer.data,
 //                    costTime = System.currentTimeMillis() - (mSttEndTimeMap[sid] ?: mLastSpeech2TextTime)
                     )
@@ -400,15 +402,12 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     // 获取可用的AIRole
     fun getUsableAiRoles(): List<AIRole> {
         val sdkAiRoles = mAiEngine?.roles ?: emptyArray()
-        Log.d(TAG, "sdkAiRoles：$sdkAiRoles")
+        sdkAiRoles?.forEach {
+            Log.d(TAG, "usable Ai Role：${it.toString()}")
+        }
         val sdkAiRoleMap = sdkAiRoles.associateBy { it.roleId }
 
-        val localRoleIds = if (mAiEngineConfig.mLanguage == Language.EN_US) {
-            mutableListOf(Constant.EN_Role_ID_yunibobo, Constant.EN_Role_ID_WENDY, Constant.EN_Role_ID_Cindy)
-        } else {
-            mutableListOf(Constant.CN_Role_ID_yunibobo, Constant.CN_Role_ID_jingxiang)
-        }
-
+        val localRoleIds = mutableListOf(Constant.CN_Role_ID_anchor)
         val usableAiRoles = mutableListOf<AIRole>()
         for (i in localRoleIds.indices) {
             val roleId = localRoleIds[i]
@@ -597,11 +596,13 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 .let {
                     mSportTxtByMins.addAll(it)
                 }
+            if (mSportTxtByMins.isNotEmpty()) {
+                Log.d(TAG, "pushTxtToTTS $position $mSportTxtByMins")
+            }
         }
         if (mSportTxtByMins.isNotEmpty()) {
-            Log.d(TAG, "onPositionChanged pushTxtToTTS mSportTxtByMins $mSportTxtByMins")
             mSportTxtByMins.removeFirst().apply {
-                Log.d(TAG, "onPositionChanged pushTxtToTTS $time $content")
+                Log.d(TAG, "pushTxtToTTS $position ${time}分钟 - $content")
                 if (lastSportTxt?.content != content) {
                     pushTxtToTTS(content, lastSportTxt?.time == time)
                 }
@@ -650,7 +651,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         }
 
         override fun onPositionChanged(positionMs: Long, timestampMs: Long) {
-            Log.d(TAG, "onPositionChanged $positionMs $timestampMs")
             mHandler.post {
                 mVideoCurrentPosition.postValue(positionMs)
                 checkPushTxtToTts(positionMs)

@@ -300,7 +300,7 @@ class AiPartnerFragment : BaseFragment() {
                 mAiShareViewModel.setAiRole(tempAiRole)
                 mAiShareViewModel.setServiceVendor(tempAiRole)
                 mAiShareViewModel.setVirtualHumanVendors()
-                mBinding?.btnCalling?.text = resources.getString(R.string.calling, "AI主播")
+                mBinding?.btnCalling?.text = resources.getString(R.string.calling, tempAiRole.roleName)
                 mAiShareViewModel.prepare()
             }
 

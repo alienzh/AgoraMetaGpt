@@ -148,7 +148,7 @@ class CreateRoomFragment : BaseFragment() {
     override fun initView() {
         super.initView()
         mBinding?.apply {
-            btnAiPartner.isActivated = true
+            btnAiAnchor.isActivated = true
             etNickname.doAfterTextChanged {
                 KeyCenter.mUserName = it.toString()
             }

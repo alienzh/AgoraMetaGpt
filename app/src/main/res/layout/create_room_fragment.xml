@@ -46,13 +46,13 @@
         app:layout_constraintTop_toBottomOf="@id/tvChooseScene">
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnAiPartner"
+            android:id="@+id/btnAiAnchor"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
             android:background="@drawable/bg_button_selector"
             android:gravity="center"
-            android:text="@string/game_ai_partner"
+            android:text="@string/scene_ai_anchor"
             android:textAllCaps="false"
             android:textColor="#040925"
             android:textSize="18sp" />

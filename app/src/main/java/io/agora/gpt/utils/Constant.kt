@@ -18,6 +18,7 @@ object Constant {
 
     const val CN_Role_ID_yunibobo = "yunibobo-zh-CN"
     const val CN_Role_ID_jingxiang = "jingxiang-zh-CN"
+    const val CN_Role_ID_anchor = "ai_event_anchor-zh-CN"
 
     const val Role_ID_yunibobo = "yunibobo"
     const val Role_ID_jingxiang = "jingxiang"
@@ -34,6 +35,6 @@ object Constant {
     const val Scene_AI_Partner = "scene_ai_partner"
     const val Scene_AI_Game = "scene_ai_game"
 
-    const val Sport_Video_Url = "https://agoraxcp-1258662260.cos.ap-beijing.myqcloud.com/juesaishipin1280.mp4?q-sign-algorithm=sha1&q-ak=AKIDqaBex40cKH7h9YrAsZ6ILFzWptlRvGSU&q-sign-time=1705819718;1706251718&q-key-time=1705819718;1706251718&q-header-list=&q-url-param-list=&q-signature=d057a6ba94b6ce1e3ad544db55b2b744e517c43b"
+    const val Sport_Video_Url = "https://agoraxcp-1258662260.cos.ap-beijing.myqcloud.com/qian20min-1280.mp4?q-sign-algorithm=sha1&q-ak=AKIDqaBex40cKH7h9YrAsZ6ILFzWptlRvGSU&q-sign-time=1706091092;1706955092&q-key-time=1706091092;1706955092&q-header-list=&q-url-param-list=&q-signature=d02404381e59775ea0985739e15dc1552eb43a6a"
 
 }

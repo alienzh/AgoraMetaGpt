@@ -3,8 +3,9 @@
     <string name="role">角色</string>
     <string name="create_room">创建房间</string>
     <string name="choose_scene">场景选择</string>
-    <string name="game_ai_partner">赛事直播</string>
+    <string name="game_ai_partner">AI伴侣</string>
     <string name="scene_ai_game">AI游戏</string>
+    <string name="scene_ai_anchor">AI赛事直播</string>
     <string name="nickname">昵称</string>
     <string name="random">随机</string>
     <string name="enter_nickname">请输入昵称</string>
@@ -42,6 +43,7 @@
     <string name="click_to_speak">点击说话</string>
     <string name="start_failed">start超时，请重试!</string>
     <string name="gift_text_format">感谢%1$s送的%2$s!</string>
+    <string name="role_ai_anchor">AI赛事主播</string>
 
     <string-array name="user_nickname">
         <item>James</item>

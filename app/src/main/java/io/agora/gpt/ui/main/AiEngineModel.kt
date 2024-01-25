@@ -30,4 +30,9 @@ data class ChatMessageModel constructor(
 data class SportsTextModel constructor(
     var time: Int,
     var content: String
-)
+){
+
+    override fun toString(): String {
+        return "${time}分钟 - $content"
+    }
+}
