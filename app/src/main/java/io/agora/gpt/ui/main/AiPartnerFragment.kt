@@ -75,16 +75,14 @@ class AiPartnerFragment : BaseFragment() {
     override fun initData() {
         super.initData()
         mAiShareViewModel.mPrepareResult.observe(this) {
-            mProgressLoadingDialog?.let { dialog ->
-                if (dialog.isShowing) dialog.dismiss()
-                mProgressLoadingDialog = null
-            }
+            hideLoading()
         }
 
         mAiShareViewModel.mEventResultModel.observe(this) { eventResult ->
             if (eventResult.event == ServiceEvent.DESTROY && eventResult.code == ServiceCode.SUCCESS) {
                 findNavController().popBackStack(R.id.crateRoomFragment, false)
             } else if (eventResult.event == ServiceEvent.START) {
+                hideLoading()
                 mBinding?.apply {
                     btnCalling.isEnabled = true
                     btnCalling.alpha = 1.0f
@@ -108,7 +106,7 @@ class AiPartnerFragment : BaseFragment() {
             }
         }
 
-        mAiShareViewModel.mVirtualHumanStart.observe(this) {
+        mAiShareViewModel.mStartOpenVideoEvent.observe(this) {
             if (it) {
                 mMediaTextureView?.let {
                     mAiShareViewModel.startOpenVideo(it, Constant.Sport_Video_Url)
@@ -163,6 +161,17 @@ class AiPartnerFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        hideLoading()
+    }
+
+    private fun showLoading(){
+        if (mProgressLoadingDialog == null) {
+            mProgressLoadingDialog = CustomDialog.showLoadingProgress(requireContext())
+        }
+        mProgressLoadingDialog?.show()
+    }
+
+    private fun hideLoading(){
         mProgressLoadingDialog?.let { dialog ->
             if (dialog.isShowing) dialog.dismiss()
             mProgressLoadingDialog = null
@@ -172,10 +181,7 @@ class AiPartnerFragment : BaseFragment() {
     override fun initView() {
         super.initView()
 
-        if (mProgressLoadingDialog == null) {
-            mProgressLoadingDialog = CustomDialog.showLoadingProgress(requireContext())
-        }
-        mProgressLoadingDialog?.show()
+        showLoading()
         initUnityView()
 
         mBinding?.apply {
@@ -199,17 +205,17 @@ class AiPartnerFragment : BaseFragment() {
                             ivHangUp.visibility = View.INVISIBLE
                         }
                     }
-                    if (mProgressLoadingDialog == null) {
-                        mProgressLoadingDialog = CustomDialog.showLoadingProgress(requireContext())
-                    }
-                    mProgressLoadingDialog?.show()
+                    showLoading()
                     mAiShareViewModel.mayReleaseEngine()
                     mMainHandler.removeCallbacksAndMessages(null)
                 }
             })
             btnCalling.setOnClickListener(object : OnFastClickListener() {
                 override fun onClickJacking(view: View) {
+                    showLoading()
                     mBinding?.apply {
+                        btnCalling.alpha = 0.3f
+                        btnCalling.isEnabled = false
                         mAiShareViewModel.startVoiceChat()
                     }
                 }

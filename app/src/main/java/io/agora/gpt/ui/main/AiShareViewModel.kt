@@ -57,15 +57,13 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     val mAIEngineInit: MutableLiveData<Boolean> = SingleLiveEvent()
 
-    val mVirtualHumanStart: MutableLiveData<Boolean> = SingleLiveEvent()
-    val mVirtualHumanStop: MutableLiveData<Boolean> = SingleLiveEvent()
+    val mStartOpenVideoEvent: MutableLiveData<Boolean> = SingleLiveEvent()
 
     // 禁音按钮
     private var mMute: Boolean = false
 
     val mChatMessageDataList = mutableListOf<ChatMessageModel>()
 
-    private val mNeedEnableVirtualHuman: Boolean = true
     private var mEnableVirtualHuman: Boolean = false
 
     private var mMediaPlayer: IMediaPlayer? = null
@@ -342,9 +340,7 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         Log.i(TAG, "onPrepareResult code:$code,msg:$msg")
         mHandler.post {
             if (code == ServiceCode.SUCCESS.code) {
-                innerStartEnableVirtualHuman {
-                    startVirtualHumanCallback = null
-                }
+                mStartOpenVideoEvent.postValue(true)
             } else {
                 ToastUtils.showToast("onPrepareResult code:$code,msg:$msg")
                 mPrepareResult.postValue(false)
@@ -363,7 +359,6 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
             if (code == 0) {
                 mEnableVirtualHuman = true
                 startVirtualHumanCallback?.invoke(true)
-                mVirtualHumanStart.postValue(true)
             } else {
                 ToastUtils.showToast("数字人启动失败:$msg")
                 startVirtualHumanCallback?.invoke(false)
@@ -444,12 +439,8 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     // 开启语聊
     fun startVoiceChat() {
-        if (mNeedEnableVirtualHuman) {
-            innerStartEnableVirtualHuman {
-                startVirtualHumanCallback = null
-                mAiEngine?.startVoiceChat()
-            }
-        } else {
+        innerStartEnableVirtualHuman {
+            startVirtualHumanCallback = null
             mAiEngine?.startVoiceChat()
         }
     }
@@ -457,9 +448,11 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
     // 关闭语聊
     fun stopVoiceChat(callback: (Boolean) -> Unit) {
         mMediaPlayer?.pause()
-        mAiEngine?.stopVoiceChat()
-        callback.invoke(true)
-        mMediaPlayer?.pause()
+        innerStopEnableVirtualHuman {
+            stopVirtualHumanCallback = null
+            mAiEngine?.stopVoiceChat()
+            callback.invoke(true)
+        }
     }
 
     private var startVirtualHumanCallback: ((Boolean) -> Unit)? = null
@@ -527,15 +520,20 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
 
     fun mayReleaseEngine() {
         innerStopEnableVirtualHuman {
-            if (mEventResultModel.value?.event == ServiceEvent.START) {
-                stopVoiceChat {
-                    innerStopEnableVirtualHuman {
-                        innerReleaseEngine()
-                    }
+            stopVoiceChat {
+                innerStopEnableVirtualHuman {
+                    innerReleaseEngine()
                 }
-            } else {
-                innerReleaseEngine()
             }
+//            if (mEventResultModel.value?.event == ServiceEvent.START) {
+//                stopVoiceChat {
+//                    innerStopEnableVirtualHuman {
+//                        innerReleaseEngine()
+//                    }
+//                }
+//            } else {
+//                innerReleaseEngine()
+//            }
         }
     }
 
