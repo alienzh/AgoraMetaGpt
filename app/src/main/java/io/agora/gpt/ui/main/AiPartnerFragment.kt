@@ -105,6 +105,13 @@ class AiPartnerFragment : BaseFragment() {
                         btnCalling.visibility = View.INVISIBLE
                         ivVoice.visibility = View.VISIBLE
                         ivHangUp.visibility = View.VISIBLE
+                        if (mAiShareViewModel.isAiGame() && mAiShareViewModel.isFirstEnterRoom()) {
+                            mBinding?.layoutPressTips?.isVisible = true
+                            mAiShareViewModel.setFirstEnterRoom(false)
+                            mMainHandler.postDelayed(mHideLongPressTipsTask, 5000)
+                        } else {
+                            mBinding?.layoutPressTips?.isVisible = false
+                        }
                     }else{
                         btnCalling.visibility = View.VISIBLE
                         ivVoice.visibility = View.INVISIBLE
@@ -257,13 +264,6 @@ class AiPartnerFragment : BaseFragment() {
                     btnCalling.isEnabled = false
                     btnCalling.alpha = 0.3f
                     mAiShareViewModel.startVoiceChat()
-                    if (mAiShareViewModel.isAiGame() && mAiShareViewModel.isFirstEnterRoom()) {
-                        mBinding?.layoutPressTips?.isVisible = true
-                        mAiShareViewModel.setFirstEnterRoom(false)
-                        mMainHandler.postDelayed(mHideLongPressTipsTask, 5000)
-                    } else {
-                        mBinding?.layoutPressTips?.isVisible = false
-                    }
                 }
             }
         })
