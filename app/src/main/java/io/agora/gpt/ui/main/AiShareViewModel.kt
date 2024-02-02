@@ -141,16 +141,23 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
         mAiEngine?.checkDownloadRes()
     }
 
-    // ServiceVendorGroup{
-    // sttList= [STTVendor{id='xunfei', vendorName='xunfei', accountInJson='null'},
-    // STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}],
-    // llmList=[LLMVendor{id='minimax-abab5.5-chat', vendorName='minimax', model='abab5.5-chat', accountInJson='null'},
-    // LLMVendor{id='azureOpenai-gpt-4', vendorName='azureOpenai', model='gpt-4', accountInJson='null'}],
-    // ttsList=[TTSVendor{id='microsoft-en-US-Jenny-cheerful', vendorName='microsoft', language='en-US', voiceName='Jenny', voiceNameValue='en-US-JennyNeural', voiceNameStyle='cheerful', accountInJson='null'},
-    // TTSVendor{id='microsoft-en-US-Jenny-gentle', vendorName='microsoft', language='en-US', voiceName='Jenny', voiceNameValue='en-US-JennyNeural', voiceNameStyle='gentle', accountInJson='null'},
-    // TTSVendor{id='microsoft-en-US-Davis-cheerful', vendorName='microsoft', language='en-US', voiceName='Davis', voiceNameValue='en-US-DavisNeural', voiceNameStyle='cheerful', accountInJson='null'},
-    // TTSVendor{id='elevenLabs-Matilda', vendorName='elevenLabs', language='', voiceName='Matilda', voiceNameValue='XrExE9yKIg1WjnnlVkGX', voiceNameStyle='', accountInJson='null'}]}
-
+    //ServiceVendorGroup{
+    // sttList= [
+    // STTVendor{id='xunfei', vendorName='xunfei', accountInJson='null'},
+    // STTVendor{id='microsoft', vendorName='microsoft', accountInJson='null'}
+    // ],
+    // llmList=[
+    // LLMVendor{id='minimax-abab5.5-chat', vendorName='minimax', model='abab5.5-chat', accountInJson='null'},
+    // LLMVendor{id='azureOpenai-gpt-4', vendorName='azureOpenai', model='gpt-4-turbo', accountInJson='null'},
+    // LLMVendor{id='azureOpenai-gpt-35-turbo-16k', vendorName='azureOpenai', model='gpt-35-turbo-16k', accountInJson='null'}
+    // ],
+    // ttsList=[
+    // TTSVendor{id='microsoft-zh-CN-xiaoxiao-cheerful', vendorName='microsoft', language='zh-CN', voiceName='晓晓(普通话)', voiceNameValue='zh-CN-XiaoxiaoNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='microsoft-zh-CN-xiaoyi-gentle', vendorName='microsoft', language='zh-CN', voiceName='晓伊(普通话)', voiceNameValue='zh-CN-XiaoyiNeural', voiceNameStyle='gentle', accountInJson='null'},
+    // TTSVendor{id='microsoft-zh-CN-yunxi-cheerful', vendorName='microsoft', language='zh-CN', voiceName='云希(普通话)', voiceNameValue='zh-CN-YunxiNeural', voiceNameStyle='cheerful', accountInJson='null'},
+    // TTSVendor{id='elevenLabs-Matilda', vendorName='elevenLabs', language='', voiceName='Matilda', voiceNameValue='XrExE9yKIg1WjnnlVkGX', voiceNameStyle='', accountInJson='null'},
+    // TTSVendor{id='volcEngine-girl', vendorName='volcEngine', language='zh-CN', voiceName='girl', voiceNameValue='BV406_streaming', voiceNameStyle='', accountInJson='null'},
+    // TTSVendor{id='volcEngine-boy', vendorName='volcEngine', language='zh-CN', voiceName='boy', voiceNameValue='BV705_streaming', voiceNameStyle='', accountInJson='null'}]}
     fun setServiceVendor(aiRole: AIRole) {
         val serviceVendors: ServiceVendorGroup = mAiEngine?.serviceVendors ?: return
         Log.d(TAG, "serviceVendors $serviceVendors")
@@ -190,12 +197,12 @@ class AiShareViewModel : ViewModel(), AIEngineCallback {
                 }
             } else {
                 if (aiRole.roleId.equals(Constant.CN_Role_ID_yunibobo, true) &&
-                    ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful", true)
+                    ttsVendor.id.equals("volcEngine-girl", true)
                 ) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
                 } else if (aiRole.roleId.equals(Constant.CN_Role_ID_jingxiang, true) &&
-                    ttsVendor.id.equals("microsoft-zh-CN-xiaoyi-gentle", true)
+                    ttsVendor.id.equals("microsoft-zh-CN-xiaoxiao-cheerful", true)
                 ) {
                     serviceVendor.ttsVendor = ttsVendor
                     break
